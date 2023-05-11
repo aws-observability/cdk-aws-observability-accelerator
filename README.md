@@ -1,17 +1,6 @@
-## My Project
+# AWS Observability Accelerator for AWS CDK
 
-TODO: Fill this README out!
+Welcome to the AWS Observability Accelerator for CDK!
 
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This project is licensed under the Apache-2.0 License.
-
+The AWS Observability Accelerator for CDK is a set of opinionated modules
+to help you set up observability for your AWS environments with AWS-managed observability services such as Amazon Managed Service for Prometheus,Amazon Managed Grafana, AWS Distro for OpenTelemetry (ADOT) and Amazon CloudWatch.
