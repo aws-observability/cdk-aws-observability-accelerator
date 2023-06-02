@@ -47,7 +47,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                     kind: "ExternalSecret",
                     metadata: {
                         name: "external-grafana-admin-credentials",
-                        namespace: "default"
+                        namespace: "grafana-operator"
                         },
                     spec: {
                         secretStoreRef: {

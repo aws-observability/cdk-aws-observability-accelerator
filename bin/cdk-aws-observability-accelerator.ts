@@ -14,10 +14,20 @@ const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
 const clusterName = process.env.COA_CLUSTER_NAME! || 'observability-accelarator-cluster';
 const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
 const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
-const nodeExporterDashUrl = "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json"
+
 const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 assert.ok(amgEndpointUrl, 'The "amgEndpointUrl" environment variable needs to be populated with AMG URL Endpoint');
 
+// All Grafana Dashboard URLs
+const clusterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/cluster.json"
+const kubeletDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/kubelet.json"
+const namespaceWorkloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/namespace-workloads.json"
+const nodeExporterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/nodeexporter-nodes.json"
+const nodesDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/nodes.json"
+const workloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/workloads.json"
+
+
+Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
 const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.AwsLoadBalancerControllerAddOn(),
     new blueprints.addons.VpcCniAddOn(),
@@ -36,14 +46,20 @@ const addOns: Array<blueprints.ClusterAddOn> = [
         bootstrapRepo: {
             repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
             name: "grafana-dashboards",
-            targetRevision: "main",
+            targetRevision: "feature/allDashboards",
             path: "./artifacts/grafana-operator-manifests"
         },
+        fluxTargetNamespace: "grafana-operator",
         bootstrapValues: {
             "AMG_AWS_REGION": region,
             "AMP_ENDPOINT_URL": ampPrometheusEndpoint,
             "AMG_ENDPOINT_URL": amgEndpointUrl,
-            "GRAFANA_NODEEXP_DASH_URL" : nodeExporterDashUrl
+            "GRAFANA_CLUSTER_DASH_URL" : clusterDashUrl,
+            "GRAFANA_KUBELET_DASH_URL" : kubeletDashUrl,
+            "GRAFANA_NSWRKLDS_DASH_URL" : namespaceWorkloadsDashUrl,
+            "GRAFANA_NODEEXP_DASH_URL" : nodeExporterDashUrl,
+            "GRAFANA_NODES_DASH_URL" : nodesDashUrl,
+            "GRAFANA_WORKLOADS_DASH_URL" : workloadsDashUrl
         },
     }),
     new GrafanaOperatorSecretAddon(),
