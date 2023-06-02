@@ -16,7 +16,7 @@ const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-a
 const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
 const nodeExporterDashUrl = "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json"
 const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
-assert.ok(amgEndpointUrl, 'The "amgEndpointUrl" environment variable needs to be populated with AMG URL Endpoint')
+assert.ok(amgEndpointUrl, 'The "amgEndpointUrl" environment variable needs to be populated with AMG URL Endpoint');
 
 const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.AwsLoadBalancerControllerAddOn(),
@@ -34,10 +34,10 @@ const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.GrafanaOperatorAddon(),
     new blueprints.addons.FluxCDAddOn({
         bootstrapRepo: {
-            repoUrl: 'https://github.com/aws-samples/one-observability-demo',
+            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
             name: "grafana-dashboards",
             targetRevision: "main",
-            path: "./grafana-operator-manifests"
+            path: "./artifacts/grafana-operator-manifests"
         },
         bootstrapValues: {
             "AMG_AWS_REGION": region,
