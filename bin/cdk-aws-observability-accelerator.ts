@@ -41,7 +41,9 @@ const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.AmpAddOn({
         ampPrometheusEndpoint: ampPrometheusEndpoint,
     }),
-    new blueprints.addons.GrafanaOperatorAddon(),
+    new blueprints.addons.GrafanaOperatorAddon({
+        version: 'v5.0.0-rc3'
+    }),
     new blueprints.addons.FluxCDAddOn({
         bootstrapRepo: {
             repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
