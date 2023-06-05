@@ -5,7 +5,7 @@ import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 const assert = require('assert').strict
 
-export default class SingleNewEksClusterOpenSourceConstruct {
+export default class SingleNewEksOpenSourceobservabilityConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;

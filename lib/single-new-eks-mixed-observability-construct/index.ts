@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 
-export default class SingleNewEksClusterAWSNativeConstruct {
+export default class SingleNewEksMixedobservabilityConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -19,8 +19,9 @@ export default class SingleNewEksClusterAWSNativeConstruct {
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
-            new blueprints.addons.ContainerInsightsAddOn(),
-            new blueprints.addons.AwsForFluentBitAddOn(),
+            new blueprints.addons.AdotCollectorAddOn(),
+            new blueprints.addons.CloudWatchAdotAddOn(),
+            new blueprints.addons.XrayAdotAddOn(),
         ];
 
         EksBlueprint.builder()

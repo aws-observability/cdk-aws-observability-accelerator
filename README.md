@@ -95,9 +95,9 @@ Example:
 
 Patterns:
 
-	single-new-eks-cluster-awsnative
-	single-new-eks-cluster-mixed
-	single-new-eks-cluster-opensource
+	single-new-eks-awsnative-observability
+	single-new-eks-mixed-observability
+	single-new-eks-opensource-observability
 ```
 
 - Bootstrap your CDK environment.
