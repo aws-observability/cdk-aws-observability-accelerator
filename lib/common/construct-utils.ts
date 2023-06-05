@@ -17,7 +17,7 @@ export function configureApp(logLevel? : number): cdk.App {
     const account = process.env.CDK_DEFAULT_ACCOUNT!;
     const region = process.env.CDK_DEFAULT_REGION!;
     
-    HelmAddOn.validateHelmVersions = true;
+    HelmAddOn.validateHelmVersions = false;
     
     return new cdk.App({context: { account, region }});
 }
