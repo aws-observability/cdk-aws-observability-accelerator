@@ -12,12 +12,11 @@ export default class SingleNewEksClusterOpenSourceConstruct {
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
-        const clusterName = process.env.COA_CLUSTER_NAME! || 'observability-accelarator-cluster';
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
         
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
-        assert.ok(amgEndpointUrl, 'The "amgEndpointUrl" environment variable needs to be populated with AMG URL Endpoint');
+        assert.ok(amgEndpointUrl, 'The "COA_AMG_ENDPOINT_URL" environment variable needs to be populated with AMG URL Endpoint');
 
         // All Grafana Dashboard URLs
         const clusterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/cluster.json"
@@ -41,6 +40,7 @@ export default class SingleNewEksClusterOpenSourceConstruct {
             new blueprints.addons.AmpAddOn({
                 ampPrometheusEndpoint: ampPrometheusEndpoint,
             }),
+            new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.GrafanaOperatorAddon({
                 version: 'v5.0.0-rc3'
             }),
