@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-const assert = require('assert').strict
 
 export default class SingleNewEksClusterAWSNativeConstruct {
     constructor(scope: Construct, id: string) {
@@ -11,7 +10,6 @@ export default class SingleNewEksClusterAWSNativeConstruct {
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
-        Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
             new blueprints.addons.VpcCniAddOn(),

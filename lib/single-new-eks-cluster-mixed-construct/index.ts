@@ -1,9 +1,8 @@
 import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-const assert = require('assert').strict
 
-export default class SingleNewEksClusterAWSNativeConstruct {
+export default class SingleNewEksClusterMixedConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -11,7 +10,6 @@ export default class SingleNewEksClusterAWSNativeConstruct {
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
-        Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
             new blueprints.addons.VpcCniAddOn(),
@@ -21,8 +19,9 @@ export default class SingleNewEksClusterAWSNativeConstruct {
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
-            new blueprints.addons.ContainerInsightsAddOn(),
-            new blueprints.addons.AwsForFluentBitAddOn(),
+            new blueprints.addons.AdotCollectorAddOn(),
+            new blueprints.addons.CloudWatchAdotAddOn(),
+            new blueprints.addons.XrayAdotAddOn(),
         ];
 
         EksBlueprint.builder()
