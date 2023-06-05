@@ -19,12 +19,12 @@ export default class SingleNewEksClusterOpenSourceConstruct {
         assert.ok(amgEndpointUrl, 'The "COA_AMG_ENDPOINT_URL" environment variable needs to be populated with AMG URL Endpoint');
 
         // All Grafana Dashboard URLs
-        const clusterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/cluster.json"
-        const kubeletDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/kubelet.json"
-        const namespaceWorkloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/namespace-workloads.json"
-        const nodeExporterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/nodeexporter-nodes.json"
-        const nodesDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/nodes.json"
-        const workloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/1d731aca31cdeb26e9fe9d017e609a5ba1621a30/artifacts/grafana-dashboards/workloads.json"
+        const clusterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json"
+        const kubeletDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json"
+        const namespaceWorkloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json"
+        const nodeExporterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json"
+        const nodesDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json"
+        const workloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -48,7 +48,7 @@ export default class SingleNewEksClusterOpenSourceConstruct {
                 bootstrapRepo: {
                     repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
                     name: "grafana-dashboards",
-                    targetRevision: "feature/allDashboards",
+                    targetRevision: "main",
                     path: "./artifacts/grafana-operator-manifests"
                 },
                 fluxTargetNamespace: "grafana-operator",
