@@ -91,35 +91,13 @@ Note: Some patterns have a hard dependency on AWS Secrets (for example GitHub ac
 To work with patterns use: 
         $ make pattern <pattern-name> <list | deploy | synth | destroy>
 Example:
-        $ make pattern fargate deploy 
+        $ make pattern single-new-eks-cluster-opensource deploy
 
-Patterns: 
+Patterns:
 
-        bottlerocket
-        data-at-rest
-        datadog
-        dynatrace-operator
-        ecr-image-scanning
-        emr
-        fargate
-        generic-cluster-provider
-        guardduty
-        jupyterhub
-        kasten
-        keptn-control-plane
-        kubecost
-        kubeflow
-        multi-region
-        multi-team
-        newrelic
-        nginx
-        pipeline-multienv-gitops
-        pipeline-multienv-monitoring
-        pipeline
-        rafay
-        secure-ingress-cognito
-        snyk
-        starter
+	single-new-eks-cluster-awsnative
+	single-new-eks-cluster-mixed
+	single-new-eks-cluster-opensource
 ```
 
 - Bootstrap your CDK environment.
