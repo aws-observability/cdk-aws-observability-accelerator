@@ -49,7 +49,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
                     repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
                     name: "grafana-dashboards",
                     targetRevision: "main",
-                    path: "./artifacts/grafana-operator-manifests"
+                    path: "./artifacts/grafana-operator-manifests/eks/infrastructure"
                 },
                 fluxTargetNamespace: "grafana-operator",
                 bootstrapValues: {
