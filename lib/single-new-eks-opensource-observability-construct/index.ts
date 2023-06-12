@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
+import { EksBlueprint, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
@@ -9,6 +9,13 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
+        // All Grafana Dashboard Default URLs
+        const clusterDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json"
+        const kubeletDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json"
+        const namespaceWorkloadsDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json"
+        const nodeExporterDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json"
+        const nodesDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json"
+        const workloadsDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
@@ -18,13 +25,13 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
         assert.ok(amgEndpointUrl, 'The "COA_AMG_ENDPOINT_URL" environment variable needs to be populated with AMG URL Endpoint');
 
-        // All Grafana Dashboard URLs
-        const clusterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json"
-        const kubeletDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json"
-        const namespaceWorkloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json"
-        const nodeExporterDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json"
-        const nodesDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json"
-        const workloadsDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
+        // All Grafana Dashboard URLs from `cdk.json` if present
+        const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", clusterDefaultDashUrl);
+        const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", kubeletDefaultDashUrl);
+        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", namespaceWorkloadsDefaultDashUrl);
+        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", nodeExporterDefaultDashUrl);
+        const nodesDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", nodesDefaultDashUrl);
+        const workloadsDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", workloadsDefaultDashUrl);
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [

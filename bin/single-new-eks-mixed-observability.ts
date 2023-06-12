@@ -3,4 +3,4 @@ import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();
 
-new SingleNewEksMixedobservabilityConstruct(app, 'single-new-eks-mixed-observability');
+new SingleNewEksMixedobservabilityConstruct(app, 'single-new-eks-mixed');
