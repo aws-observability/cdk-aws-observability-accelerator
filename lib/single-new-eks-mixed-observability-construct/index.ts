@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
+import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksMixedobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -9,6 +10,13 @@ export default class SingleNewEksMixedobservabilityConstruct {
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
+
+        const cloudWatchAdotAddOn = new blueprints.addons.CloudWatchAdotAddOn({
+            deploymentMode: cloudWatchDeploymentMode.DEPLOYMENT,
+            namespace: 'default',
+            name: 'adot-collector-cloudwatch',
+            metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*'],
+        });
         
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
@@ -19,8 +27,12 @@ export default class SingleNewEksMixedobservabilityConstruct {
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
+            new blueprints.addons.CloudWatchLogsAddon({
+                logGroupPrefix: `/aws/eks/${stackId}`,
+                logRetentionDays: 30
+            }),
             new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.CloudWatchAdotAddOn(),
+            cloudWatchAdotAddOn,
             new blueprints.addons.XrayAdotAddOn(),
         ];
 

@@ -43,6 +43,10 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
+            new blueprints.addons.CloudWatchLogsAddon({
+                logGroupPrefix: `/aws/eks/${stackId}`,
+                logRetentionDays: 30
+            }),
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
                 ampPrometheusEndpoint: ampPrometheusEndpoint,
