@@ -220,7 +220,7 @@ fields @timestamp, log
 | limit 100
 ```
 
-[Logs-1](../images/logs-1.png)
+![logs-1](../images/logs-1.png)
 
 ### Example - Using time series visualizations
 
@@ -243,7 +243,7 @@ fields @timestamp, log
     You can add logs in your dashboards with logs panel types or time series
     depending on your query results type.
 
-[Logs-2](../images/logs-2.png)
+![logs-2](../images/logs-2.png)
 
 !!! warning
     Querying CloudWatch logs will incur costs per GB scanned. Use small time
