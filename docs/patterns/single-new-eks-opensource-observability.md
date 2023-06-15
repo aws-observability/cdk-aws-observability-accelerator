@@ -96,10 +96,10 @@ Run update-kubeconfig command. You should be able to get the command from CDK ou
 aws eks update-kubeconfig --name single-new-eks-opensource-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-opensource-singleneweksopensourceob-82N8N3BMJYYI
 ```
 
-Let’s verify the resources created by Steps above.
+Let’s verify the resources created by steps above.
 
 ```bash
-kubectl get nodes -o wide# Output shows the EKS Managed Node group nodes
+kubectl get nodes -o wide
 ```
 Output:
 
@@ -108,6 +108,7 @@ NAME                                         STATUS   ROLES    AGE    VERSION   
 ip-10-0-104-200.us-west-2.compute.internal   Ready    <none>   2d1h   v1.25.9-eks-0a21954   10.0.104.200   <none>        Amazon Linux 2   5.10.179-168.710.amzn2.x86_64   containerd://1.6.19
 ```
 
+Next, lets verify the namespaces in the cluster:
 
 ```bash
 kubectl get ns # Output shows all namespace
@@ -129,9 +130,10 @@ opentelemetry-operator-system   Active   2d1h
 prometheus-node-exporter        Active   2d1h
 ```
 
+Next, lets verify all resources of `grafana-operator` namespace:
 
 ```bash
-kubectl get get all --namespace=grafana-operator  # Output shows Grafana Operator pods
+kubectl get all --namespace=grafana-operator
 ```
 
 Output:
