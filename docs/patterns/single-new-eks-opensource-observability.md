@@ -53,11 +53,10 @@ To visualize metrics collected, you need an Amazon Managed Grafana workspace. If
 To create a new workspace, visit [our supporting example for Grafana](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
 
 !!! note
-    For the URL `https://g-xyz.grafana-workspace.eu-central-1.amazonaws.com`, the workspace ID would be `g-xyz`
+    For the URL `https://g-xyz.grafana-workspace.us-east-1.amazonaws.com`, the workspace ID would be `g-xyz`
 
 ```bash
 export AWS_REGION=<YOUR AWS REGION>
-export AWS_ACCOUNT=
 export COA_AMG_WORKSPACE_ID=g-xxx
 export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.com
 ```
