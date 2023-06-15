@@ -4,7 +4,7 @@
 
 The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Open Source Observability pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
 
-![Architecture](./images/CDK_Architecture_diagram.png)
+![Architecture](../images/CDK_Architecture_diagram.png)
 
 Monitoring Amazon Elastic Kubernetes Service (Amazon EKS) for metrics has two categories:
 the control plane and the Amazon EKS nodes (with Kubernetes objects).
@@ -158,16 +158,16 @@ replicaset.apps/grafana-operator-866d4446bb   1         1         1       2d1h
 
 Login to your Grafana workspace and navigate to the Dashboards panel. You should see a list of dashboards under the `Observability Accelerator Dashboards`
 
-![Dashboard](./images/All-Dashboards.png)
+![Dashboard](../images/All-Dashboards.png)
 
 Open the `Node Exporter` dashboard and you should be able to view its visualization as shown below :
 
-![NodeExporter_Dashboard](./images/Node-Exporter.png)
+![NodeExporter_Dashboard](../images/Node-Exporter.png)
 
 
 Open the `Kubelet` dashboard and you should be able to view its visualization as shown below :
 
-![Kubelet_Dashboard](./images/Kubelet.png)
+![Kubelet_Dashboard](../images/Kubelet.png)
 
 From the cluster to view all dashboards as Kubernetes objects, run:
 
