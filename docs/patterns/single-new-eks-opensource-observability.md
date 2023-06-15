@@ -92,17 +92,59 @@ make pattern single-new-eks-opensource-observability deploy
 
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
 
-```sh
+```bash
 aws eks update-kubeconfig --name single-new-eks-opensource-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-opensource-singleneweksopensourceob-82N8N3BMJYYI
 ```
 
 Let’s verify the resources created by Steps above.
-```sh
-kubectl get nodes # Output shows the EKS Managed Node group nodes
+```bash
+kubectl get nodes -o wide# Output shows the EKS Managed Node group nodes
+```
+Output:
 
-kubectl get ns | kubeflow # Output shows kubeflow namespace
+``` 
+NAME                                         STATUS   ROLES    AGE    VERSION               INTERNAL-IP    EXTERNAL-IP   OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+ip-10-0-104-200.us-west-2.compute.internal   Ready    <none>   2d1h   v1.25.9-eks-0a21954   10.0.104.200   <none>        Amazon Linux 2   5.10.179-168.710.amzn2.x86_64   containerd://1.6.19
+```
 
-kubectl get pods --namespace=grafana-operator  # Output shows Grafana Operator pods
+```bash
+kubectl get ns # Output shows all namespace
+```
+
+Output:
+
+```
+NAME                            STATUS   AGE
+cert-manager                    Active   2d1h
+default                         Active   2d1h
+external-secrets                Active   2d1h
+flux-system                     Active   2d1h
+grafana-operator                Active   2d1h
+kube-node-lease                 Active   2d1h
+kube-public                     Active   2d1h
+kube-system                     Active   2d1h
+opentelemetry-operator-system   Active   2d1h
+prometheus-node-exporter        Active   2d1h
+```
+
+```bash
+kubectl get get all --namespace=grafana-operator  # Output shows Grafana Operator pods
+```
+
+Output:
+
+```
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/grafana-operator-866d4446bb-g5srl   1/1     Running   0          2d1h
+
+NAME                                       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/grafana-operator-metrics-service   ClusterIP   172.20.223.125   <none>        9090/TCP   2d1h
+
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/grafana-operator   1/1     1            1           2d1h
+
+NAME                                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/grafana-operator-866d4446bb   1         1         1       2d1h
 ```
 
 ## Visualization
