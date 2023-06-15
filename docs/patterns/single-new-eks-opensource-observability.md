@@ -42,9 +42,9 @@ git clone https://github.com/aws-observability/cdk-aws-observability-accelerator
 
 2. Install the AWS CDK Toolkit globally on your machine using
 
-    ```bash
-    npm install -g aws-cdk
-    ```
+```bash
+npm install -g aws-cdk
+```
 
 3. Amazon Managed Grafana workspace: To visualize metrics collected, you need an Amazon Managed Grafana workspace. If you have an existing workspace, create an environment variable as described below. To create a new workspace, visit [our supporting example for Grafana](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
 
