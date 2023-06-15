@@ -232,7 +232,7 @@ export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --key-name "grafana-operator-key-new" \
   --key-role "ADMIN" \
   --seconds-to-live 432000 \
-  --workspace-id <YOUR_WORKSPACE_ID> \
+  --workspace-id $COA_AMG_WORKSPACE_ID \
   --query key \
   --output text)
 ```
@@ -243,8 +243,8 @@ export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
 aws aws ssm put-parameter \
     --name "/terraform-accelerator/grafana-api-key" \
     --type "SecureString" \
-    --value "{\"GF_SECURITY_ADMIN_APIKEY\": \"${GO_AMG_API_KEY}\"}" \
-    --region <Your AWS Region>
+    --value $GO_AMG_API_KEY \
+    --region $AWS_REGION
 ```
 
 - If the issue persists, you can force the synchronization by deleting the `externalsecret` Kubernetes object.
