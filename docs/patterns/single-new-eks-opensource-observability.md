@@ -46,14 +46,10 @@ git clone https://github.com/aws-observability/cdk-aws-observability-accelerator
     npm install -g aws-cdk
     ```
 
-3. Amazon Managed Grafana workspace
-
-To visualize metrics collected, you need an Amazon Managed Grafana workspace. If you have an existing workspace, create an environment variable as described below.
-
-To create a new workspace, visit [our supporting example for Grafana](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
+3. Amazon Managed Grafana workspace: To visualize metrics collected, you need an Amazon Managed Grafana workspace. If you have an existing workspace, create an environment variable as described below. To create a new workspace, visit [our supporting example for Grafana](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
 
 !!! note
-    For the URL `https://g-xyz.grafana-workspace.us-east-1.amazonaws.com`, the workspace ID would be `g-xyz`
+    For the URL `https://g-xyz.grafana-workspace.us-east-1  .amazonaws.com`, the workspace ID would be `g-xyz`
 
 ```bash
 export AWS_REGION=<YOUR AWS REGION>
@@ -61,9 +57,7 @@ export COA_AMG_WORKSPACE_ID=g-xxx
 export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.com
 ```
 
-4. GRAFANA API KEY 
-
-Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
+4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
 
 ```bash
 export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
@@ -75,9 +69,7 @@ export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --output text)
 ```
 
-5. SSM Parameter for GRAFANA API KEY
-
-Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
+5. SSM Parameter for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
 ```bash
 aws aws ssm put-parameter \
