@@ -23,7 +23,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
                 logRetentionDays: 30
             }),
             new blueprints.addons.ContainerInsightsAddOn(),
-            new blueprints.addons.XrayAddOn()
+            // new blueprints.addons.XrayAddOn()
         ];
 
         EksBlueprint.builder()

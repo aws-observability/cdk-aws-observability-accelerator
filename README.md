@@ -20,7 +20,7 @@ To use the eks-blueprints and patterns module, you must have [Node.js](https://n
 
 ### Mac Setup:
 
-Follow the below steps to setup and leverage `eks-blueprints` and `eks-blueprints-patterns` in your local Mac laptop.
+Follow the below steps to setup and leverage `cdk-aws-observability-accelerator` in your local Mac laptop.
 
 1. Install `make` and `node` using brew
 
@@ -56,10 +56,10 @@ $ npm -v
 
 Updating npm: `sudo n stable` where stable can also be a specific version above 8.4. May require `sudo`.
 
-4. Clone the `eks-blueprints-patterns` repository
+4. Clone the `cdk-aws-observability-accelerator` repository
 
 ```
-git clone https://github.com/aws-samples/cdk-eks-blueprints-patterns.git
+git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
 ``` 
 
 PS: If you are contributing to this repo, please make sure to fork the repo, add your changes and create a PR against it.
@@ -79,7 +79,7 @@ npm i
 make build
 ```
 
-- To list the existing CDK EKS Blueprints patterns
+- To list the existing CDK AWS OBSERVABILITY ACCELERATOR PATTERNS
 
 ```
 make list
