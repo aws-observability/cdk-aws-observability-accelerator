@@ -160,12 +160,12 @@ Login to your Grafana workspace and navigate to the Dashboards panel. You should
 
 ![Dashboard](./images/All-Dashboards.png)
 
-Open a `Node Exporter` dashboard and you should be able to view its visualization as shown below :
+Open the `Node Exporter` dashboard and you should be able to view its visualization as shown below :
 
 ![NodeExporter_Dashboard](./images/Node-Exporter.png)
 
 
-Open a `Kubelet` dashboard and you should be able to view its visualization as shown below :
+Open the `Kubelet` dashboard and you should be able to view its visualization as shown below :
 
 ![Kubelet_Dashboard](./images/Kubelet.png)
 
