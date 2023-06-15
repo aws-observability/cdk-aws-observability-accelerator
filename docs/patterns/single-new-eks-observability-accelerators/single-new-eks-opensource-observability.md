@@ -60,8 +60,8 @@ export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.
 4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
 
 ```bash
-export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
-  --key-name "grafana-operator-key-new" \
+export AMG_API_KEY=$(aws grafana create-workspace-api-key \
+  --key-name "grafana-operator-key" \
   --key-role "ADMIN" \
   --seconds-to-live 432000 \
   --workspace-id $COA_AMG_WORKSPACE_ID \
@@ -69,13 +69,13 @@ export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --output text)
 ```
 
-5. SSM Parameter for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
+5. AWS Secrets Manager for GRAFANA API KEY: Update the Grafana API key secret in AWS Secrets using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
 ```bash
-aws ssm put-parameter \
-    --name "/cdk-accelerator/grafana-api-key" \
-    --type "SecureString" \
-    --value $GO_AMG_API_KEY \
+export API_KEY_SECRET_NAME="grafana-api-key"
+aws secretsmanager update-secret \
+    --secret-id $API_KEY_SECRET_NAME \
+    --secret-string "${AMG_API_KEY}" \
     --region $AWS_REGION
 ```
 
@@ -295,10 +295,10 @@ export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
 - Finally, update the Grafana API key secret in AWS Secrets Manager using the above new Grafana API key:
 
 ```bash
-aws ssm put-parameter \
-    --name "/terraform-accelerator/grafana-api-key" \
-    --type "SecureString" \
-    --value $GO_AMG_API_KEY \
+export API_KEY_SECRET_NAME="grafana-api-key"
+aws secretsmanager update-secret \
+    --secret-id $API_KEY_SECRET_NAME \
+    --secret-string "${AMG_API_KEY}" \
     --region $AWS_REGION
 ```
 
