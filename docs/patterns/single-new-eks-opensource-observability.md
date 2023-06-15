@@ -103,7 +103,7 @@ kubectl get nodes -o wide
 ```
 Output:
 
-``` 
+```console
 NAME                                         STATUS   ROLES    AGE    VERSION               INTERNAL-IP    EXTERNAL-IP   OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
 ip-10-0-104-200.us-west-2.compute.internal   Ready    <none>   2d1h   v1.25.9-eks-0a21954   10.0.104.200   <none>        Amazon Linux 2   5.10.179-168.710.amzn2.x86_64   containerd://1.6.19
 ```
@@ -116,7 +116,7 @@ kubectl get ns # Output shows all namespace
 
 Output:
 
-```
+```console
 NAME                            STATUS   AGE
 cert-manager                    Active   2d1h
 default                         Active   2d1h
@@ -138,7 +138,7 @@ kubectl get all --namespace=grafana-operator
 
 Output:
 
-```
+```console
 NAME                                    READY   STATUS    RESTARTS   AGE
 pod/grafana-operator-866d4446bb-g5srl   1/1     Running   0          2d1h
 
@@ -169,10 +169,13 @@ Open the `Kubelet` dashboard and you should be able to view its visualization as
 
 ![Kubelet_Dashboard](./images/Kubelet.png)
 
-From the cluster to view all dashboards as Kubernetes objects, run
+From the cluster to view all dashboards as Kubernetes objects, run:
+
+```bash
+kubectl get grafanadashboards -A
+```
 
 ```console
-kubectl get grafanadashboards -A
 NAMESPACE          NAME                                   AGE
 grafana-operator   cluster-grafanadashboard               138m
 grafana-operator   java-grafanadashboard                  143m
@@ -186,12 +189,11 @@ grafana-operator   workloads-grafanadashboard             13h
 
 You can inspect more details per dashboard using this command
 
-```console
+```bash
 kubectl describe grafanadashboards cluster-grafanadashboard -n grafana-operator
 ```
 
-Grafana Operator and Flux always work together to synchronize your dashboards with Git.
-If you delete your dashboards by accident, they will be re-provisioned automatically.
+Grafana Operator and Flux always work together to synchronize your dashboards with Git. If you delete your dashboards by accident, they will be re-provisioned automatically.
 
 ## Troubleshooting
 
