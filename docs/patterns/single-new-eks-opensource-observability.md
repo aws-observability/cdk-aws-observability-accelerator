@@ -97,6 +97,7 @@ aws eks update-kubeconfig --name single-new-eks-opensource-observability-acceler
 ```
 
 Let’s verify the resources created by Steps above.
+
 ```bash
 kubectl get nodes -o wide# Output shows the EKS Managed Node group nodes
 ```
@@ -106,6 +107,7 @@ Output:
 NAME                                         STATUS   ROLES    AGE    VERSION               INTERNAL-IP    EXTERNAL-IP   OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
 ip-10-0-104-200.us-west-2.compute.internal   Ready    <none>   2d1h   v1.25.9-eks-0a21954   10.0.104.200   <none>        Amazon Linux 2   5.10.179-168.710.amzn2.x86_64   containerd://1.6.19
 ```
+
 
 ```bash
 kubectl get ns # Output shows all namespace
@@ -126,6 +128,7 @@ kube-system                     Active   2d1h
 opentelemetry-operator-system   Active   2d1h
 prometheus-node-exporter        Active   2d1h
 ```
+
 
 ```bash
 kubectl get get all --namespace=grafana-operator  # Output shows Grafana Operator pods
