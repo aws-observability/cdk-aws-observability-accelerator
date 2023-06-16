@@ -23,7 +23,6 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
         
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
-        assert(amgEndpointUrl, 'The "COA_AMG_ENDPOINT_URL" environment variable needs to be populated with AMG URL Endpoint');
 
         // All Grafana Dashboard URLs from `cdk.json` if present
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", clusterDefaultDashUrl);

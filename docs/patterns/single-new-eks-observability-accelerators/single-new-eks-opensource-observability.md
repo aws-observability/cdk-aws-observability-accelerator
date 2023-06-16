@@ -57,6 +57,9 @@ export COA_AMG_WORKSPACE_ID=g-xxx
 export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.com
 ```
 
+!!! warning
+    Setting up environment variables `COA_AMG_ENDPOINT_URL` and `AWS_REGION` is mandatory for successful execution of this pattern.
+
 4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
 
 ```bash
