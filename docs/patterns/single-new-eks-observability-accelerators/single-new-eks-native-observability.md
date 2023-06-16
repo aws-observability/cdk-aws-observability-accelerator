@@ -2,9 +2,11 @@
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Native Observability pattern using AWS native tools such as CloudWatch Logs and Container Insights:
+The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Native Observability pattern using AWS native tools such as CloudWatch Logs and Container Insights.
 
-![Architecture](../images/native-arch.png)
+![Architecture](../images/cloud-native-arch.png)
+
+Amazon CloudWatch Container Insights helps customers collect, aggregate, and summarize metrics and logs from containerized applications and microservices. Metrics data is collected as performance log events using the embedded metric format. These performance log events use a structured JSON schema that enables high-cardinality data to be ingested and stored at scale. From this data, CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics. The metrics that Container Insights collects are available in CloudWatch automatic dashboard
 
 Monitoring Amazon Elastic Kubernetes Service (Amazon EKS) for metrics has two categories:
 the control plane and the Amazon EKS nodes (with Kubernetes objects).
