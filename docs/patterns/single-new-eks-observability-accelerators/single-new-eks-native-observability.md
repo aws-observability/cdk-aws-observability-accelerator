@@ -2,9 +2,9 @@
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Open Source Observability pattern using AWS native tools such as CloudWatch Logs and Container Insights:
+The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Native Observability pattern using AWS native tools such as CloudWatch Logs and Container Insights:
 
-![Architecture](../images/CDK_Architecture_diagram.png)
+![Architecture](../images/native-arch.png)
 
 Monitoring Amazon Elastic Kubernetes Service (Amazon EKS) for metrics has two categories:
 the control plane and the Amazon EKS nodes (with Kubernetes objects).
