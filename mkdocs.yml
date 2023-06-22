@@ -31,8 +31,6 @@ nav:
   - Contributors: contributors.md
 
 markdown_extensions:
-  - toc:
-      permalink: true
   - admonition
   - codehilite
   - footnotes
@@ -42,6 +40,15 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: "¤"
+  - toc:
+      permalink: true
 plugins:
   - search
