@@ -3,7 +3,7 @@ import { EksBlueprint, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
-import * as assert from "assert";
+import { TrackerStack } from '../common/usage-tracker';
 
 export default class SingleNewEksOpenSourceobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -34,6 +34,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
+
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.CoreDnsAddOn(),
@@ -42,6 +43,10 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
+            new blueprints.addons.NestedStackAddOn({
+                builder: TrackerStack.builder(),
+                id: "cdk-accelerator-tracker-stack"
+            }),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30

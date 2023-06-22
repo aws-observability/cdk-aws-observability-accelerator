@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
+import { TrackerStack } from '../common/usage-tracker';
 
 export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -18,6 +19,10 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
             new blueprints.addons.CertManagerAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
+            new blueprints.addons.NestedStackAddOn({
+                builder: TrackerStack.builder(),
+                id: "cdk-accelerator-tracker-stack"
+            }),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
