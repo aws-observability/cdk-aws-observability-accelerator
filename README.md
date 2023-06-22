@@ -7,6 +7,8 @@ to help you set up observability for your AWS environments with AWS-managed obse
 
 We provide curated metrics, logs, traces collection, alerting rules and Grafana dashboards for your EKS infrastructure, Java/JMX, NGINX based workloads and your custom applications.
 
+![Architecture](./images/CDK_Architecture_diagram.png)
+
 ## Patterns
 
 The individual patterns can be found in the `lib` directory.  Most of the patterns are self-explanatory, for some more complex examples please use this guide and docs/patterns directory for more information.
@@ -165,7 +167,7 @@ await prevalidateSecrets("my-pattern-name", 'us-east-1', 'my-secret-name'); //
 
 ## Security
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+See [CONTRIBUTING](./contributors.md#security-issue-notifications) for more information.
 
 ## License
 

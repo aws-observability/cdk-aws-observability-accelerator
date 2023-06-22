@@ -1,0 +1,54 @@
+site_name: AWS Observability Accelerator for CDK
+docs_dir: "docs"
+copyright: "Copyright &copy; Amazon 2022"
+site_author: "AWS"
+site_url: "https://aws-observability.github.io/cdk-aws-observability-accelerator/"
+repo_name: "aws-observability/cdk-aws-observability-accelerator"
+repo_url: "https://github.com/aws-observability/cdk-aws-observability-accelerator"
+
+theme:
+  logo: ../images/aws-logo.png
+  favicon: ../images/aws-favicon.png
+  name: material
+  font:
+    text: ember
+  custom_dir: docs/overrides
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs.sticky
+
+  palette:
+    primary: indigo
+    accent: grey
+
+nav:
+  - Home: index.md
+  - Amazon EKS:
+    - Single Cluster AWS Native Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-native-observability.md
+    - Single Cluster Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
+  - Support & Feedback: support.md
+  - Contributors: contributors.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - pymdownx.critic
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: "¤"
+  - toc:
+      permalink: true
+plugins:
+  - search
