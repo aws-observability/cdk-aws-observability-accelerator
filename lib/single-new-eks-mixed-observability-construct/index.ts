@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
-import { TrackerStack } from '../common/usage-tracker';
+import { ObservabilityBuilder } from '../common/observabilityBuilder';
 
 export default class SingleNewEksMixedobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -21,8 +21,8 @@ export default class SingleNewEksMixedobservabilityConstruct {
         
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.NestedStackAddOn({
-                builder: TrackerStack.builder(),
-                id: "cdk-accelerator-tracker-stack"
+                builder: ObservabilityBuilder.builder(),
+                id: "observability-builder"
             }),
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
             new blueprints.addons.VpcCniAddOn(),

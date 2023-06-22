@@ -6,19 +6,19 @@ import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
 /**
  * Nested stack that is used as tracker for Observability Accelerator
  */
-export class TrackerStack extends NestedStack {
+export class ObservabilityBuilder extends NestedStack {
 
     static readonly USAGE_ID = "qp-1u9l111l0";
 
     public static builder(): blueprints.NestedStackBuilder {
         return {
             build(scope: Construct, id: string, props: NestedStackProps) {
-                return new TrackerStack(scope, id, props);
+                return new ObservabilityBuilder(scope, id, props);
             }
         };
     }
 
     constructor(scope: Construct, id: string, props: NestedStackProps) {
-        super(scope, id, utils.withUsageTracking(TrackerStack.USAGE_ID, props));
+        super(scope, id, utils.withUsageTracking(ObservabilityBuilder.USAGE_ID, props));
     }
 }
