@@ -27,12 +27,12 @@ export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
         // All Grafana Dashboard URLs from `cdk.json` if present
-        const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", clusterDefaultDashUrl);
-        const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", kubeletDefaultDashUrl);
-        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", namespaceWorkloadsDefaultDashUrl);
-        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", nodeExporterDefaultDashUrl);
-        const nodesDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", nodesDefaultDashUrl);
-        const workloadsDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", workloadsDefaultDashUrl);
+        const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
+        const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
+        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
+        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodexporter.dashboard.url", undefined);
+        const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
+        const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [

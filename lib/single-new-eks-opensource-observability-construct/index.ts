@@ -24,10 +24,10 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         // All Grafana Dashboard URLs from `cdk.json` if presentgi
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
         const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-        const nodesDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-        const workloadsDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
+        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
+        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodexporter.dashboard.url", undefined);
+        const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
+        const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
 
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
