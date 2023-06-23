@@ -7,11 +7,13 @@ to help you set up observability for your AWS environments with AWS Native servi
 
 We provide curated metrics, logs, traces collection, alerting rules and Grafana dashboards for your EKS infrastructure, Java/JMX, NGINX based workloads and your custom applications.
 
-![AWSNative-Architecture](./images/CDK_Architecture_diagram.png)
+## Single EKS Cluster AWS Native Observability Accelerator
 
+![AWSNative-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/cloud-native-arch.png)
 
+## Singe EKS Cluster Open Source Observability Accelerator
 
-![OpenSource-Architecture](./images/cloud-native-arch.png)
+![OpenSource-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/CDK_Architecture_diagram.png)
 
 ## Patterns
 
