@@ -1,5 +1,4 @@
 import { Construct } from 'constructs';
-import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '../common/observability-builder';

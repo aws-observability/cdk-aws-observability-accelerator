@@ -21,13 +21,14 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
 
         assert(amgEndpointUrl, "AMG Endpoint env variable is mandatory");
 
-        // All Grafana Dashboard URLs from `cdk.json` if present
+        // All Grafana Dashboard URLs from `cdk.json` if presentgi
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
         const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
         const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
         const nodeExporterDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
         const nodesDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
         const workloadsDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
+
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
