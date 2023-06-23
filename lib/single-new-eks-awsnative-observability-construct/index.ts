@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { EksBlueprint } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { ObservabilityBuilder } from '../common/observabilityBuilder';
+import { ObservabilityBuilder } from '../common/observability-builder';
 
 export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -12,17 +12,6 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.VpcCniAddOn(),
-            new blueprints.addons.CoreDnsAddOn(),
-            new blueprints.addons.KubeProxyAddOn(),
-            new blueprints.addons.CertManagerAddOn(),
-            new blueprints.addons.KubeStateMetricsAddOn(),
-            new blueprints.addons.PrometheusNodeExporterAddOn(),
-            new blueprints.addons.NestedStackAddOn({
-                builder: ObservabilityBuilder.builder(),
-                id: "observability-builder"
-            }),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
@@ -31,7 +20,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
             // new blueprints.addons.XrayAddOn()
         ];
 
-        EksBlueprint.builder()
+        ObservabilityBuilder.builder()
             .account(account)
             .region(region)
             .addOns(...addOns)
