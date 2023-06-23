@@ -19,7 +19,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
-        assert(amgEndpointUrl, "AMG Endpoint env variable is mandatory");
+        assert(amgEndpointUrl, "AMG Endpoint URL environmane variable COA_AMG_ENDPOINT_URL is mandatory");
 
         // All Grafana Dashboard URLs from `cdk.json` if presentgi
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
