@@ -22,7 +22,7 @@ export class ObservabilityBuilder {
                 new blueprints.addons.ExternalsSecretsAddOn(),
                 new blueprints.addons.CertManagerAddOn(),
                 new blueprints.addons.PrometheusNodeExporterAddOn(),
-                new blueprints.addons.KubeStateMetricsAddOn())
+                new blueprints.addons.KubeStateMetricsAddOn());
     }
 }
 
