@@ -75,11 +75,13 @@ export AMG_API_KEY=$(aws grafana create-workspace-api-key \
 5. AWS Secrets Manager for GRAFANA API KEY: Update the Grafana API key secret in AWS Secrets using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
 ```bash
-export API_KEY_SECRET_NAME="grafana-api-key"
-aws secretsmanager update-secret \
-    --secret-id $API_KEY_SECRET_NAME \
+aws secretsmanager create-secret \
+    --name grafana-api-key \
+    --description "API Key of your Grafana Instance" \
     --secret-string "${AMG_API_KEY}" \
-    --region $AWS_REGION
+    --region $AWS_REGION \
+    --query ARN \
+    --output text
 ```
 
 6. Install project dependencies by running `npm install` in the main folder of this cloned repository. 
