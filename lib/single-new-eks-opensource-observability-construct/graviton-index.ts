@@ -11,13 +11,6 @@ export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
-        // All Grafana Dashboard Default URLs
-        const clusterDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json";
-        const kubeletDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json";
-        const namespaceWorkloadsDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json";
-        const nodeExporterDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json";
-        const nodesDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json";
-        const workloadsDefaultDashUrl = "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json";
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
@@ -30,7 +23,7 @@ export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
         const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
         const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
-        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodexporter.dashboard.url", undefined);
+        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
         const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
         const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
 
@@ -83,7 +76,7 @@ export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
             version: eks.KubernetesVersion.of("1.27"),
             instanceTypes: [new ec2.InstanceType("m7g.large")],
             amiType: eks.NodegroupAmiType.AL2_ARM_64,
-        }
+        };
 
         EksBlueprint.builder()
             .account(account)
