@@ -1,4 +1,4 @@
-# Singe New EKS Cluster Open Source Observability Accelerator
+# Single New EKS Cluster Open Source Observability Accelerator on Graviton
 
 ## Architecture
 
