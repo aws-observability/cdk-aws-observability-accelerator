@@ -3,4 +3,4 @@ import SingleNewEksOpenSourceGravitonObservabilityConstruct from '../lib/single-
 
 const app = configureApp();
 
-new SingleNewEksOpenSourceGravitonObservabilityConstruct(app, 'single-new-eks-opensource-graviton')
+new SingleNewEksOpenSourceGravitonObservabilityConstruct(app, 'single-new-eks-opensource-graviton');
