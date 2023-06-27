@@ -1,6 +1,5 @@
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
-import * as eks from 'aws-cdk-lib/aws-eks'
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 

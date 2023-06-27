@@ -4,8 +4,6 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '../common/observability-builder';
-import * as eks from 'aws-cdk-lib/aws-eks';
-import * as assert from "assert";
 
 
 export default class SingleNewEksOpenSourceobservabilityConstruct {

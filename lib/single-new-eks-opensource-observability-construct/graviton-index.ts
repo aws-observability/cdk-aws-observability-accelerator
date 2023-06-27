@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { EksBlueprint, utils } from '@aws-quickstart/eks-blueprints';
+import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
