@@ -1,5 +1,6 @@
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
+import * as eks from 'aws-cdk-lib/aws-eks'
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -17,7 +18,6 @@ export class ObservabilityBuilder {
                 new blueprints.addons.AwsLoadBalancerControllerAddOn(),
                 new blueprints.addons.VpcCniAddOn(),
                 new blueprints.addons.CoreDnsAddOn(),
-                new blueprints.addons.KubeProxyAddOn(),
                 new blueprints.addons.MetricsServerAddOn(),
                 new blueprints.addons.ExternalsSecretsAddOn(),
                 new blueprints.addons.CertManagerAddOn(),

@@ -5,9 +5,9 @@ import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as assert from "assert";
+import { ObservabilityBuilder } from '../common/observability-builder';
 
-export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
+export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -29,14 +29,7 @@ export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.VpcCniAddOn(),
-            new blueprints.addons.CoreDnsAddOn(),
             new blueprints.addons.KubeProxyAddOn("v1.27.1-eksbuild.1"),
-            new blueprints.addons.CertManagerAddOn(),
-            new blueprints.addons.ExternalsSecretsAddOn(),
-            new blueprints.addons.PrometheusNodeExporterAddOn(),
-            new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
@@ -78,7 +71,7 @@ export default class SingleNewEksOpenSourceGravitonObservabilityConstruct {
             amiType: eks.NodegroupAmiType.AL2_ARM_64,
         };
 
-        EksBlueprint.builder()
+        ObservabilityBuilder.builder()
             .account(account)
             .region(region)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))

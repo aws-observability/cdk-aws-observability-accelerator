@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator on Graviton
+# Single New EKS Graviton Cluster Open Source Observability Accelerator
 
 ## Architecture
 
@@ -11,6 +11,10 @@ the control plane and the Amazon EKS nodes (with Kubernetes objects).
 The Amazon EKS control plane consists of control plane nodes that run the Kubernetes software,
 such as etcd and the Kubernetes API server. To read more on the components of an Amazon EKS cluster,
 please read the [service documentation](https://docs.aws.amazon.com/eks/latest/userguide/clusters.html).
+
+### Graviton
+
+[AWS Graviton](https://aws.amazon.com/ec2/graviton/) Processors are designed by AWS to deliver the best price to performance for your cloud workloads running in Amazon EC2.  These processors are ARM chips running on aarch64 architecture. These processors feature key capabilities, such as the [AWS Nitro System](https://aws.amazon.com/ec2/nitro/), that allow you to securely run cloud native applications at scale.
 
 ## Objective
 
@@ -105,7 +109,7 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
 
 ```bash
 make build
-make pattern single-new-eks-opensource-observability-graviton deploy
+make pattern single-new-eks-graviton-opensource-observability deploy
 ```
 
 ## Verify the resources
@@ -113,7 +117,7 @@ make pattern single-new-eks-opensource-observability-graviton deploy
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
 
 ```bash
-aws eks update-kubeconfig --name single-new-eks-opensource-graviton-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-opensource-singleneweksopensourceob-82N8N3BMJYYI
+aws eks update-kubeconfig --name single-new-eks-graviton-opensource-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-gravitonop-singleneweksgravitonopens-82N8N3BMJYYI
 ```
 
 Let’s verify the resources created by steps above.
