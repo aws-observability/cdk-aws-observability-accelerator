@@ -16,6 +16,8 @@ please read the [service documentation](https://docs.aws.amazon.com/eks/latest/u
 
 [AWS Graviton](https://aws.amazon.com/ec2/graviton/) Processors are designed by AWS to deliver the best price to performance for your cloud workloads running in Amazon EC2.  These processors are ARM chips running on aarch64 architecture. These processors feature key capabilities, such as the [AWS Nitro System](https://aws.amazon.com/ec2/nitro/), that allow you to securely run cloud native applications at scale.
 
+Visit our [EKS Blueprints docs](https://github.com/aws-quickstart/cdk-eks-blueprints/blob/main/docs/addons/index.md) for a list of supported addons on Graviton.
+
 ## Objective
 
 - Deploys one production grade Amazon EKS cluster running on a Graviton3 Processor
