@@ -3,10 +3,11 @@ import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
+import * as eks from 'aws-cdk-lib/aws-eks';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ObservabilityBuilder } from '../common/observability-builder';
 
-
-export default class SingleNewEksOpenSourceobservabilityConstruct {
+export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -18,9 +19,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
-        // assert(amgEndpointUrl, "AMG Endpoint URL environmane variable COA_AMG_ENDPOINT_URL is mandatory");
-
-        // All Grafana Dashboard URLs from `cdk.json` if presentgi
+        // All Grafana Dashboard URLs from `cdk.json` if present
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
         const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
         const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
@@ -28,10 +27,9 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
         const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
 
-
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.KubeProxyAddOn(),
+            new blueprints.addons.KubeProxyAddOn("v1.27.1-eksbuild.1"),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
@@ -67,10 +65,17 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new GrafanaOperatorSecretAddon(),
         ];
 
+        const mngProps: blueprints.MngClusterProviderProps = {
+            version: eks.KubernetesVersion.of("1.27"),
+            instanceTypes: [new ec2.InstanceType("m7g.large")],
+            amiType: eks.NodegroupAmiType.AL2_ARM_64,
+        };
+
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
+            .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .addOns(...addOns)
             .build(scope, stackId);
     }

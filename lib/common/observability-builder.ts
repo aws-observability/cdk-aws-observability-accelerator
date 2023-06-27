@@ -17,7 +17,6 @@ export class ObservabilityBuilder {
                 new blueprints.addons.AwsLoadBalancerControllerAddOn(),
                 new blueprints.addons.VpcCniAddOn(),
                 new blueprints.addons.CoreDnsAddOn(),
-                new blueprints.addons.KubeProxyAddOn(),
                 new blueprints.addons.MetricsServerAddOn(),
                 new blueprints.addons.ExternalsSecretsAddOn(),
                 new blueprints.addons.CertManagerAddOn(),

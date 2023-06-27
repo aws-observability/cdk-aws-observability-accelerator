@@ -1,10 +1,10 @@
-# Single New EKS Cluster Open Source Observability Accelerator
+# Single New EKS Graviton Cluster Open Source Observability Accelerator
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Open Source Observability pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
+The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Open Source Observability on Graviton pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
 
-![Architecture](../images/CDK_Architecture_diagram.png)
+![Architecture](../images/CDK_Architecture_graviton_diagram.png)
 
 Monitoring Amazon Elastic Kubernetes Service (Amazon EKS) for metrics has two categories:
 the control plane and the Amazon EKS nodes (with Kubernetes objects).
@@ -12,9 +12,15 @@ The Amazon EKS control plane consists of control plane nodes that run the Kubern
 such as etcd and the Kubernetes API server. To read more on the components of an Amazon EKS cluster,
 please read the [service documentation](https://docs.aws.amazon.com/eks/latest/userguide/clusters.html).
 
+### Graviton
+
+[AWS Graviton](https://aws.amazon.com/ec2/graviton/) Processors are designed by AWS to deliver the best price to performance for your cloud workloads running in Amazon EC2.  These processors are ARM chips running on aarch64 architecture. These processors feature key capabilities, such as the [AWS Nitro System](https://aws.amazon.com/ec2/nitro/), that allow you to securely run cloud native applications at scale.
+
+Visit our [EKS Blueprints docs](https://github.com/aws-quickstart/cdk-eks-blueprints/blob/main/docs/addons/index.md) for a list of supported addons on Graviton.
+
 ## Objective
 
-- Deploys one production grade Amazon EKS cluster.
+- Deploys one production grade Amazon EKS cluster running on a Graviton3 Processor
 - AWS Distro For OpenTelemetry Operator and Collector for Metrics and Traces
 - Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit)
 - Installs Grafana Operator to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
@@ -105,7 +111,7 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
 
 ```bash
 make build
-make pattern single-new-eks-opensource-observability deploy
+make pattern single-new-eks-graviton-opensource-observability deploy
 ```
 
 ## Verify the resources
@@ -113,7 +119,7 @@ make pattern single-new-eks-opensource-observability deploy
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
 
 ```bash
-aws eks update-kubeconfig --name single-new-eks-opensource-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-opensource-singleneweksopensourceob-82N8N3BMJYYI
+aws eks update-kubeconfig --name single-new-eks-graviton-opensource-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-gravitonop-singleneweksgravitonopens-82N8N3BMJYYI
 ```
 
 Let’s verify the resources created by steps above.
@@ -125,7 +131,7 @@ Output:
 
 ```console
 NAME                                         STATUS   ROLES    AGE    VERSION               INTERNAL-IP    EXTERNAL-IP   OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
-ip-10-0-104-200.us-west-2.compute.internal   Ready    <none>   2d1h   v1.25.9-eks-0a21954   10.0.104.200   <none>        Amazon Linux 2   5.10.179-168.710.amzn2.x86_64   containerd://1.6.19
+ip-10-0-104-200.us-west-2.compute.internal   Ready    <none>   2d1h   v1.27.1-eks-2f008fe   10.0.104.200   <none>        Amazon Linux 2   5.10.179-168.710.amzn2.aarch64   containerd://1.6.19
 ```
 
 Next, lets verify the namespaces in the cluster:
