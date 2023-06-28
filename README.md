@@ -21,7 +21,7 @@ The individual patterns can be found in the `lib` directory.  Most of the patter
 
 ## Documentation
 
-Please refer to the AWS CDK Observability Accelertor [documentation site](tbd) for complete project documentation.
+Please refer to the AWS CDK Observability Accelertor [documentation site](https://aws-observability.github.io/cdk-aws-observability-accelerator/) for complete project documentation.
 
 ## Usage
 Before proceeding, make sure [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) is installed on your machine.
