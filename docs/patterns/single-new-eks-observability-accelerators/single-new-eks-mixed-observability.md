@@ -8,6 +8,8 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 This example makes use of CloudWatch as a metric and log aggregation layer while X-Ray is used as a trace-aggregation layer. In order to collect the metrics and traces we use the Open Source ADOT collector. Fluent Bit is used to export the logs to CloudWatch Logs.
 
+In this architecture AWS X-Ray provides a complete view of requests as they travel through your application and filters visual data across payloads, functions, traces, services, and APIs. X-Ray also allows you to perform analytics to gain powerful insights about your distributed trace data.
+
 Utilizing CloudWatch and X-Ray as an aggregation layer allows for a fully-managed scalable telemetry backend. In this example we get those benefits while still having the flexibility and rapid development of the Open Source collection tools.
 
 ## Objective
@@ -45,7 +47,7 @@ npm install -g aws-cdk
 
 ```bash
 make build
-make pattern single-new-eks-native-observability deploy
+make pattern single-new-eks-mixed-observability deploy
 ```
 
 ## Verify the resources
