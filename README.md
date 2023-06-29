@@ -121,7 +121,7 @@ npx cdk bootstrap
 - You can then deploy a specific pattern with the following:
 
 ```
-make pattern multi-team deploy
+make pattern single-new-eks-opensource-observability deploy
 ```
 
 # Developer Flow
