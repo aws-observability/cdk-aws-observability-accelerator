@@ -155,9 +155,9 @@ new SingleNewEksOpenSourceobservabilityConstruct(app, 'single-new-eks-opensource
  // configureApp() will create app and configure loggers and perform other prep steps
 ```
 
-## Contribution
+## Security
 
-See [CONTRIBUTING](./CONTRIBUTING.md) for more information.
+See [CONTRIBUTING](./contributors.md#security-issue-notifications) for more information.
 
 ## License
 
