@@ -31,7 +31,7 @@ compile:
 
 list: 
 	@$ echo "To work with patterns use: \n\t$$ make pattern <pattern-name> <list | deploy | synth | destroy>" 
-	@$ echo "Example:\n\t$$ make pattern fargate deploy \n\nPatterns: \n" 
+	@$ echo "Example:\n\t$$ make pattern single-new-eks-opensource-observability deploy \n\nPatterns: \n" 
 	@$ $(foreach pattern, $(formatted_pattern_names),  echo "\t$(pattern)";)
 
 mkdocs:
