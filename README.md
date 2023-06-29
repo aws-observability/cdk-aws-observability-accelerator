@@ -52,7 +52,7 @@ sudo n stable
 
 ```bash
 $ node -v
-v18.12.1
+v20.3.1
 ```
 
 Update (provided Node version manager is installed): `n stable`. May require `sudo`.
@@ -61,7 +61,7 @@ Update (provided Node version manager is installed): `n stable`. May require `su
 
 ```bash
 $ npm -v
-8.19.2
+9.7.2
 ```
 
 Updating npm: `sudo n stable` where stable can also be a specific version above 8.4. May require `sudo`.
@@ -98,14 +98,16 @@ make list
 Note: Some patterns have a hard dependency on AWS Secrets (for example GitHub access tokens). Initially you will see errors complaining about lack of the required secrets. It is normal. At the bottom, it will show the list of patterns which can be deployed, in case the pattern you are looking for is not available, it is due to the hard dependency which can be fixed by following the docs specific to those patterns.
 
 ```
-To work with patterns use: 
-        $ make pattern <pattern-name> <list | deploy | synth | destroy>
+To work with patterns use:
+	$ make pattern <pattern-name> <list | deploy | synth | destroy>
 Example:
-        $ make pattern single-new-eks-cluster-opensource deploy
+	$ make pattern single-new-eks-opensource-observability deploy
 
 Patterns:
 
 	single-new-eks-awsnative-observability
+	single-new-eks-cluster
+	single-new-eks-graviton-opensource-observability
 	single-new-eks-mixed-observability
 	single-new-eks-opensource-observability
 ```
@@ -153,9 +155,9 @@ new SingleNewEksOpenSourceobservabilityConstruct(app, 'single-new-eks-opensource
  // configureApp() will create app and configure loggers and perform other prep steps
 ```
 
-## Security
+## Contribution
 
-See [CONTRIBUTING](./contributors.md#security-issue-notifications) for more information.
+See [CONTRIBUTING](./CONTRIBUTING.md) for more information.
 
 ## License
 
