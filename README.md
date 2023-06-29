@@ -144,31 +144,13 @@ To create a new pattern, please follow these steps:
 
 Example simple synchronous pattern:
 ```typescript
+import SingleNewEksOpenSourceobservabilityConstruct from '../lib/single-new-eks-opensource-observability-construct';
 import { configureApp } from '../lib/common/construct-utils';
-import FargateConstruct from '../lib/fargate-construct';
-
-new FargateConstruct(configureApp(), 'fargate'); // configureApp() will create app and configure loggers and perform other prep steps
-```
-
-4. In some cases, patterns need to use async APIs. For example, they may rely on external secrets that you want to validate ahead of the pattern deployment. 
-
-Example async pattern:
-
-```typescript
-import { configureApp, errorHandler } from '../lib/common/construct-utils';
 
 const app = configureApp();
 
-new NginxIngressConstruct().buildAsync(app, 'nginx').catch((e) => {
-    errorHandler(app, "NGINX Ingress pattern is not setup. This maybe due to missing secrets for ArgoCD admin pwd.", e);
-});
-```
-
-5. There are a few utility functions that can be used in the pattern implementation such as secret prevalidation. This function will fail if the corresponding secret is not defined, this preventing the pattern to deploy. 
-
-```typescript
-await prevalidateSecrets(NginxIngressConstruct.name, undefined, SECRET_ARGO_ADMIN_PWD); 
-await prevalidateSecrets("my-pattern-name", 'us-east-1', 'my-secret-name'); // 
+new SingleNewEksOpenSourceobservabilityConstruct(app, 'single-new-eks-opensource');
+ // configureApp() will create app and configure loggers and perform other prep steps
 ```
 
 ## Security
