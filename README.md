@@ -157,7 +157,7 @@ new SingleNewEksOpenSourceobservabilityConstruct(app, 'single-new-eks-opensource
 
 ## Security
 
-See [CONTRIBUTING](./contributors.md#security-issue-notifications) for more information.
+See [CONTRIBUTING](./CONTRIBUTING.md#security-issue-notifications) for more information.
 
 ## License
 
