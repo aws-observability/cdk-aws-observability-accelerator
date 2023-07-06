@@ -1,10 +1,11 @@
 // import { Construct } from 'constructs';
-import { utils } from '@aws-quickstart/eks-blueprints';
+import { ImportClusterProvider, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '../common/observability-builder';
 import * as cdk from "aws-cdk-lib";
+import * as eks from 'aws-cdk-lib/aws-eks';
 
 export default class ExistingEksOpenSourceobservabilityConstruct {
     async buildAsync(scope: cdk.App, id: string) {
@@ -12,6 +13,7 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
         const stackId = `${id}-observability-accelerator`;
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
         const kubectlRoleName = utils.valueFromContext(scope, "existing.kubectl.rolename", undefined);
+        const kubectlRoleArn = utils.valueFromContext(scope, "existing.kubectl.rolearn", undefined);
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
@@ -22,13 +24,24 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
         const sdkCluster = await blueprints.describeCluster(clusterName, region); // get cluster information using EKS APIs
         const vpcId = sdkCluster.resourcesVpcConfig?.vpcId;
 
-        /**
-         * Assumes the supplied role is registered in the target cluster for kubectl access.
-         */
-        const importClusterProvider = blueprints.ImportClusterProvider.fromClusterAttributes(
-            sdkCluster, 
-            blueprints.getResource(context => new blueprints.LookupRoleProvider(kubectlRoleName).provide(context))
-        );
+        const importClusterProvider = new ImportClusterProvider({
+            clusterName: sdkCluster.name!,
+            version: eks.KubernetesVersion.of(sdkCluster.version!),
+            clusterEndpoint: sdkCluster.endpoint,
+            openIdConnectProvider: blueprints.getResource(context =>
+                new blueprints.LookupOpenIdConnectProvider(sdkCluster.identity!.oidc!.issuer!).provide(context)),
+            clusterCertificateAuthorityData: sdkCluster.certificateAuthority?.data,
+            kubectlRoleArn: blueprints.getResource(context => new blueprints.LookupRoleProvider(kubectlRoleName).provide(context)).roleArn,
+            clusterHandlerSecurityGroupId: sdkCluster.resourcesVpcConfig?.clusterSecurityGroupId
+        });
+
+        // /**
+        //  * Assumes the supplied role is registered in the target cluster for kubectl access.
+        //  */
+        // const importClusterProvider = blueprints.ImportClusterProvider.fromClusterAttributes(
+        //     sdkCluster, 
+        //     blueprints.getResource(context => new blueprints.LookupRoleProvider(kubectlRoleName).provide(context)),
+        // );
 
         // All Grafana Dashboard URLs from `cdk.json` if presentgi
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
