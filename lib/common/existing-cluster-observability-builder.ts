@@ -3,22 +3,17 @@ import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-
-
-export class ObservabilityBuilder {
+export class ExistingClusterObservabilityBuilder {
 
     public static builder(): blueprints.BlueprintBuilder {
         return new blueprints.BlueprintBuilder()
             .addOns(
+                new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+                new blueprints.addons.CertManagerAddOn(),
                 new blueprints.NestedStackAddOn({
                     id: "usage-tracking-addon",
                     builder: UsageTrackingAddOn.builder(),
-                }),
-                new blueprints.addons.VpcCniAddOn(),
-                new blueprints.addons.CoreDnsAddOn(),
-                new blueprints.addons.MetricsServerAddOn(),
-                new blueprints.addons.PrometheusNodeExporterAddOn(),
-                new blueprints.addons.KubeStateMetricsAddOn());
+                }));
     }
 }
 

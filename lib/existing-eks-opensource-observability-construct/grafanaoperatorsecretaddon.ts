@@ -16,7 +16,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                     apiVersion: "external-secrets.io/v1beta1",
                     kind: "ClusterSecretStore",
                     metadata: {
-                        name: "secret-manager-store",
+                        name: "ssm-parameter-store",
                         namespace: "default"
                     },
                     spec: {
@@ -51,7 +51,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                     },
                     spec: {
                         secretStoreRef: {
-                            name: "secret-manager-store",
+                            name: "ssm-parameter-store",
                             kind: "ClusterSecretStore",
                         },
                         target: {

@@ -20,6 +20,8 @@ export default class SingleNewEksMixedobservabilityConstruct {
         
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.KubeProxyAddOn(),
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
