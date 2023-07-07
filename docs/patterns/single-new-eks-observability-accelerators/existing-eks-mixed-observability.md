@@ -17,7 +17,7 @@ After deploying this pattern you will have the same setup as in [_Single New EKS
 ...
 ```
 
-2. Run the following command from the root of this repository to deploy the pipeline stack:
+3. Run the following command from the root of this repository to deploy the pipeline stack:
 
 ```bash
 make build
