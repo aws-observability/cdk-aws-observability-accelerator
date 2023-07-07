@@ -3,8 +3,6 @@ import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-
-
 export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
 
     public addNewClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
@@ -30,12 +28,6 @@ export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
                 builder: UsageTrackingAddOn.builder(),
             }));
         return builder;
-
-                // new blueprints.addons.VpcCniAddOn(),
-                // new blueprints.addons.CoreDnsAddOn(),
-                // new blueprints.addons.MetricsServerAddOn(),
-                // new blueprints.addons.PrometheusNodeExporterAddOn(),
-                // new blueprints.addons.KubeStateMetricsAddOn());
     }
 }
 
