@@ -11,6 +11,7 @@ export default class SingleNewEksConstruct {
         
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.KubeProxyAddOn(),
+            new blueprints.addons.ClusterAutoScalerAddOn()
         ];
 
         ObservabilityBuilder.builder()

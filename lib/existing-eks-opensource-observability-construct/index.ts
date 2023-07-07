@@ -23,6 +23,10 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
         const sdkCluster = await blueprints.describeCluster(clusterName, region); // get cluster information using EKS APIs
         const vpcId = sdkCluster.resourcesVpcConfig?.vpcId;
 
+        /**
+         * Assumes the supplied role is registered in the target cluster for kubectl access.
+         */
+
         const importClusterProvider = new ImportClusterProvider({
             clusterName: sdkCluster.name!,
             version: eks.KubernetesVersion.of(sdkCluster.version!),
@@ -33,14 +37,6 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
             kubectlRoleArn: blueprints.getResource(context => new blueprints.LookupRoleProvider(kubectlRoleName).provide(context)).roleArn,
             clusterSecurityGroupId: sdkCluster.resourcesVpcConfig?.clusterSecurityGroupId
         });
-
-        // /**
-        //  * Assumes the supplied role is registered in the target cluster for kubectl access.
-        //  */
-        // const importClusterProvider = blueprints.ImportClusterProvider.fromClusterAttributes(
-        //     sdkCluster, 
-        //     blueprints.getResource(context => new blueprints.LookupRoleProvider(kubectlRoleName).provide(context)),
-        // );
 
         // All Grafana Dashboard URLs from `cdk.json` if presentgi
         const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
