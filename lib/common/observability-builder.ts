@@ -3,25 +3,31 @@ import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
 
+    public addNewClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
+        return this.addOns(
+            new blueprints.addons.VpcCniAddOn(),
+            new blueprints.addons.CoreDnsAddOn(),
+            new blueprints.addons.MetricsServerAddOn(),
+            new blueprints.addons.PrometheusNodeExporterAddOn(),
+            new blueprints.addons.KubeStateMetricsAddOn());
+    }
 
-export class ObservabilityBuilder {
+    public addExistingClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
+        return this.addOns(
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn());
+    }
 
-    public static builder(): blueprints.BlueprintBuilder {
-        return new blueprints.BlueprintBuilder()
-            .addOns(
-                new blueprints.NestedStackAddOn({
-                    id: "usage-tracking-addon",
-                    builder: UsageTrackingAddOn.builder(),
-                }),
-                new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-                new blueprints.addons.VpcCniAddOn(),
-                new blueprints.addons.CoreDnsAddOn(),
-                new blueprints.addons.MetricsServerAddOn(),
-                new blueprints.addons.ExternalsSecretsAddOn(),
-                new blueprints.addons.CertManagerAddOn(),
-                new blueprints.addons.PrometheusNodeExporterAddOn(),
-                new blueprints.addons.KubeStateMetricsAddOn());
+    public static builder(): ObservabilityBuilder {
+        const builder = new ObservabilityBuilder();
+        builder.addOns(
+            new blueprints.NestedStackAddOn({
+                id: "usage-tracking-addon",
+                builder: UsageTrackingAddOn.builder(),
+            }));
+        return builder;
     }
 }
 

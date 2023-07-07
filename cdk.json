@@ -22,6 +22,8 @@
     "namespaceworkloads.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
     "nodeexporter.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
     "nodes.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
-    "workloads.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
+    "workloads.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
+    "existing.cluster.name": "single-new-eks-observability-accelerator",
+    "existing.kubectl.rolename": "YOUR_KUBECTL_ROLE"
   }
 }

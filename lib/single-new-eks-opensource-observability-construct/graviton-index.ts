@@ -30,6 +30,8 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.KubeProxyAddOn("v1.27.1-eksbuild.1"),
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
@@ -39,6 +41,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
                 ampPrometheusEndpoint: ampPrometheusEndpoint,
             }),
             new blueprints.addons.XrayAdotAddOn(),
+            new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.GrafanaOperatorAddon({
                 version: 'v5.0.0-rc3'
             }),
@@ -74,6 +77,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .addNewClusterObservabilityBuilderAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .addOns(...addOns)
