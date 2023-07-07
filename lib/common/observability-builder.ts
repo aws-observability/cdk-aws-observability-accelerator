@@ -5,20 +5,37 @@ import { Construct } from 'constructs';
 
 
 
-export class ObservabilityBuilder {
+export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
 
-    public static builder(): blueprints.BlueprintBuilder {
-        return new blueprints.BlueprintBuilder()
-            .addOns(
-                new blueprints.NestedStackAddOn({
-                    id: "usage-tracking-addon",
-                    builder: UsageTrackingAddOn.builder(),
-                }),
-                new blueprints.addons.VpcCniAddOn(),
-                new blueprints.addons.CoreDnsAddOn(),
-                new blueprints.addons.MetricsServerAddOn(),
-                new blueprints.addons.PrometheusNodeExporterAddOn(),
-                new blueprints.addons.KubeStateMetricsAddOn());
+    public addNewClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
+        return this.addOns(
+            new blueprints.addons.VpcCniAddOn(),
+            new blueprints.addons.CoreDnsAddOn(),
+            new blueprints.addons.MetricsServerAddOn(),
+            new blueprints.addons.PrometheusNodeExporterAddOn(),
+            new blueprints.addons.KubeStateMetricsAddOn());
+    }
+
+    public addExistingClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
+        return this.addOns(
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn());
+    }
+
+    public static builder(): ObservabilityBuilder {
+        const builder = new ObservabilityBuilder();
+        builder.addOns(
+            new blueprints.NestedStackAddOn({
+                id: "usage-tracking-addon",
+                builder: UsageTrackingAddOn.builder(),
+            }));
+        return builder;
+
+                // new blueprints.addons.VpcCniAddOn(),
+                // new blueprints.addons.CoreDnsAddOn(),
+                // new blueprints.addons.MetricsServerAddOn(),
+                // new blueprints.addons.PrometheusNodeExporterAddOn(),
+                // new blueprints.addons.KubeStateMetricsAddOn());
     }
 }
 

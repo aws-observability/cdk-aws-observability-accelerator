@@ -77,6 +77,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .addNewClusterObservabilityBuilderAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .addOns(...addOns)

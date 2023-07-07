@@ -73,6 +73,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .addNewClusterObservabilityBuilderAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);

@@ -3,7 +3,7 @@ import { ImportClusterProvider, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
-import { ExistingClusterObservabilityBuilder } from '../common/existing-cluster-observability-builder';
+import { ObservabilityBuilder } from '../common/observability-builder';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 
@@ -84,9 +84,10 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
             new GrafanaOperatorSecretAddon(),
         ];
 
-        ExistingClusterObservabilityBuilder.builder()
+        ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .addExistingClusterObservabilityBuilderAddOns()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
