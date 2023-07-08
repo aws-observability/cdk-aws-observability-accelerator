@@ -27,7 +27,7 @@ Ensure that you have installed the following tools on your machine:
 
 You will also need:
 
-1. Either an existing EKS cluster, or you can setup a new one with  [Single New EKS Cluster Observability Accelerator](./single-new-eks-cluster.md)
+1. Either an existing EKS cluster, or you can setup a new one with  [Single New EKS Cluster Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-cluster.md)
 2. An OpenID Connect (OIDC) provider, associated to the above EKS cluster (Note: Single EKS Cluster Pattern takes care of that for you)
 
 ## Deploying
@@ -61,7 +61,7 @@ make pattern existing-eks-mixed-observability deploy
 
 ## Verify the resources
 
-Please see [Single New EKS Cluster AWS Mixed Observability Accelerator](./single-new-eks-mixed-observability.md).
+Please see [Single New EKS Cluster AWS Mixed Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md).
 
 ## Teardown
 
