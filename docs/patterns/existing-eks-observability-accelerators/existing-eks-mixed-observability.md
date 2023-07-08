@@ -27,8 +27,8 @@ Ensure that you have installed the following tools on your machine:
 
 You will also need:
 
-1. either an existing EKS cluster, or you can setup a new one with  [Single New EKS Cluster Observability Accelerator](./single-new-eks-cluster.md)
-2. an OpenID Connect (OIDC) provider, associated to the above EKS cluster (note: Single EKS Cluster Pattern takes care of that for you)
+1. Either an existing EKS cluster, or you can setup a new one with  [Single New EKS Cluster Observability Accelerator](./single-new-eks-cluster.md)
+2. An OpenID Connect (OIDC) provider, associated to the above EKS cluster (Note: Single EKS Cluster Pattern takes care of that for you)
 
 ## Deploying
 
