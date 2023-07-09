@@ -26,7 +26,75 @@ Please refer to the AWS CDK Observability Accelertor [documentation site](https:
 ## Usage
 Before proceeding, make sure [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) is installed on your machine.
 
-To use the eks-blueprints and patterns module, you must have [Node.js](https://nodejs.org/en/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. You will also use `make` to simplify build and other common actions. 
+To use the eks-blueprints and patterns module, you must have [Node.js](https://nodejs.org/en/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. You will also use `make` and `brew` to simplify build and other common actions. 
+
+### Ubuntu Setup
+Follow the below steps to setup and leverage cdk-aws-observability-accelerator in your Ubuntu Linux machine.
+
+1. **Update the package list** 
+
+    Update the package list to ensure you're installing the latest versions.
+
+    ```bash
+    sudo apt update
+    ```
+
+2. **Install make**
+
+    ```bash
+    sudo apt install make
+    ```
+
+3. **Install Node.js and npm**
+
+    Install Node.js and npm using the NodeSource binary distributions.
+    ```bash
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+    sudo apt-get install -y nodejs
+    ```
+    
+    Note: The Node.js package from NodeSource includes npm
+
+4. **Verify Node.js and npm Installation**
+
+    Check the installed version of Node.js:
+
+    ```bash
+    node -v
+    ```
+
+    The output should be `v20.x.x`.
+
+    Check the installed version of npm:
+
+    ```bash
+    npm -v
+    ```
+
+    The output should be a version greater than `9.7.x`.
+
+    If your npm version is not `9.7.x` or above, update npm with the following command:
+
+    ```bash
+    sudo npm install -g npm@latest
+    ```
+
+    Verify the installed version by running `npm -v`.
+
+5. Install brew on ubuntu by following instructions as detailed in [docs.brew.sh](https://docs.brew.sh/Homebrew-on-Linux)
+   ```bash
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+   Add Homebrew to your PATH
+   ```
+   test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+   test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linux  brew/bin/brew shellenv)"
+   test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
+   echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
+    
+   ```
+
+Post completing the above, continue from Step: [Repo setup](#repo-setup)
 
 ### Mac Setup:
 
@@ -66,7 +134,9 @@ $ npm -v
 
 Updating npm: `sudo n stable` where stable can also be a specific version above 8.4. May require `sudo`.
 
-4. Clone the `cdk-aws-observability-accelerator` repository
+
+### Repo setup
+1. Clone the `cdk-aws-observability-accelerator` repository
 
 ```
 git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
@@ -74,7 +144,7 @@ git clone https://github.com/aws-observability/cdk-aws-observability-accelerator
 
 PS: If you are contributing to this repo, please make sure to fork the repo, add your changes and create a PR against it.
 
-5. Once you have cloned the repo, you can open it using your favourite IDE and run the below commands to install the dependencies and build the existing patterns.
+2. Once you have cloned the repo, you can open it using your favourite IDE and run the below commands to install the dependencies and build the existing patterns.
 
 - Install project dependencies.
 
