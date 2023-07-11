@@ -175,6 +175,8 @@ Example:
 
 Patterns:
 
+	existing-eks-mixed-observability
+	existing-eks-opensource-observability
 	single-new-eks-awsnative-observability
 	single-new-eks-cluster
 	single-new-eks-graviton-opensource-observability
