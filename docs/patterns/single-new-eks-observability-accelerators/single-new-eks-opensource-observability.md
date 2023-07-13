@@ -72,16 +72,14 @@ export AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --output text)
 ```
 
-5. AWS Secrets Manager for GRAFANA API KEY: Update the Grafana API key secret in AWS Secrets using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
+5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
 ```bash
-aws secretsmanager create-secret \
-    --name grafana-api-key \
-    --description "API Key of your Grafana Instance" \
-    --secret-string "${AMG_API_KEY}" \
-    --region $AWS_REGION \
-    --query ARN \
-    --output text
+aws ssm put-parameter \                                                                                                     
+    --name "/cdk-accelerator/grafana-api-key" \
+    --type "SecureString" \
+    --value $AMG_API_KEY \
+    --region $AWS_REGION
 ```
 
 6. Install project dependencies by running `npm install` in the main folder of this cloned repository. 
@@ -312,14 +310,16 @@ export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --output text)
 ```
 
-- Finally, update the Grafana API key secret in AWS Secrets Manager using the above new Grafana API key:
+- Finally, update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key:
 
 ```bash
 export API_KEY_SECRET_NAME="grafana-api-key"
-aws secretsmanager update-secret \
-    --secret-id $API_KEY_SECRET_NAME \
-    --secret-string "${AMG_API_KEY}" \
-    --region $AWS_REGION
+aws ssm put-parameter \                                                                                                     
+    --name "/cdk-accelerator/grafana-api-key" \
+    --type "SecureString" \
+    --value $AMG_API_KEY \
+    --region $AWS_REGION \
+    --overwrite
 ```
 
 - If the issue persists, you can force the synchronization by deleting the `externalsecret` Kubernetes object.
