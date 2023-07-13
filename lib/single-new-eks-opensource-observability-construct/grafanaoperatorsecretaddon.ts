@@ -16,13 +16,13 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                     apiVersion: "external-secrets.io/v1beta1",
                     kind: "ClusterSecretStore",
                     metadata: {
-                        name: "secret-manager-store",
+                        name: "ssm-parameter-store",
                         namespace: "default"
                     },
                     spec: {
                         provider: {
                             aws: {
-                                service: "SecretsManager",
+                                service: "ParameterStore",
                                 region: clusterInfo.cluster.stack.region,
                                 auth: {
                                     jwt: {
@@ -51,7 +51,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                     },
                     spec: {
                         secretStoreRef: {
-                            name: "secret-manager-store",
+                            name: "ssm-parameter-store",
                             kind: "ClusterSecretStore",
                         },
                         target: {
@@ -61,7 +61,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                             {
                                 secretKey: "GF_SECURITY_ADMIN_APIKEY",
                                 remoteRef: {
-                                    key: "grafana-api-key"
+                                    key: "/cdk-accelerator/grafana-api-key"
                                 },
                             },
                         ],
