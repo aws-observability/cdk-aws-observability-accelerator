@@ -52,7 +52,7 @@ npm install -g aws-cdk
 
 ```bash
 make build
-make pattern single-new-eks-native-observability deploy
+make pattern single-new-eks-awsnative-observability deploy
 ```
 
 ## Verify the resources
@@ -60,7 +60,7 @@ make pattern single-new-eks-native-observability deploy
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
 
 ```bash
-aws eks update-kubeconfig --name single-new-eks-native-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-opensource-singleneweksopensourceob-82N8N3BMJYYI
+aws eks update-kubeconfig --name single-new-eks-awsnative-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-awsnative-singleneweksawsnativeobs-JN3QM2KMBNCO
 ```
 
 Let’s verify the resources created by steps above.
@@ -136,5 +136,5 @@ Then you can view the results of your query:
 You can teardown the whole CDK stack with the following command:
 
 ```bash
-make pattern single-new-eks-native-observability destroy
+make pattern single-new-eks-awsnative-observability destroy
 ```
