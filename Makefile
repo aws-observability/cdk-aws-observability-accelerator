@@ -37,9 +37,14 @@ list:
 mkdocs:
 	mkdocs serve 
 
+# To supress the error after make command is run
+# such as make: *** No rule to make target 'single-new-eks-awsnative-observability'.  Stop.
 pattern:
 	@echo $(pattern_name) performing $(pattern_command)
 	$(CDK) --app "npx ts-node bin/$(pattern_name).ts" $(if $(pattern_command),$(pattern_command), list)
+	@:
+%:
+	@:
 
 test-all:
 	@for pattern in $(formatted_pattern_names) ; do \
