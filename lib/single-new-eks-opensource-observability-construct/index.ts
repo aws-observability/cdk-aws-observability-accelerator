@@ -4,6 +4,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '../common/observability-builder';
+import { AmpRulesConfiguratorAddOn } from './amp-rules-configurator-addon';
 
 
 export default class SingleNewEksOpenSourceobservabilityConstruct {
@@ -14,7 +15,9 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
-        const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
+        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
+        const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
+        const ampWorkspaceId = ampWorkspace.attrWorkspaceId;
         
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
@@ -40,7 +43,13 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             }),
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
-                ampPrometheusEndpoint: ampPrometheusEndpoint,
+                ampPrometheusEndpoint: ampEndpoint,
+            }),
+            new blueprints.addons.AckAddOn({
+                serviceName: blueprints.AckServiceName.PROMETHEUSSERVICE,
+            }),
+            new AmpRulesConfiguratorAddOn({
+                ampWorkspaceId,
             }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
@@ -57,7 +66,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
                 fluxTargetNamespace: "grafana-operator",
                 bootstrapValues: {
                     "AMG_AWS_REGION": region,
-                    "AMP_ENDPOINT_URL": ampPrometheusEndpoint,
+                    "AMP_ENDPOINT_URL": ampEndpoint,
                     "AMG_ENDPOINT_URL": amgEndpointUrl,
                     "GRAFANA_CLUSTER_DASH_URL" : clusterDashUrl,
                     "GRAFANA_KUBELET_DASH_URL" : kubeletDashUrl,
