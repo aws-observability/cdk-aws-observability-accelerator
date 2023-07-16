@@ -149,7 +149,7 @@ PS: If you are contributing to this repo, please make sure to fork the repo, add
 - Install project dependencies.
 
 ```
-make deps npm i
+make deps
 ```
 
 - To view patterns that are available to be deployed, execute the following:
