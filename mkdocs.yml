@@ -25,7 +25,7 @@ theme:
 nav:
   - Home: index.md
   - Amazon EKS:
-    - Single Cluster AWS Native Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-native-observability.md
+    - Single Cluster AWS Native Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
     - Single Cluster Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
     - Single Cluster Mixed Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
     - Single Cluster Graviton Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
