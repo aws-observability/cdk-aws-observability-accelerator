@@ -31,6 +31,7 @@ nav:
     - Single Cluster Graviton Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
     - Single Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
     - Existing Cluster Mixed Observability: patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
+    - Existing Cluster Open Source Observability: patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
   - Support & Feedback: support.md
   - Contributors: contributors.md
 
