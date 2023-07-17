@@ -36,7 +36,7 @@ export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
  */
 export class UsageTrackingAddOn extends NestedStack {
 
-    static readonly USAGE_ID = "qp-1u9l111l0";
+    static readonly USAGE_ID = "qs-1u9l12gj7";
 
     public static builder(): blueprints.NestedStackBuilder {
         return {
