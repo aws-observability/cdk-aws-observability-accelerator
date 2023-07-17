@@ -28,6 +28,9 @@ nav:
     - Single Cluster AWS Native Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-native-observability.md
     - Single Cluster Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
     - Single Cluster Mixed Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
+    - Single Cluster Graviton Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+    - Single Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
+    - Existing Cluster Mixed Observability: patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
   - Support & Feedback: support.md
   - Contributors: contributors.md
 
