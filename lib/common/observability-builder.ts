@@ -24,7 +24,7 @@ export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
         const builder = new ObservabilityBuilder();
         builder.addOns(
             new blueprints.NestedStackAddOn({
-                id: "usage-tracking-addon",
+                id: "usage-tracking-addons",
                 builder: UsageTrackingAddOn.builder(),
             }));
         return builder;

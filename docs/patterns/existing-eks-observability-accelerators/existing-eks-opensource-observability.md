@@ -85,8 +85,7 @@ export AMG_API_KEY=$(aws grafana create-workspace-api-key \
 5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
 ```bash
-aws ssm put-parameter \                                                                                                     
-    --name "/cdk-accelerator/grafana-api-key" \
+aws ssm put-parameter --name "/cdk-accelerator/grafana-api-key" \
     --type "SecureString" \
     --value $AMG_API_KEY \
     --region $AWS_REGION
