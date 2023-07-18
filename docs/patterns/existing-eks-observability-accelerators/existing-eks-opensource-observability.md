@@ -6,15 +6,19 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ![Architecture](../images/CDK_Architecture_diagram.png)
 
-This example makes use of CloudWatch, as a metric and log aggregation layer, while X-Ray is used as a trace-aggregation layer. In order to collect the metrics and traces, we use the Open Source ADOT collector. Fluent Bit is used to export the logs to CloudWatch Logs.
-
-In this architecture, AWS X-Ray provides a complete view of requests as they travel through your application and filters visual data across payloads, functions, traces, services, and APIs. X-Ray also allows you to perform analytics, to gain powerful insights about your distributed trace data.
-
-Utilizing CloudWatch and X-Ray as an aggregation layer allows for a fully-managed scalable telemetry backend. In this example we get those benefits while still having the flexibility and rapid development of the Open Source collection tools.
+Monitoring Amazon Elastic Kubernetes Service (Amazon EKS) for metrics has two categories: the control plane and the Amazon EKS nodes (with Kubernetes objects). The Amazon EKS control plane consists of control plane nodes that run the Kubernetes software, such as etcd and the Kubernetes API server. To read more on the components of an Amazon EKS cluster,
+please read the [service documentation](https://docs.aws.amazon.com/eks/latest/userguide/clusters.html).
 
 ## Objective
 
-This pattern aims to add Observability on top of an existing EKS cluster, with a mixture of AWS native and open source managed AWS services.
+Configure the existing Amazon EKS cluster with below Observability components;
+- AWS Distro For OpenTelemetry Operator and Collector for Metrics and Traces
+- Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit)
+- Installs Grafana Operator to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
+- Installs FluxCD to perform GitOps sync of a Git Repo to EKS Cluster. We will use this later for creating Grafana Dashboards and AWS datasources to Amazon Managed Grafana. You can also use your own GitRepo  to sync your own Grafana resources such as Dashboards, Datasources etc. Please check our One observability module - [GitOps with Amazon Managed Grafana](https://catalog.workshops.aws/observability/en-US/aws-managed-oss/gitops-with-amg) to learn more about this.
+- Installs External Secrets Operator to retrieve and Sync the Grafana API keys.
+- Amazon Managed Grafana Dashboard and data source
+- Alerts and recording rules with AWS Managed Service for Prometheus
 
 ## Prerequisites:
 
@@ -114,7 +118,7 @@ make pattern existing-eks-opensource-observability deploy
 
 ## Verify the resources
 
-Please see [Single New EKS Open Source Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-opensoure-observability.md).
+Please see [Single New EKS Open Source Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md).
 
 ## Teardown
 
