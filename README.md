@@ -17,11 +17,7 @@ We provide curated metrics, logs, traces collection, cloudwatch dashboard, alert
 
 ## Patterns
 
-The individual patterns can be found in the `lib` directory.  Most of the patterns are self-explanatory, for some more complex examples please use this guide and docs/patterns directory for more information.
-
-## Documentation
-
-Please refer to the AWS CDK Observability Accelerator [documentation site](https://aws-observability.github.io/cdk-aws-observability-accelerator/) for complete project documentation.
+The individual patterns can be found in the [`lib`](https://github.com/aws-observability/cdk-aws-observability-accelerator/tree/main/lib) directory.  Most of the patterns are self-explanatory, for some more complex examples please use this guide and docs/patterns directory for more information.
 
 ## Usage
 Before proceeding, make sure [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) is installed on your machine.
