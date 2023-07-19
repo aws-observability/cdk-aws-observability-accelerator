@@ -4,8 +4,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '../common/observability-builder';
-import { AmpRulesConfiguratorAddOn } from './amp-rules-configurator-addon';
-
+import { AmpRulesConfiguratorAddOn } from '../common/addons/amp-rules-configurator/amp-rules-configurator-addon';
 
 export default class SingleNewEksOpenSourceobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -17,7 +16,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        const ampWorkspaceId = ampWorkspace.attrWorkspaceId;
+        const ampWorkspaceArn = ampWorkspace.attrArn;
         
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
@@ -45,11 +44,12 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.AmpAddOn({
                 ampPrometheusEndpoint: ampEndpoint,
             }),
-            new blueprints.addons.AckAddOn({
-                serviceName: blueprints.AckServiceName.PROMETHEUSSERVICE,
-            }),
             new AmpRulesConfiguratorAddOn({
-                ampWorkspaceId,
+                ampWorkspaceArn: ampWorkspaceArn,
+                ruleFilePaths: [
+                    __dirname + '/../common/addons/amp-rules-configurator/alerting-rules.yml',
+                    __dirname + '/../common/addons/amp-rules-configurator/recording-rules.yml'
+                ]
             }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
