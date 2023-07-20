@@ -22,14 +22,11 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
 
         // assert(amgEndpointUrl, "AMG Endpoint URL environmane variable COA_AMG_ENDPOINT_URL is mandatory");
 
-        // All Grafana Dashboard URLs from `cdk.json` if presentgi
-        const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-        const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
-        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
-        const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-        const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
-
+        // All Grafana Dashboard URLs from `cdk.json`
+        const grafanaGitOpsConfig: blueprints.FluxCDAddOnProps = utils.valueFromContext(scope, "grafanaGitOpsConfig", undefined);
+        grafanaGitOpsConfig.bootstrapValues!.AMG_AWS_REGION = region;
+        grafanaGitOpsConfig.bootstrapValues!.AMP_ENDPOINT_URL = ampEndpoint;
+        grafanaGitOpsConfig.bootstrapValues!.AMG_ENDPOINT_URL = amgEndpointUrl;
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -43,6 +40,11 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
                 ampPrometheusEndpoint: ampEndpoint,
+                openTelemetryCollectorManifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                openTelemetryCollectorManifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
             }),
             new AmpRulesConfiguratorAddOn({
                 ampWorkspaceArn: ampWorkspaceArn,
@@ -56,26 +58,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.GrafanaOperatorAddon({
                 version: 'v5.0.0-rc3'
             }),
-            new blueprints.addons.FluxCDAddOn({
-                bootstrapRepo: {
-                    repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
-                    name: "grafana-dashboards",
-                    targetRevision: "main",
-                    path: "./artifacts/grafana-operator-manifests/eks/infrastructure"
-                },
-                fluxTargetNamespace: "grafana-operator",
-                bootstrapValues: {
-                    "AMG_AWS_REGION": region,
-                    "AMP_ENDPOINT_URL": ampEndpoint,
-                    "AMG_ENDPOINT_URL": amgEndpointUrl,
-                    "GRAFANA_CLUSTER_DASH_URL" : clusterDashUrl,
-                    "GRAFANA_KUBELET_DASH_URL" : kubeletDashUrl,
-                    "GRAFANA_NSWRKLDS_DASH_URL" : namespaceWorkloadsDashUrl,
-                    "GRAFANA_NODEEXP_DASH_URL" : nodeExporterDashUrl,
-                    "GRAFANA_NODES_DASH_URL" : nodesDashUrl,
-                    "GRAFANA_WORKLOADS_DASH_URL" : workloadsDashUrl
-                },
-            }),
+            new blueprints.addons.FluxCDAddOn(grafanaGitOpsConfig),
             new GrafanaOperatorSecretAddon(),
         ];
 
