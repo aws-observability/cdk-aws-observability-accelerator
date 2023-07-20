@@ -81,7 +81,7 @@ sed "s/{{namespace}}/$SAMPLE_TRAFFIC_NAMESPACE/g" |
 kubectl apply -f -
 ```
 
-6. Verify that the sample application is running:
+## Verify the resources
 
 ```bash
 kubectl get pods -n $SAMPLE_TRAFFIC_NAMESPACE
@@ -91,6 +91,16 @@ tomcat-bad-traffic-generator      1/1     Running   0          90m
 tomcat-example-77b46cc546-z22jf   1/1     Running   0          25m
 tomcat-traffic-generator          1/1     Running   0          90m
 ```
+
+## Visualization
+
+Login to your Grafana workspace and navigate to the Dashboards panel. You should see a new dashboard named `Java/JMX`, under `Observability Accelerator Dashboards`:
+
+![Dashboard](../images/all-dashboards-java.png)
+
+Open the `Java/JMX` dashboard and you should be able to view its visualization as shown below:
+
+![NodeExporter_Dashboard](../images/java-dashboard.png)
 
 ## Teardown
 
