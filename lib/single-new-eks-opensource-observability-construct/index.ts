@@ -40,11 +40,6 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
                 ampPrometheusEndpoint: ampEndpoint,
-                openTelemetryCollectorManifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
-                openTelemetryCollectorManifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
-                }
             }),
             new AmpRulesConfiguratorAddOn({
                 ampWorkspaceArn: ampWorkspaceArn,
