@@ -25,7 +25,6 @@ export interface AmpRulesConfiguratorAddOnProps {
 export class AmpRulesConfiguratorAddOn implements blueprints.ClusterAddOn {
 
     readonly ampRulesConfiguratorAddOn: AmpRulesConfiguratorAddOnProps;
-    private _ruleGroupsNamespaces: CfnRuleGroupsNamespace[] = [];
 
     constructor(props: AmpRulesConfiguratorAddOnProps) {
         this.ampRulesConfiguratorAddOn = props;
@@ -34,6 +33,7 @@ export class AmpRulesConfiguratorAddOn implements blueprints.ClusterAddOn {
     deploy(clusterInfo: blueprints.ClusterInfo): Promise<Construct> {
         const cluster = clusterInfo.cluster;
         const ruleFilePaths = this.ampRulesConfiguratorAddOn.ruleFilePaths;
+        const ruleGroupsNamespaces: CfnRuleGroupsNamespace[] = [];
 
         assert(ruleFilePaths.length > 0);
 
@@ -44,11 +44,11 @@ export class AmpRulesConfiguratorAddOn implements blueprints.ClusterAddOn {
                 workspace: this.ampRulesConfiguratorAddOn.ampWorkspaceArn
             });
             if (index > 0){
-                ruleGroupsNamespace.node.addDependency(this._ruleGroupsNamespaces.at(-1)!);
+                ruleGroupsNamespace.node.addDependency(ruleGroupsNamespaces.at(-1)!);
             }
-            this._ruleGroupsNamespaces.push(ruleGroupsNamespace);
+            ruleGroupsNamespaces.push(ruleGroupsNamespace);
         });
 
-        return Promise.resolve(this._ruleGroupsNamespaces.at(-1)!);
+        return Promise.resolve(ruleGroupsNamespaces.at(-1)!);
     }
 }
