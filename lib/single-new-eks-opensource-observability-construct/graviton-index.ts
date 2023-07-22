@@ -6,7 +6,6 @@ import * as amp from 'aws-cdk-lib/aws-aps';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ObservabilityBuilder } from '../common/observability-builder';
-import { AmpRulesConfiguratorAddOn } from '../common/addons/amp-rules-configurator/amp-rules-configurator-addon';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -18,8 +17,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        const ampWorkspaceArn = ampWorkspace.attrArn;
-   
+        const ampWorkspaceArn = ampWorkspace.attrArn;      
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
         // All Grafana Dashboard URLs from `cdk.json` if present
@@ -39,14 +37,14 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
             }),
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
-                ampPrometheusEndpoint: ampEndpoint
-            }),
-            new AmpRulesConfiguratorAddOn({
-                ampWorkspaceArn: ampWorkspaceArn,
-                ruleFilePaths: [
-                    __dirname + '/../common/addons/amp-rules-configurator/alerting-rules.yml',
-                    __dirname + '/../common/addons/amp-rules-configurator/recording-rules.yml'
-                ]
+                ampPrometheusEndpoint: ampEndpoint,
+                ampRules: {
+                    ampWorkspaceArn: ampWorkspaceArn,
+                    ruleFilePaths: [
+                        __dirname + '/../common/resources/amp-config/alerting-rules.yml',
+                        __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                    ]
+                }
             }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),

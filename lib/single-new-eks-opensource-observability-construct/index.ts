@@ -4,7 +4,6 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '../common/observability-builder';
-import { AmpRulesConfiguratorAddOn } from '../common/addons/amp-rules-configurator/amp-rules-configurator-addon';
 
 export default class SingleNewEksOpenSourceobservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -40,13 +39,13 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
                 ampPrometheusEndpoint: ampEndpoint,
-            }),
-            new AmpRulesConfiguratorAddOn({
-                ampWorkspaceArn: ampWorkspaceArn,
-                ruleFilePaths: [
-                    __dirname + '/../common/addons/amp-rules-configurator/alerting-rules.yml',
-                    __dirname + '/../common/addons/amp-rules-configurator/recording-rules.yml'
-                ]
+                ampRules: {
+                    ampWorkspaceArn: ampWorkspaceArn,
+                    ruleFilePaths: [
+                        __dirname + '/../common/resources/amp-config/alerting-rules.yml',
+                        __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                    ]
+                }
             }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
