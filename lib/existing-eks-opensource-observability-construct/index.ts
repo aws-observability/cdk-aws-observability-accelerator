@@ -17,8 +17,9 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
-        const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
-        
+        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
+        const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
+        const ampWorkspaceArn = ampWorkspace.attrArn;        
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
         const sdkCluster = await blueprints.describeCluster(clusterName, region); // get cluster information using EKS APIs
         const vpcId = sdkCluster.resourcesVpcConfig?.vpcId;
@@ -54,7 +55,14 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
             }),
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.AmpAddOn({
-                ampPrometheusEndpoint: ampPrometheusEndpoint,
+                ampPrometheusEndpoint: ampEndpoint,
+                ampRules: {
+                    ampWorkspaceArn: ampWorkspaceArn,
+                    ruleFilePaths: [
+                        __dirname + '/../common/resources/amp-config/alerting-rules.yml',
+                        __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                    ]
+                }
             }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
@@ -71,7 +79,7 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
                 fluxTargetNamespace: "grafana-operator",
                 bootstrapValues: {
                     "AMG_AWS_REGION": region,
-                    "AMP_ENDPOINT_URL": ampPrometheusEndpoint,
+                    "AMP_ENDPOINT_URL": ampEndpoint,
                     "AMG_ENDPOINT_URL": amgEndpointUrl,
                     "GRAFANA_CLUSTER_DASH_URL" : clusterDashUrl,
                     "GRAFANA_KUBELET_DASH_URL" : kubeletDashUrl,
