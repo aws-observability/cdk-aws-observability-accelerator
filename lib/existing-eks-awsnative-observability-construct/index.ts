@@ -34,14 +34,11 @@ export default class ExistingEksAwsNativeObservabilityConstruct {
         });
 
         const addOns: Array<blueprints.ClusterAddOn> = [
-            //new blueprints.addons.KubeProxyAddOn(),
-            //new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            //new blueprints.addons.CertManagerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            // new blueprints.addons.ContainerInsightsAddOn(),
+            new blueprints.addons.ContainerInsightsAddOn(),
             //new blueprints.addons.XrayAddOn(),
         ];
 
