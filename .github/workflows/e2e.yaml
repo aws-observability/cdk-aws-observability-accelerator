@@ -1,23 +1,31 @@
-- name: Configure AWS Credentials
-  uses: aws-actions/configure-aws-credentials@v1
-  with:
-    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    aws-region: us-west-2
-- name: Run CodeBuild
-  uses: aws-actions/aws-codebuild-run-build@v1
-  if: contains(github.event.comment.body, '/do-e2e-test')   # check the comment if it contains the keywords
-  with:
-    project-name: cdk-pattern-test
-    # buildspec-override: path/to/buildspec.yaml or inline buildspec definition
-    # compute-type-override: compute-type
-    # environment-type-override: environment-type
-    # image-override: ecr-image-uri
-    env-vars-for-codebuild: |
-      PR_NUMBER,
-      COMMIT_ID,
-      PATTERN_NAME
-  env:
-    PR_NUMBER: ${{ github.event.number }}
-    COMMIT_ID: $(git rev-parse --short "$GITHUB_SHA")
-    PATTERN_NAME: ${{ github.event.comment.body }}
+name: "Test on Comment"
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+    - name: Run CodeBuild
+      uses: aws-actions/aws-codebuild-run-build@v1
+      if: contains(github.event.comment.body, '/do-e2e-test')   # check the comment if it contains the keywords
+      with:
+        project-name: cdk-pattern-test
+        # buildspec-override: path/to/buildspec.yaml or inline buildspec definition
+        # compute-type-override: compute-type
+        # environment-type-override: environment-type
+        # image-override: ecr-image-uri
+        env-vars-for-codebuild: |
+          PR_NUMBER,
+          COMMIT_ID,
+          PATTERN_NAME
+      env:
+        PR_NUMBER: ${{ github.event.number }}
+        COMMIT_ID: $(git rev-parse --short "$GITHUB_SHA")
+        PATTERN_NAME: ${{ github.event.comment.body }}
