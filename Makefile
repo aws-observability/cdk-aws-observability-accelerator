@@ -57,6 +57,13 @@ bootstrap:
 		LIB=$$LIB make check-lib ; \
     done
 
+bootstrap-cdk:
+	aws cloudformation describe-stacks \
+		--stack-name CDKToolkit \
+		--region ${AWS_REGION} || \
+		CDK_NEW_BOOTSTRAP=1 $(CDK) bootstrap \
+			aws://$(aws sts get-caller-identity --output text --query Account --region ${AWS_REGION})/${AWS_REGION}
+			
 check-lib:
 ifeq ($(shell brew ls --versions $(LIB)),)
 	@echo Installing $(LIB) via Hombrew
