@@ -9,7 +9,7 @@ import { ObservabilityBuilder } from '../common/observability-builder';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
-        // AddOns for the cluster
+        // AddOns for the cluster 
         const stackId = `${id}-observability-accelerator`;
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
