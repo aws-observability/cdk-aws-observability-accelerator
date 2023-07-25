@@ -20,6 +20,8 @@ phases:
         fi
       - | 
         npm i
+      - |
+        make build
       - >
         make bootstrap-cdk
   pre_build:
