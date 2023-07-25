@@ -34,6 +34,6 @@ jobs:
           COMMIT_ID,
           PATTERN_NAME
       env:
-        PR_NUMBER: ${{ github.issue.number }}
+        PR_NUMBER: ${{ github.event.issue.number }}
         COMMIT_ID: ${{ steps.comment-branch.outputs.head_sha }}
         PATTERN_NAME: ${{ github.event.comment.body }}
