@@ -2,6 +2,9 @@ version: 0.2
 env:
   variables:
     CONTEXT_LOCATION:
+    COMMIT_ID:
+    PR_NUMBER:
+    PATTERN_NAME:
 phases:
   install:
     runtime-versions:
