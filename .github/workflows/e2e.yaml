@@ -5,7 +5,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
+     - name: Get PR branch
+       uses: xt0rted/pull-request-comment-branch@v1
+       id: comment-branch 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -26,6 +29,6 @@ jobs:
           COMMIT_ID,
           PATTERN_NAME
       env:
-        PR_NUMBER: ${{ github.event.number }}
-        COMMIT_ID: $(git rev-parse --short "$GITHUB_SHA")
+        PR_NUMBER: ${{ steps.comment-branch.outputs.head_ref }}
+        COMMIT_ID: ${{ steps.comment-branch.outputs.head_sha }}
         PATTERN_NAME: ${{ github.event.comment.body }}
