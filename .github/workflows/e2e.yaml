@@ -18,7 +18,7 @@ jobs:
       uses: myrotvorets/set-commit-status-action@master
       with:
         sha: ${{ steps.comment-branch.outputs.head_sha }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.CI_TOKEN }}
         status: pending
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -48,5 +48,5 @@ jobs:
       if: always()
       with:
         sha: ${{ steps.comment-branch.outputs.head_sha }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.CI_TOKEN }}
         status: ${{ job.status }}
