@@ -39,7 +39,6 @@ export default class ExistingEksAwsNativeObservabilityConstruct {
                 logRetentionDays: 30
             }),
             new blueprints.addons.ContainerInsightsAddOn(),
-            //new blueprints.addons.XrayAddOn(),
         ];
 
         ObservabilityBuilder.builder()
