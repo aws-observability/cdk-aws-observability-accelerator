@@ -19,10 +19,10 @@
   "context": {
     "grafanaGitOpsConfig": {
       "bootstrapRepo": {
-        "repoUrl": "https://github.com/aws-observability/aws-observability-accelerator",
+        "repoUrl": "https://github.com/freschri/aws-observability-accelerator",
         "name": "grafana-dashboards",
-        "targetRevision": "main",
-        "path": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+        "targetRevision": "java-pattern",
+        "path": "./artifacts/grafana-operator-manifests/eks/cdk/patterns/java"
       },
       "fluxTargetNamespace": "grafana-operator",
       "bootstrapValues": {
@@ -31,9 +31,11 @@
         "GRAFANA_NSWRKLDS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
         "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
-        "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
+        "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
+        "GRAFANA_JAVA_JMX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/java/default.json"
       }
     },
+    "java.pattern.enabled": true,
     "existing.cluster.name": "single-new-eks-observability-accelerator",
     "existing.kubectl.rolename": "YOUR_KUBECTL_ROLE"
   }
