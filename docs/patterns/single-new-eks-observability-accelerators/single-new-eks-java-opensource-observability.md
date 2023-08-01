@@ -22,11 +22,12 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
     "grafanaGitOpsConfig": {
       "bootstrapRepo": {
         "repoUrl": "https://github.com/aws-observability/aws-observability-accelerator",
-        "name": "java-dashboards",
+        "name": "grafana-dashboards",
         "targetRevision": "main",
-        "path": "./artifacts/grafana-operator-manifests/eks/java"
+        "path": "./artifacts/grafana-operator-manifests/eks/infrastructure"
       },
       "fluxTargetNamespace": "grafana-operator",
+      "additionalFluxKustomizationPaths": ["./artifacts/grafana-operator-manifests/eks/java"],
       "bootstrapValues": {
         "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
         "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
@@ -36,7 +37,8 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
         "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
         "GRAFANA_JAVA_JMX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/java/default.json"
       }
-    }
+    },
+    "java.pattern.enabled": true
   }
 ```
 

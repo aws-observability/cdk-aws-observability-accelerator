@@ -27,6 +27,25 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         grafanaGitOpsConfig.bootstrapValues!.AMP_ENDPOINT_URL = ampEndpoint;
         grafanaGitOpsConfig.bootstrapValues!.AMG_ENDPOINT_URL = amgEndpointUrl;
 
+        const ampAddOnProps: blueprints.AmpAddOnProps = {
+            ampPrometheusEndpoint: ampEndpoint,
+            ampRules: {
+                ampWorkspaceArn: ampWorkspaceArn,
+                ruleFilePaths: [
+                    __dirname + '/../common/resources/amp-config/alerting-rules.yml',
+                    __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                ]
+            }
+        };
+
+        if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollectorManifestPath = __dirname + '/../common/resources/otel-collector-config.yml';
+            ampAddOnProps.openTelemetryCollectorManifestParameterMap = {
+                javaScrapeSampleLimit: 1000,
+                javaPrometheusMetricsEndpoint: "/metrics"
+            };
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.KubeProxyAddOn(),
@@ -37,16 +56,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
                 logRetentionDays: 30
             }),
             new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.AmpAddOn({
-                ampPrometheusEndpoint: ampEndpoint,
-                ampRules: {
-                    ampWorkspaceArn: ampWorkspaceArn,
-                    ruleFilePaths: [
-                        __dirname + '/../common/resources/amp-config/alerting-rules.yml',
-                        __dirname + '/../common/resources/amp-config/recording-rules.yml'
-                    ]
-                }
-            }),
+            new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.GrafanaOperatorAddon({
