@@ -5,7 +5,7 @@
 The following figure illustrates the architecture of the pattern we will be deploying for Existing EKS Cluster AWS Native Observability pattern, using AWS native tools such as CloudWatch and Logs and Open Source tools such as Amazon Distro for OpenTelmetry (ADOT).
 
 > [!NOTE]
-> Currently, Xray AddOn is supported with EKS EC2 only and is not supported for imported clusters. The Xray AddOn requires access to the nodegroup which is not available with the imported cluster and it does not support IRSA as of now and requires modification of the node instance role. Once it supports IRSA, we would update this pattern to work with the existing clusters.
+> Currently, Xray AddOn is not supported for imported clusters. The Xray AddOn requires access to the nodegroup which is not available with the imported cluster and it does not support IRSA as of now and requires modification of the node instance role. Once it supports IRSA, we would update this pattern to work with the existing clusters.
 
 ![Architecture](../images/existing-eks-awsnative.png)
 
