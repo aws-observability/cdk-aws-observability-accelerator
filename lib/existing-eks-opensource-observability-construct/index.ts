@@ -45,6 +45,9 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
         const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
         const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
         const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
+        const apiServerBasicDashUrl: string = utils.valueFromContext(scope, "apiserver.basic.dashboard.url", undefined);
+        const apiServerAdvancedDashUrl: string = utils.valueFromContext(scope, "apiserver.advanced.dashboard.url", undefined);
+        const apiServerTroubleshootingDashUrl: string = utils.valueFromContext(scope, "apiserver.troubleshooting.dashboard.url", undefined);
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -78,7 +81,10 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
                     "GRAFANA_NSWRKLDS_DASH_URL" : namespaceWorkloadsDashUrl,
                     "GRAFANA_NODEEXP_DASH_URL" : nodeExporterDashUrl,
                     "GRAFANA_NODES_DASH_URL" : nodesDashUrl,
-                    "GRAFANA_WORKLOADS_DASH_URL" : workloadsDashUrl
+                    "GRAFANA_WORKLOADS_DASH_URL" : workloadsDashUrl,
+                    "GRAFANA_APISERVER_BASIC_DASH_URL": apiServerBasicDashUrl,
+                    "GRAFANA_APISERVER_ADVANCED_DASH_URL": apiServerAdvancedDashUrl,
+                    "GRAFANA_APISERVER_TROUBLESHOOTING_DASH_URL": apiServerTroubleshootingDashUrl
                 },
             }),
             new GrafanaOperatorSecretAddon(),
