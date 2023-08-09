@@ -10,8 +10,8 @@ in the OTLP format (OTLP receiver), using the OpenTelemetry SDK or
 auto-instrumentation agents.
 
 !!! note
-    To disable the tracing configuration, remove `XrayAddOn` for AWS native or `XrayAdotAddOn`
-    for Mixed and Open Source Observability Accelerators from the [CDK construct](https://github.com/aws-observability/cdk-aws-observability-accelerator/tree/main/lib)
+    To disable the tracing configuration, `XrayAdotAddOn`
+    for Mixed and Open Source Observability Accelerators from the [CDK Observability Patterns](https://github.com/aws-observability/cdk-aws-observability-accelerator/tree/main/lib)
 
 
 ## Instrumentation
@@ -30,7 +30,6 @@ Cloning the repo
 git clone https://github.com/aws-observability/aws-otel-community.git
 cd aws-otel-community/sample-apps/go-sample-app
 ```
-
 
 Highlighting code sections
 
@@ -176,9 +175,9 @@ curl http://localhost:8080/outgoing-sampleapp
 
 As this is a basic example, the service map doesn't have a lot of nodes,
 but this shows you how to setup tracing in your application and deploying
-it on Amazon EKS using the `eks-monitoring` module.
+it on Amazon EKS using our OSS observability patterns.
 
-With Flux and Grafana Operator, the `eks-monitoring` module configures
+With Flux and Grafana Operator, the OSS pattern configures
 an AWS X-Ray data source on your provided Grafana workspace. Open the
 Grafana explorer view and select the X-Ray data source. If you type the query
 below, and select `Trace List` for **Query Type**, you should see the list
