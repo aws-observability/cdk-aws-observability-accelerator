@@ -27,6 +27,6 @@
     "apiserver.advanced.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/apiserver-advanced.json",
     "apiserver.troubleshooting.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/apiserver-troubleshooting.json",
     "existing.cluster.name": "single-new-eks-observability-accelerator",
-    "existing.kubectl.rolename": "single-new-eks-observabil-singleneweksobservabilit-E4ENDLYB26BZ"
+    "existing.kubectl.rolename": "YOUR_KUBECTL_ROLE"
   }
 }
