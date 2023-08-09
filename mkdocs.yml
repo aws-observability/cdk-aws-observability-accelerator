@@ -25,13 +25,18 @@ theme:
 nav:
   - Home: index.md
   - Amazon EKS:
-    - Single Cluster AWS Native Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
-    - Single Cluster Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
-    - Single Cluster Mixed Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
-    - Single Cluster Graviton Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
-    - Single Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
-    - Existing Cluster Mixed Observability: patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
-    - Existing Cluster Open Source Observability: patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
+    - Existing Cluster: 
+      - AWS Native : patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability.md
+      - OSS : patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
+      - Mixed : patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
+    - New Cluster: 
+      - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
+      - OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
+      - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
+      - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+    - Tracing: tracing.md
+  - Supporting Examples:
+    - EKS Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
   - Support & Feedback: support.md
   - Contributors: contributors.md
 
