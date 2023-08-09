@@ -26,14 +26,14 @@ nav:
   - Home: index.md
   - Amazon EKS:
     - Existing Cluster: 
-      - AWS Native Observability: patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability.md
-      - Open Source Observability: patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
-      - Mixed Observability: patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
+      - AWS Native : patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability.md
+      - OSS : patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
+      - Mixed : patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
     - New Cluster: 
-      - AWS Native Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
-      - Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
-      - Mixed Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
-      - Graviton Open Source Observability: patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+      - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
+      - OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
+      - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
+      - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
     - Tracing: tracing.md
   - Supporting Examples:
     - EKS Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md

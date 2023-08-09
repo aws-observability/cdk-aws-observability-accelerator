@@ -10,8 +10,8 @@ in the OTLP format (OTLP receiver), using the OpenTelemetry SDK or
 auto-instrumentation agents.
 
 !!! note
-    To disable the tracing configuration, set up `enable_tracing = false` in
-    the [module configuration](https://github.com/aws-observability/terraform-aws-observability-accelerator/tree/main/modules/eks-monitoring#input_enable_tracing)
+    To disable the tracing configuration, remove `XrayAddOn` for AWS native or `XrayAdotAddOn`
+    for Mixed and Open Source Observability Accelerators from the [CDK construct](https://github.com/aws-observability/cdk-aws-observability-accelerator/tree/main/lib)
 
 
 ## Instrumentation
