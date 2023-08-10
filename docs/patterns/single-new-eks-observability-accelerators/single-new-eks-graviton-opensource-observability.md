@@ -279,6 +279,14 @@ fields @timestamp, log
     windows and limits in your queries. Checkout the CloudWatch
     [pricing page](https://aws.amazon.com/cloudwatch/pricing/) for more infos.
 
+## Teardown
+
+You can teardown the whole CDK stack with the following command:
+
+```bash
+make pattern single-new-eks-graviton-opensource-observability destroy
+```
+
 ## Troubleshooting
 
 ### 1. Grafana dashboards missing or Grafana API key expired
