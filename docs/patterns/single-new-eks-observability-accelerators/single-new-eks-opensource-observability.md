@@ -269,6 +269,14 @@ fields @timestamp, log
     Querying CloudWatch logs will incur costs per GB scanned. Use small time
     windows and limits in your queries. Checkout the CloudWatch
     [pricing page](https://aws.amazon.com/cloudwatch/pricing/) for more infos.
+    
+## Teardown
+
+You can teardown the whole CDK stack with the following command:
+
+```bash
+make pattern single-new-eks-opensource-observability destroy
+```
 
 ## Troubleshooting
 
