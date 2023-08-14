@@ -1,4 +1,4 @@
-import ExistingEksOpenSourceobservabilityConstruct from '../lib/existing-eks-opensource-observability-construct';
+import ExistingEksOpenSourceobservabilityConstruct from '../lib/existing-eks-opensource-observability';
 import { configureApp, errorHandler } from '../lib/common/construct-utils';
 
 const app = configureApp();

@@ -1,4 +1,4 @@
-import SingleNewEksAWSNativeobservabilityConstruct from '../lib/single-new-eks-awsnative-observability-construct';
+import SingleNewEksAWSNativeobservabilityConstruct from '../lib/single-new-eks-awsnative-observability';
 import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();

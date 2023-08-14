@@ -1,4 +1,4 @@
-import ExistingEksAwsNativeObservabilityConstruct from '../lib/existing-eks-awsnative-observability-construct';
+import ExistingEksAwsNativeObservabilityConstruct from '../lib/existing-eks-awsnative-observability';
 import { configureApp, errorHandler } from '../lib/common/construct-utils';
 
 const app = configureApp();

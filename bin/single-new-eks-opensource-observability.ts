@@ -1,4 +1,4 @@
-import SingleNewEksOpenSourceobservabilityConstruct from '../lib/single-new-eks-opensource-observability-construct';
+import SingleNewEksOpenSourceobservabilityConstruct from '../lib/single-new-eks-opensource-observability';
 import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();

@@ -1,4 +1,4 @@
-import ExistingEksMixedConstruct from '../lib/existing-eks-mixed-observability-construct';
+import ExistingEksMixedConstruct from '../lib/existing-eks-mixed-observability';
 import { configureApp, errorHandler } from '../lib/common/construct-utils';
 
 const app = configureApp();
