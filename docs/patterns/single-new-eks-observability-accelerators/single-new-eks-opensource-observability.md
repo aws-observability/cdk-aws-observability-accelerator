@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Open Source Observability pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
+The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Cluster Open Source Observability pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus and Amazon Managed Grafana:
 
 ![Architecture](../images/CDK_Architecture_diagram.png)
 
@@ -21,7 +21,7 @@ please read the [service documentation](https://docs.aws.amazon.com/eks/latest/u
 - Installs FluxCD to perform GitOps sync of a Git Repo to EKS Cluster. We will use this later for creating Grafana Dashboards and AWS datasources to Amazon Managed Grafana. You can also use your own GitRepo  to sync your own Grafana resources such as Dashboards, Datasources etc. Please check our One observability module - [GitOps with Amazon Managed Grafana](https://catalog.workshops.aws/observability/en-US/aws-managed-oss/gitops-with-amg) to learn more about this.
 - Installs External Secrets Operator to retrieve and Sync the Grafana API keys.
 - Amazon Managed Grafana Dashboard and data source
-- Alerts and recording rules with AWS Managed Service for Prometheus
+- Alerts and recording rules with Amazon Managed Service for Prometheus
 
 ## Prerequisites:
 
@@ -94,10 +94,7 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
         "namespaceworkloads.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
         "nodeexporter.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "nodes.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
-        "workloads.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
-        "apiserver.basic.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/apiserver-basic.json",
-        "apiserver.advanced.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/apiserver-advanced.json",
-        "apiserver.troubleshooting.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/apiserver-troubleshooting.json",
+        "workloads.dashboard.url": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
       }
 ```
 
@@ -269,6 +266,14 @@ fields @timestamp, log
     Querying CloudWatch logs will incur costs per GB scanned. Use small time
     windows and limits in your queries. Checkout the CloudWatch
     [pricing page](https://aws.amazon.com/cloudwatch/pricing/) for more infos.
+    
+## Teardown
+
+You can teardown the whole CDK stack with the following command:
+
+```bash
+make pattern single-new-eks-opensource-observability destroy
+```
 
 ## Troubleshooting
 
