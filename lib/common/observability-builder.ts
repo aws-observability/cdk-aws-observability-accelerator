@@ -5,10 +5,13 @@ import { Construct } from 'constructs';
 
 export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
 
-    public addNewClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
+    public addNewClusterObservabilityBuilderAddOns(ComputeType: string = "ec2"): ObservabilityBuilder {
         return this.addOns(
             new blueprints.addons.VpcCniAddOn(),
-            new blueprints.addons.CoreDnsAddOn(),
+            new blueprints.addons.CoreDnsAddOn({
+                version:"v1.9.3-eksbuild.5",
+                configurationValues:{ computeType: ComputeType}
+            }),
             new blueprints.addons.MetricsServerAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn());
