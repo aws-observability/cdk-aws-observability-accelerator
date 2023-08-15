@@ -3,24 +3,26 @@ import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+type ComputeType = "ec2" | "fargate";
+
 export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
 
-    public addNewClusterObservabilityBuilderAddOns(ComputeType: string = "ec2"): ObservabilityBuilder {
+    public addNewClusterObservabilityBuilderAddOns(computeType: ComputeType = "ec2"): ObservabilityBuilder {
         return this.addOns(
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.CoreDnsAddOn({
                 version:"v1.9.3-eksbuild.5",
-                configurationValues:{ computeType: ComputeType}
+                configurationValues:{ computeType: computeType }
             }),
             new blueprints.addons.MetricsServerAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn());
     }
 
-    public addExistingClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
-        return this.addOns(
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.CertManagerAddOn());
+    public addExistingClusterObservabilityBuilderAddOns(computeType: ComputeType = "ec2"): ObservabilityBuilder {
+            return this.addOns(
+                new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+                new blueprints.addons.CertManagerAddOn(computeType == "fargate" ? { values: { webhook: { securePort: 10260 }}} : undefined));
     }
 
     public static builder(): ObservabilityBuilder {
