@@ -7,7 +7,7 @@ import { ObservabilityBuilder } from '../common/observability-builder';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 
-export default class ExistingEksOpenSourceobservabilityConstruct {
+export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;

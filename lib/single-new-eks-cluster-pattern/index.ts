@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '../common/observability-builder';
 
-export default class SingleNewEksConstruct {
+export default class SingleNewEksPattern {
     constructor(scope: Construct, id: string) {
         const stackId = `${id}-observability-accelerator`;
 
