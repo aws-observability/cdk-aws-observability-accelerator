@@ -9,7 +9,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 This example makes use of CloudWatch Container Insights as a vizualization and metric-aggregation layer.
 Amazon CloudWatch Container Insights helps customers collect, aggregate, and summarize metrics and logs from containerized applications and microservices. Metrics data is collected as performance log events using the embedded metric format. These performance log events use a structured JSON schema that enables high-cardinality data to be ingested and stored at scale. From this data, CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics. The metrics that Container Insights collects are available in CloudWatch automatic dashboards.
 
-By combining Container Insights and CloudWatch logs, we are able to provide a foundation for EKS (Elastic Kubernetes Service) Observability. Monitoring EKS for metrics has two categories:
+By combining Container Insights and CloudWatch logs, we are able to provide a foundation for EKS (Amazon Elastic Kubernetes Service) Observability. Monitoring EKS for metrics has two categories:
 the control plane and the Amazon EKS nodes (with Kubernetes objects).
 The Amazon EKS control plane consists of control plane nodes that run the Kubernetes software,
 such as etcd and the Kubernetes API server. To read more on the components of an Amazon EKS cluster,

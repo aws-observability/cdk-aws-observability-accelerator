@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Existing EKS Cluster AWS Mixed Observability pattern, using AWS native tools such as CloudWatch and X-Ray and Open Source tools such as Amazon Distro for OpenTelmetry (ADOT) and Prometheus Node Exporter.
+The following figure illustrates the architecture of the pattern we will be deploying for Existing EKS Cluster AWS Mixed Observability pattern, using AWS native tools such as CloudWatch and X-Ray and Open Source tools such as AWS Distro for OpenTelemetry (ADOT) and Prometheus Node Exporter.
 
 ![Architecture](../images/mixed-diagram.png)
 
