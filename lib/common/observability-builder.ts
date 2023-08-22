@@ -20,9 +20,9 @@ export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
     }
 
     public addExistingClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
-            return this.addOns(
-                new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-                new blueprints.addons.CertManagerAddOn());
+        return this.addOns(
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn());
     }
 
     public static builder(): ObservabilityBuilder {
