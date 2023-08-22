@@ -43,7 +43,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
-            .addNewClusterObservabilityBuilderAddOns("Fargate")
+            .addNewClusterObservabilityBuilderAddOns("fargate")
             .clusterProvider(fargateClusterProvider)
             .addOns(...addOns)
             .build(scope, stackId);
