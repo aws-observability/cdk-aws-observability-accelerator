@@ -31,7 +31,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
         // Create Fargate profile, you can add selectors to match which pods to schedule on fargate, we will use 'default' i.e., all pods
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
             ["MyProfile", { selectors: [{ namespace: "myNamespace" }] }]
-          ]);
+        ]);
 
         // Define fargate cluster provider and pass the profile options
         const fargateClusterProvider : blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
