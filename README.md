@@ -11,7 +11,7 @@ We provide curated metrics, logs, traces collection, cloudwatch dashboard, alert
 
 ![AWSNative-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/cloud-native-arch.png?raw=true)
 
-## Singe EKS Cluster Open Source Observability Accelerator
+## Single EKS Cluster Open Source Observability Accelerator
 
 ![OpenSource-Architecture](https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/811ec42307d41f35f2fec95f2f2b8a20bddc7646/docs/images/CDK_Architecture_diagram.png)
 
