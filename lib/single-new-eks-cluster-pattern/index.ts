@@ -17,6 +17,7 @@ export default class SingleNewEksPattern {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version('auto')
             .addNewClusterObservabilityBuilderAddOns()
             .addOns(...addOns)
             .build(scope, stackId);

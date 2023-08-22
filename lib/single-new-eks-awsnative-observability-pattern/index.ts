@@ -25,6 +25,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityPattern {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version('auto')
             .addNewClusterObservabilityBuilderAddOns()
             .addOns(...addOns)
             .build(scope, stackId);

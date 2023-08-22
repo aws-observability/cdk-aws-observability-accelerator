@@ -218,7 +218,7 @@ import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();
 
-new SingleNewEksOpenSourceobservabilityConstruct(app, 'single-new-eks-opensource');
+new SingleNewEksOpenSourceobservabilityPattern(app, 'single-new-eks-opensource');
  // configureApp() will create app and configure loggers and perform other prep steps
 ```
 

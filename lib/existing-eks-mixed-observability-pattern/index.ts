@@ -54,6 +54,7 @@ export default class ExistingEksMixedobservabilityPattern {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version('auto')
             .addExistingClusterObservabilityBuilderAddOns()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
