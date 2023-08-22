@@ -19,10 +19,10 @@ export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
             new blueprints.addons.KubeStateMetricsAddOn());
     }
 
-    public addExistingClusterObservabilityBuilderAddOns(computeType: ComputeType = "ec2"): ObservabilityBuilder {
+    public addExistingClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
             return this.addOns(
                 new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-                new blueprints.addons.CertManagerAddOn(computeType == "fargate" ? { values: { webhook: { securePort: 10260 }}} : undefined));
+                new blueprints.addons.CertManagerAddOn());
     }
 
     public static builder(): ObservabilityBuilder {
