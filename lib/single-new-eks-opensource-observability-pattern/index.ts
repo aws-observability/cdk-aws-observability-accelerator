@@ -5,7 +5,8 @@ import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '../common/observability-builder';
 
-export default class SingleNewEksOpenSourceobservabilityConstruct {
+
+export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -71,7 +72,7 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
-            .version("auto")
+            .version('auto')
             .addNewClusterObservabilityBuilderAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
