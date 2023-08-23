@@ -26,6 +26,6 @@ phases:
         [ -z "$CONTEXT_LOCATION" ] || aws s3 cp $CONTEXT_LOCATION .
   build:
     commands:
-      - make pattern "${PATTERN_NAME#/do-e2e-test } --verbose --all --require-approval never"
+      - export AWS_REGION=us-east-2 && make pattern "${PATTERN_NAME#/do-e2e-test } --verbose --all --require-approval never"
 #    finally:
 #      - make destroy-all
