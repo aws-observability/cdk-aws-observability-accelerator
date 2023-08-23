@@ -1,8 +1,6 @@
 {
   "name": "cdk-aws-observability-accelerator",
   "version": "0.1.0",
-  "main": "dist/lib/common/default-main.js",
-  "types": "dist/lib/common/default-main.d.ts",
   "scripts": {
     "build": "rm -rf dist && tsc --skipLibCheck",
     "watch": "tsc -w",
