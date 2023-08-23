@@ -89,23 +89,29 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
 
 ```typescript
   "context": {
-    "grafanaGitOpsConfig": {
-      "bootstrapRepo": {
+    "fluxRepository": {
+      "name": "grafana-dashboards",
+      "namespace": "grafana-operator",
+      "repository": {
         "repoUrl": "https://github.com/aws-observability/aws-observability-accelerator",
         "name": "grafana-dashboards",
         "targetRevision": "main",
         "path": "./artifacts/grafana-operator-manifests/eks/infrastructure"
       },
-      "fluxTargetNamespace": "grafana-operator",
-      "bootstrapValues": {
+      "values": {
         "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
         "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
         "GRAFANA_NSWRKLDS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
         "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
-        "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
-      }
-    }
+        "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
+      },
+      "kustomizations": [
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+        }
+      ]
+    },
   }
 ```
 

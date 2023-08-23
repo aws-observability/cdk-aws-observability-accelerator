@@ -22,10 +22,10 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         // assert(amgEndpointUrl, "AMG Endpoint URL environmane variable COA_AMG_ENDPOINT_URL is mandatory");
 
         // All Grafana Dashboard URLs from `cdk.json`
-        const grafanaGitOpsConfig: blueprints.FluxCDAddOnProps = utils.valueFromContext(scope, "grafanaGitOpsConfig", undefined);
-        grafanaGitOpsConfig.bootstrapValues!.AMG_AWS_REGION = region;
-        grafanaGitOpsConfig.bootstrapValues!.AMP_ENDPOINT_URL = ampEndpoint;
-        grafanaGitOpsConfig.bootstrapValues!.AMG_ENDPOINT_URL = amgEndpointUrl;
+        const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
+        fluxRepository.values!.AMG_AWS_REGION = region;
+        fluxRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
+        fluxRepository.values!.AMG_ENDPOINT_URL = amgEndpointUrl;
 
         const ampAddOnProps: blueprints.AmpAddOnProps = {
             ampPrometheusEndpoint: ampEndpoint,
@@ -39,10 +39,12 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
         };
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
-            ampAddOnProps.openTelemetryCollectorManifestPath = __dirname + '/../common/resources/otel-collector-config.yml';
-            ampAddOnProps.openTelemetryCollectorManifestParameterMap = {
-                javaScrapeSampleLimit: 1000,
-                javaPrometheusMetricsEndpoint: "/metrics"
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
             };
         }
 
@@ -62,13 +64,14 @@ export default class SingleNewEksOpenSourceobservabilityConstruct {
             new blueprints.addons.GrafanaOperatorAddon({
                 version: 'v5.0.0-rc3'
             }),
-            new blueprints.addons.FluxCDAddOn(grafanaGitOpsConfig),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
         ];
 
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version("auto")
             .addNewClusterObservabilityBuilderAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)

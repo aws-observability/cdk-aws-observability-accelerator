@@ -21,10 +21,10 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
         // All Grafana Dashboard URLs from `cdk.json` if present
-        const grafanaGitOpsConfig: blueprints.FluxCDAddOnProps = utils.valueFromContext(scope, "grafanaGitOpsConfig", undefined);
-        grafanaGitOpsConfig.bootstrapValues!.AMG_AWS_REGION = region;
-        grafanaGitOpsConfig.bootstrapValues!.AMP_ENDPOINT_URL = ampEndpoint;
-        grafanaGitOpsConfig.bootstrapValues!.AMG_ENDPOINT_URL = amgEndpointUrl;
+        const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
+        fluxRepository.values!.AMG_AWS_REGION = region;
+        fluxRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
+        fluxRepository.values!.AMG_ENDPOINT_URL = amgEndpointUrl;
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -51,7 +51,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityConstruct {
             new blueprints.addons.GrafanaOperatorAddon({
                 version: 'v5.0.0-rc3'
             }),
-            new blueprints.addons.FluxCDAddOn(grafanaGitOpsConfig),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
         ];
 
