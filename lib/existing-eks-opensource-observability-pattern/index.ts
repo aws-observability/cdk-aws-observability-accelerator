@@ -45,6 +45,31 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         fluxRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
         fluxRepository.values!.AMG_ENDPOINT_URL = amgEndpointUrl;
 
+        const ampAddOnProps: blueprints.AmpAddOnProps = {
+            ampPrometheusEndpoint: ampEndpoint,
+            ampRules: {
+                ampWorkspaceArn: ampWorkspaceArn,
+                ruleFilePaths: [
+                    __dirname + '/../common/resources/amp-config/alerting-rules.yml',
+                    __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                ]
+            }
+        };
+
+        if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/java/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
+            );
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -52,16 +77,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
                 logRetentionDays: 30
             }),
             new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.AmpAddOn({
-                ampPrometheusEndpoint: ampEndpoint,
-                ampRules: {
-                    ampWorkspaceArn: ampWorkspaceArn,
-                    ruleFilePaths: [
-                        __dirname + '/../common/resources/amp-config/alerting-rules.yml',
-                        __dirname + '/../common/resources/amp-config/recording-rules.yml'
-                    ]
-                }
-            }),
+            new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.GrafanaOperatorAddon({
