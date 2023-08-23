@@ -4,14 +4,15 @@ on:
     types: [created]
 jobs:
   checkPermissions:
+    runs-on: ubuntu-latest
     steps:
     - id: checkUserPermissions
       uses: actions-cool/check-user-permission@main
       with:
         require: 'write'
         check-contributor: true
-      outputs:
-        run_test: ${{ steps.checkUserPermissions.outputs.check-result }}
+    outputs:
+      run_test: ${{ steps.checkUserPermissions.outputs.check-result }}
   test:
     runs-on: ubuntu-latest
     needs:
