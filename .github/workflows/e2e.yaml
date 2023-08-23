@@ -10,8 +10,8 @@ jobs:
       uses: actions-cool/check-user-permission@main
       with:    
         require: 'admin'
-      outputs:
-        run_test: ${{ steps.checkUserPermissions.outputs.require-result }}
+    outputs:
+      run_test: ${{ steps.checkUserPermissions.outputs.require-result }}
   test:
     runs-on: ubuntu-latest
     needs:
