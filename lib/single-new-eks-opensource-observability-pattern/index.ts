@@ -47,6 +47,10 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
                     javaPrometheusMetricsEndpoint: "/metrics"
                 }
             };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/java/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
+            );
         }
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);

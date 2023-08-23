@@ -50,19 +50,6 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
   }
 ```
 
-Please also replace the `AmpAddOn` initialization in the `index.ts` file with:
-
-```
-new blueprints.addons.AmpAddOn({
-    ampPrometheusEndpoint: ampEndpoint,
-    openTelemetryCollectorManifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
-    openTelemetryCollectorManifestParameterMap: {
-        javaScrapeSampleLimit: 1000,
-        javaPrometheusMetricsEndpoint: "/metrics"
-    }
-}),
-```
-
 Once completed the rest of the _Deploying_ steps, you can move on with the deployment of the Java workload.
 
 ## Deploy an example Java application
