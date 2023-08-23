@@ -7,7 +7,7 @@ import { ObservabilityBuilder } from '../common/observability-builder';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 
-export default class ExistingEksOpenSourceobservabilityConstruct {
+export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -62,24 +62,33 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
                 version: 'v5.0.0-rc3'
             }),
             new blueprints.addons.FluxCDAddOn({
-                bootstrapRepo: {
-                    repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
-                    name: "grafana-dashboards",
-                    targetRevision: "main",
-                    path: "./artifacts/grafana-operator-manifests/eks/infrastructure"
-                },
-                fluxTargetNamespace: "grafana-operator",
-                bootstrapValues: {
-                    "AMG_AWS_REGION": region,
-                    "AMP_ENDPOINT_URL": ampPrometheusEndpoint,
-                    "AMG_ENDPOINT_URL": amgEndpointUrl,
-                    "GRAFANA_CLUSTER_DASH_URL" : clusterDashUrl,
-                    "GRAFANA_KUBELET_DASH_URL" : kubeletDashUrl,
-                    "GRAFANA_NSWRKLDS_DASH_URL" : namespaceWorkloadsDashUrl,
-                    "GRAFANA_NODEEXP_DASH_URL" : nodeExporterDashUrl,
-                    "GRAFANA_NODES_DASH_URL" : nodesDashUrl,
-                    "GRAFANA_WORKLOADS_DASH_URL" : workloadsDashUrl
-                },
+                repositories: [
+                    {
+                        name: "grafana-dashboards",
+                        namespace: undefined,
+                        repository: {
+                            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
+                            targetRevision: "main",
+                        },
+                        values: {
+                            "AMG_AWS_REGION": region,
+                            "AMP_ENDPOINT_URL": ampPrometheusEndpoint,
+                            "AMG_ENDPOINT_URL": amgEndpointUrl,
+                            "GRAFANA_CLUSTER_DASH_URL": clusterDashUrl,
+                            "GRAFANA_KUBELET_DASH_URL": kubeletDashUrl,
+                            "GRAFANA_NSWRKLDS_DASH_URL": namespaceWorkloadsDashUrl,
+                            "GRAFANA_NODEEXP_DASH_URL": nodeExporterDashUrl,
+                            "GRAFANA_NODES_DASH_URL": nodesDashUrl,
+                            "GRAFANA_WORKLOADS_DASH_URL": workloadsDashUrl
+                        },
+                        kustomizations: [
+                            {
+                                kustomizationPath: "./artifacts/grafana-operator-manifests/eks/infrastructure",
+                                kustomizationTargetNamespace: "grafana-operator"
+                            }
+                        ]
+                    }
+                ],
             }),
             new GrafanaOperatorSecretAddon(),
         ];
@@ -87,6 +96,7 @@ export default class ExistingEksOpenSourceobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version('auto')
             .addExistingClusterObservabilityBuilderAddOns()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
