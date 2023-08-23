@@ -34,6 +34,7 @@ export default class SingleNewEksMixedobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version("auto")
             .addNewClusterObservabilityBuilderAddOns()
             .addOns(...addOns)
             .build(scope, stackId);
