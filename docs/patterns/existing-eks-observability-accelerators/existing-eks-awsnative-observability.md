@@ -56,7 +56,7 @@ You will also need:
 
 ```bash
 make build
-make pattern existing-eks-awsnative-observability-construct deploy
+make pattern existing-eks-awsnative-observability deploy
 ```
 
 ## Verify the resources
@@ -109,7 +109,7 @@ prometheus-node-exporter   Active   13m
 You can teardown the whole CDK stack with the following command:
 
 ```bash
-make pattern existing-eks-awsnative-observability-construct destroy
+make pattern existing-eks-awsnative-observability destroy
 ```
 
 If you setup your cluster with Single New EKS Cluster Observability Accelerator, you also need to run:

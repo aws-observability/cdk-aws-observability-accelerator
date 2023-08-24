@@ -1,6 +1,6 @@
-import SingleNewEksMixedobservabilityConstruct from '../lib/single-new-eks-mixed-observability-construct';
+import SingleNewEksMixedobservabilityPattern from '../lib/single-new-eks-mixed-observability-pattern';
 import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();
 
-new SingleNewEksMixedobservabilityConstruct(app, 'single-new-eks-mixed');
+new SingleNewEksMixedobservabilityPattern(app, 'single-new-eks-mixed');

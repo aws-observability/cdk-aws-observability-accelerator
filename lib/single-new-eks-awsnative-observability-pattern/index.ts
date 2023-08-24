@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '../common/observability-builder';
 
-export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
+export default class SingleNewEksClusterAWSNativeobservabilityPattern {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -25,6 +25,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version('auto')
             .addNewClusterObservabilityBuilderAddOns()
             .addOns(...addOns)
             .build(scope, stackId);

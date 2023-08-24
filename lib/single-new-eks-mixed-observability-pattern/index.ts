@@ -3,7 +3,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '../common/observability-builder';
 
-export default class SingleNewEksMixedobservabilityConstruct {
+export default class SingleNewEksMixedobservabilityPattern {
     constructor(scope: Construct, id: string) {
         // AddOns for the cluster
         const stackId = `${id}-observability-accelerator`;
@@ -34,6 +34,7 @@ export default class SingleNewEksMixedobservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .version('auto')
             .addNewClusterObservabilityBuilderAddOns()
             .addOns(...addOns)
             .build(scope, stackId);
