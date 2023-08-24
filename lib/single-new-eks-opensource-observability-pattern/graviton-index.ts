@@ -15,17 +15,41 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
-        const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
-        
+        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
+        const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
+        const ampWorkspaceArn = ampWorkspace.attrArn;      
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
         // All Grafana Dashboard URLs from `cdk.json` if present
-        const clusterDashUrl: string = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-        const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-        const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
-        const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
-        const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-        const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
+        const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
+        fluxRepository.values!.AMG_AWS_REGION = region;
+        fluxRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
+        fluxRepository.values!.AMG_ENDPOINT_URL = amgEndpointUrl;
+
+        const ampAddOnProps: blueprints.AmpAddOnProps = {
+            ampPrometheusEndpoint: ampEndpoint,
+            ampRules: {
+                ampWorkspaceArn: ampWorkspaceArn,
+                ruleFilePaths: [
+                    __dirname + '/../common/resources/amp-config/alerting-rules.yml',
+                    __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                ]
+            }
+        };
+
+        if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/java/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
+            );
+        }
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -37,43 +61,13 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
                 logRetentionDays: 30
             }),
             new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.AmpAddOn({
-                ampPrometheusEndpoint: ampPrometheusEndpoint,
-            }),
+            new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.addons.GrafanaOperatorAddon({
                 version: 'v5.0.0-rc3'
             }),
-            new blueprints.addons.FluxCDAddOn({
-                repositories: [
-                    {
-                        name: "grafana-dashboards",
-                        namespace: undefined,
-                        repository: {
-                            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
-                            targetRevision: "main",
-                        },
-                        values: {
-                            "AMG_AWS_REGION": region,
-                            "AMP_ENDPOINT_URL": ampPrometheusEndpoint,
-                            "AMG_ENDPOINT_URL": amgEndpointUrl,
-                            "GRAFANA_CLUSTER_DASH_URL": clusterDashUrl,
-                            "GRAFANA_KUBELET_DASH_URL": kubeletDashUrl,
-                            "GRAFANA_NSWRKLDS_DASH_URL": namespaceWorkloadsDashUrl,
-                            "GRAFANA_NODEEXP_DASH_URL": nodeExporterDashUrl,
-                            "GRAFANA_NODES_DASH_URL": nodesDashUrl,
-                            "GRAFANA_WORKLOADS_DASH_URL": workloadsDashUrl
-                        },
-                        kustomizations: [
-                            {
-                                kustomizationPath: "./artifacts/grafana-operator-manifests/eks/infrastructure",
-                                kustomizationTargetNamespace: "grafana-operator"
-                            }
-                        ]
-                    }
-                ],
-            }),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
         ];
 
