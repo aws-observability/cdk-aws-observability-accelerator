@@ -1,4 +1,4 @@
-name: "Test on Comment"
+name: "E2E Pipeline for CDK Observability Accelerator"
 on:
   issue_comment:
     types: [created]
@@ -12,7 +12,7 @@ jobs:
         require: 'admin'
     outputs:
       run_test: ${{ steps.checkUserPermissions.outputs.require-result }}
-  test:
+  e2ePipeline:
     runs-on: ubuntu-latest
     needs:
     - checkPermissions
