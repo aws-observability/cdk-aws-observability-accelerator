@@ -11,7 +11,7 @@ We provide curated metrics, logs, traces collection, cloudwatch dashboard, alert
 
 ![AWSNative-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/cloud-native-arch.png?raw=true)
 
-## Singe EKS Cluster Open Source Observability Accelerator
+## Single EKS Cluster Open Source Observability Accelerator
 
 ![OpenSource-Architecture](https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/811ec42307d41f35f2fec95f2f2b8a20bddc7646/docs/images/CDK_Architecture_diagram.png)
 
@@ -207,18 +207,18 @@ The `compile` command is optimized to build only modified files and is fast.
 
 To create a new pattern, please follow these steps:
 
-1. Under lib create a folder for your pattern, such as `<pattern-name>-construct`. If you plan to create a set of patterns that represent a particular subdomain, e.g. `security` or `hardening`, please create an issue to discuss it first. If approved, you will be able to create a folder with your subdomain name and group your pattern constructs under it. 
-2. Blueprints generally don't require a specific class, however we use a convention of wrapping each pattern in a plain class like `<Pattern-Name>Construct`. This class is generally placed in `index.ts` under your pattern folder. 
+1. Under lib create a folder for your pattern, such as `<pattern-name>-pattern`. If you plan to create a set of patterns that represent a particular subdomain, e.g. `security` or `hardening`, please create an issue to discuss it first. If approved, you will be able to create a folder with your subdomain name and group your pattern constructs under it. 
+2. Blueprints generally don't require a specific class, however we use a convention of wrapping each pattern in a plain class like `<Pattern-Name>Pattern`. This class is generally placed in `index.ts` under your pattern folder. 
 3. Once the pattern implementation is ready, you need to include it in the list of the patterns by creating a file `bin/<pattern-name>.ts`. The implementation of this file is very light, and it is done to allow patterns to run independently.
 
 Example simple synchronous pattern:
 ```typescript
-import SingleNewEksOpenSourceobservabilityConstruct from '../lib/single-new-eks-opensource-observability-construct';
+import SingleNewEksOpenSourceobservabilityPattern from '../lib/single-new-eks-opensource-observability-pattern';
 import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();
 
-new SingleNewEksOpenSourceobservabilityConstruct(app, 'single-new-eks-opensource');
+new SingleNewEksOpenSourceobservabilityPattern(app, 'single-new-eks-opensource');
  // configureApp() will create app and configure loggers and perform other prep steps
 ```
 
