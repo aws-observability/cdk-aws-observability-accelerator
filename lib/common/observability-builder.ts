@@ -3,17 +3,12 @@ import * as utils from '@aws-quickstart/eks-blueprints/dist/utils';
 import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-type ComputeType = "ec2" | "fargate";
-
 export class ObservabilityBuilder extends blueprints.BlueprintBuilder {
 
-    public addNewClusterObservabilityBuilderAddOns(computeType: ComputeType = "ec2"): ObservabilityBuilder {
+    public addNewClusterObservabilityBuilderAddOns(): ObservabilityBuilder {
         return this.addOns(
             new blueprints.addons.VpcCniAddOn(),
-            new blueprints.addons.CoreDnsAddOn({
-                version:"v1.9.3-eksbuild.5",
-                configurationValues:{ computeType: computeType }
-            }),
+            new blueprints.addons.CoreDnsAddOn(),
             new blueprints.addons.MetricsServerAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn());
