@@ -5,7 +5,7 @@ import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import { ObservabilityBuilder } from '../common/observability-builder';
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -53,20 +53,13 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.KubeProxyAddOn("v1.27.1-eksbuild.1"),
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.CertManagerAddOn(),
+            // new blueprints.addons.KubeProxyAddOn("v1.27.1-eksbuild.1"),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.AmpAddOn(ampAddOnProps),
+            // new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.ExternalsSecretsAddOn(),
-            new blueprints.addons.GrafanaOperatorAddon({
-                version: 'v5.0.0-rc3'
-            }),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
         ];
@@ -81,7 +74,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .addNewClusterObservabilityBuilderAddOns()
+            .enableOpenSourcePatternAddOns(ampEndpoint)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .addOns(...addOns)
