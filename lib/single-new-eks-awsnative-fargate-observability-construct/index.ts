@@ -11,6 +11,13 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
+
+        const cloudWatchAdotAddOn = new blueprints.addons.CloudWatchAdotAddOn({
+            deploymentMode: blueprints.cloudWatchDeploymentMode.DEPLOYMENT,
+            namespace: 'default',
+            name: 'adot-collector-cloudwatch',
+            metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*'],
+        });
         
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
@@ -19,7 +26,6 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
                 configurationValues:{ computeType: "Fargate" }
             }),
             new blueprints.addons.MetricsServerAddOn(),
-            new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.KubeProxyAddOn(),
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
@@ -33,13 +39,17 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.ContainerInsightsAddOn()       
+            new blueprints.addons.AdotCollectorAddOn(),
+            cloudWatchAdotAddOn,
+            new blueprints.addons.XrayAdotAddOn(),
+
         ];
 
         // Create Fargate profile, you can add selectors to match which pods to schedule on fargate, we will use 'default' i.e., all pods
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
             ["MyProfile", { selectors: [{ namespace: "mynamespace" },
-                { namespace: "cert-manager" }
+                { namespace: "cert-manager" },
+                { namespace: "opentelemetry-operator-system" }
             ]}]
         ]);
 
