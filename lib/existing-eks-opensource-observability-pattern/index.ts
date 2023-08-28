@@ -9,7 +9,7 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 
 export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
         const kubectlRoleName = utils.valueFromContext(scope, "existing.kubectl.rolename", undefined);

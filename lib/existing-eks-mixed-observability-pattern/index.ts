@@ -7,7 +7,7 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 
 export default class ExistingEksMixedobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
 
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
