@@ -9,7 +9,7 @@ import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
     constructor(scope: Construct, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
@@ -53,12 +53,10 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            // new blueprints.addons.KubeProxyAddOn("v1.27.1-eksbuild.1"),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            // new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
@@ -74,7 +72,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .enableOpenSourcePatternAddOns(ampEndpoint)
+            .enableOpenSourcePatternAddOns(ampAddOnProps,"v1.27.1-eksbuild.1")
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .addOns(...addOns)

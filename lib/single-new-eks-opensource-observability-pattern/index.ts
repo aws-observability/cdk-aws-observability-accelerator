@@ -5,10 +5,9 @@ import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
-
 export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
@@ -59,7 +58,6 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            // new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
@@ -69,7 +67,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .enableOpenSourcePatternAddOns(ampEndpoint)
+            .enableOpenSourcePatternAddOns(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);

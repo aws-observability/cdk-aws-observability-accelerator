@@ -17,7 +17,7 @@ export default class SingleNewEksMixedobservabilityPattern {
             metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*'],
         });
         
-        Reflect.defineMetadata("ordered", true, blueprints.addons.XrayAdotAddOn);
+        Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             cloudWatchAdotAddOn,
             new blueprints.addons.CloudWatchLogsAddon({
