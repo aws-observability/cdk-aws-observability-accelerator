@@ -3,12 +3,11 @@ import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
-import { ObservabilityBuilder } from '../common/observability-builder';
-
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
@@ -55,20 +54,11 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.KubeProxyAddOn(),
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.CertManagerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.AmpAddOn(ampAddOnProps),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.ExternalsSecretsAddOn(),
-            new blueprints.addons.GrafanaOperatorAddon({
-                version: 'v5.0.0-rc3'
-            }),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
         ];
@@ -77,7 +67,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .addNewClusterObservabilityBuilderAddOns()
+            .enableOpenSourcePatternAddOns(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);
