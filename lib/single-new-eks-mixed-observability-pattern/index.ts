@@ -1,13 +1,12 @@
 import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
-import { ObservabilityBuilder } from '../common/observability-builder';
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksMixedobservabilityPattern {
     constructor(scope: Construct, id: string) {
-        // AddOns for the cluster
-        const stackId = `${id}-observability-accelerator`;
 
+        const stackId = `${id}-observability-accelerator`;
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
 
@@ -18,16 +17,13 @@ export default class SingleNewEksMixedobservabilityPattern {
             metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*'],
         });
         
+        Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.KubeProxyAddOn(),
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.CertManagerAddOn(),
+            cloudWatchAdotAddOn,
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.AdotCollectorAddOn(),
-            cloudWatchAdotAddOn,
             new blueprints.addons.XrayAdotAddOn(),
         ];
 
@@ -35,7 +31,7 @@ export default class SingleNewEksMixedobservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .addNewClusterObservabilityBuilderAddOns()
+            .enableMixedPatternAddOns()
             .addOns(...addOns)
             .build(scope, stackId);
     }

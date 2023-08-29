@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { ObservabilityBuilder } from '../common/observability-builder';
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksPattern {
     constructor(scope: Construct, id: string) {
@@ -10,7 +10,6 @@ export default class SingleNewEksPattern {
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.KubeProxyAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn()
         ];
 
@@ -18,7 +17,6 @@ export default class SingleNewEksPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .addNewClusterObservabilityBuilderAddOns()
             .addOns(...addOns)
             .build(scope, stackId);
     }
