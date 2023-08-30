@@ -35,6 +35,7 @@ nav:
       - OSS Java Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md
       - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
       - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+    - Logs: logs.md  
     - Tracing: tracing.md
   - Supporting Examples:
     - EKS Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
