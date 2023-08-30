@@ -113,7 +113,7 @@ View the Performance Monitoring Dashboard:
 
 ## Viewing Logs
 
-Please see [Logging](../../logs.md) for information on viewing Logs.
+Refer to "Using CloudWatch Logs Insights to Query Logs in [Logging](../../logs.md).
 
 
 ## Teardown

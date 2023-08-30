@@ -290,7 +290,7 @@ Grafana Operator and Flux always work together to synchronize your dashboards wi
 
 ## Viewing Logs
 
-Please see [Logging](../../logs.md) for information on viewing Logs.
+Refer to the "Using CloudWatch Logs as a data source in Grafana" section in [Logging](../../logs.md).
 
 ## Teardown
 
