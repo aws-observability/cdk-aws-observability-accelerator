@@ -1,13 +1,13 @@
 import { ImportClusterProvider, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
-import { ObservabilityBuilder } from '../common/observability-builder';
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 
 export default class ExistingEksMixedobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
 
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
@@ -46,7 +46,6 @@ export default class ExistingEksMixedobservabilityPattern {
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.AdotCollectorAddOn(),
             cloudWatchAdotAddOn,
             new blueprints.addons.XrayAdotAddOn(),
         ];
@@ -55,7 +54,7 @@ export default class ExistingEksMixedobservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .addExistingClusterObservabilityBuilderAddOns()
+            .enableMixedPatternAddOns()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
             .addOns(...addOns)

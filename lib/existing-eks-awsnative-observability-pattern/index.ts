@@ -1,13 +1,13 @@
 // import { Construct } from 'constructs';
 import { ImportClusterProvider, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { ObservabilityBuilder } from '../common/observability-builder';
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 
 export default class ExistingEksAwsNativeObservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
-        // AddOns for the cluster
+        
         const stackId = `${id}-observability-accelerator`;
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
         const kubectlRoleName = utils.valueFromContext(scope, "existing.kubectl.rolename", undefined);
@@ -37,15 +37,14 @@ export default class ExistingEksAwsNativeObservabilityPattern {
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
-            }),
-            new blueprints.addons.ContainerInsightsAddOn(),
+            })
         ];
 
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
             .version('auto')
-            .addExistingClusterObservabilityBuilderAddOns()
+            .enableNativePatternAddOns()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
             .addOns(...addOns)

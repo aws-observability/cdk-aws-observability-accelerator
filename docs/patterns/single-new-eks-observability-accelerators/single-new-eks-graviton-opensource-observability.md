@@ -238,14 +238,29 @@ Login to your Grafana workspace and navigate to the Dashboards panel. You should
 
 ![Dashboard](../images/All-Dashboards.png)
 
-Open the `Node Exporter` dashboard and you should be able to view its visualization as shown below :
+Open the `Cluster` dashboard and you should be able to view its visualization as shown below :
 
-![NodeExporter_Dashboard](../images/Node-Exporter.png)
+![Cluster_Dashboard](../images/grafana-cluster.png)
 
+Open the `Namespace (Workloads)` dashboard and you should be able to view its visualization as shown below :
+
+![Namespace_Dashboard](../images/grafana-namespace-workloads.png)
+
+Open the `Node (Pods)` dashboard and you should be able to view its visualization as shown below :
+
+![Node_Dashboard](../images/grafana-node-pods.png)
+
+Open the `Workload` dashboard and you should be able to view its visualization as shown below :
+
+![Workload_Dashboard](../images/grafana-workload.png)
 
 Open the `Kubelet` dashboard and you should be able to view its visualization as shown below :
 
-![Kubelet_Dashboard](../images/Kubelet.png)
+![Kubelet_Dashboard](../images/grafana-kubelet.png)
+
+Open the `Nodes` dashboard and you should be able to view its visualization as shown below :
+
+![Nodes_Dashboard](../images/grafana-nodes.png)
 
 From the cluster to view all dashboards as Kubernetes objects, run:
 
