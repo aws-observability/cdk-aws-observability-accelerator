@@ -3,7 +3,7 @@ import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
-import { ObservabilityBuilder } from '../common/observability-builder';
+import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 //import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
 
@@ -54,17 +54,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
             );
         }
-
-
-        // const cloudWatchAdotAddOn = new blueprints.addons.CloudWatchAdotAddOn({
-        //     deploymentMode: cloudWatchDeploymentMode.DEPLOYMENT,
-        //     namespace: 'default',
-        //     name: 'adot-collector-cloudwatch',
-        //     metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*', 'ho11y*'],
-        //     podLabelRegex: 'frontend|downstream(.*)' 
-        // });
-
-
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -120,8 +109,10 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            //.version('auto')
             .clusterProvider(fargateClusterProvider)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
+            //.enableOpenSourcePatternAddOns(ampAddOnProps)
             .addOns(...addOns)
             .build(scope, stackId);
     }
