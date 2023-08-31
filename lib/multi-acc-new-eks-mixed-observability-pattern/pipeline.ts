@@ -154,14 +154,11 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
                 // credentialsType: 'SSH',
             },
             values: {
-                service: {
-                    type: 'LoadBalancer'
-                },
-                // server: {
-                //     service: {
-                //         type: 'LoadBalancer'
-                //     }
-                // }
+                server: {
+                    service: {
+                        type: 'LoadBalancer'
+                    }
+                }
             },
             // bootstrapValues: {
             //     spec: {
