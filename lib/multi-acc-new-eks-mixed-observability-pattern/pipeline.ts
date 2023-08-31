@@ -155,18 +155,19 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
 
 
             },
-            values: {
-                ingress: {
-                    enabled: true
-                }
-            },
-            // bootstrapValues: {
-            //     spec: {
-            //         ingress: {
-            //             host: 'teamblueprints.com',
-            //         }
-            //     },
+            // values: {
+            //     ingress: {
+            //         enabled: true
+            //     }
             // },
+            bootstrapValues: {
+                spec: {
+                    ingress: {
+                        enabled: true,
+                        host: 'teamblueprints.com',
+                    }
+                },
+            },
         }
     );
 }
