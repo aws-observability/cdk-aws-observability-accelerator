@@ -63,7 +63,7 @@ export class PipelineMultiEnvMonitoring {
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
-        const gitOwner = 'prakkie'; 
+        const gitOwner = 'Prakkie'; 
         // const gitRepositoryName = 'cdk-eks-blueprints-patterns';
         const gitRepositoryName = 'cdk-aws-observability-accelerator';
 
