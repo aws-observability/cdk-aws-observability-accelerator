@@ -77,8 +77,8 @@ export class PipelineMultiEnvMonitoring {
         };
 
         blueprints.CodePipelineStack.builder()
-            // .application("npx ts-node bin/pipeline-multienv-monitoring.ts")
-            .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
+            .application("npx ts-node bin/pipeline-multienv-monitoring.ts")
+            // .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-central-pipeline")
             .owner(gitOwner)
             .codeBuildPolicies([ 
