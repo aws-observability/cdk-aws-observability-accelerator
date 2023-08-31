@@ -160,10 +160,15 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
             //         enabled: true
             //     }
             // },
-            bootstrapValues: {
+            values: {
                 spec: {
                     type: 'LoadBalancer'
                 },
+                server: {
+                    service: {
+                        type: 'LoadBalancer'
+                    }
+                }
             },
             // bootstrapValues: {
             //     spec: {
