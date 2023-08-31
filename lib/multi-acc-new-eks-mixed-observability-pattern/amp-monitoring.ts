@@ -53,7 +53,7 @@ export default class AmpMonitoringConstruct {
         }
 
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            // new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.CertManagerAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.PrometheusNodeExporterAddOn(),
