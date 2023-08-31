@@ -108,9 +108,9 @@ export class PipelineMultiEnvMonitoring {
                                 builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
                                 id: "amp-iam-nested-stack"
                             }))
-                            .addOns(
-                                prodArgoAddonConfig,
-                            )
+                            // .addOns(
+                            //     prodArgoAddonConfig,
+                            // )
                     },
                     // {
                     //     id: PROD2_ENV_ID,
