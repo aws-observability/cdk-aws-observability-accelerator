@@ -152,21 +152,11 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
                 targetRevision: 'main',
                 // credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 // credentialsType: 'SSH',
-
-
             },
-            // values: {
-            //     ingress: {
-            //         enabled: true
-            //     }
-            // },
             values: {
-                spec: {
+                service: {
                     type: 'LoadBalancer'
                 },
-                // service: {
-                //     type: 'LoadBalancer'
-                // },
                 // server: {
                 //     service: {
                 //         type: 'LoadBalancer'
