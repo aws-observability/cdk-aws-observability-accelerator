@@ -11,5 +11,5 @@ CDK Observability Accelerator pattern for Multiple EKS clusters in multiple AWS 
 new PipelineMultiEnvMonitoring()
     .buildAsync(app)
     .catch((e) => {
-        errorHandler(app, "Multi Account Multi EKS CDK Observability pattern setup errored. See documentation for instructions.", e);
+        errorHandler(app, "Multi Account Multi EKS CDK Observability pattern setup errored. Ensure secret cdk-context exists in us-east-1 of pipeline account. See documentation for details.", e);
     });

@@ -11,7 +11,7 @@ import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 const logger = blueprints.utils.logger;
 
 /**
- * Function relies on a secret called "cdk-context" defined in the target region (pipeline account must have it)
+ * Function relies on a secret called "cdk-context" defined in the us-east-1 region in pipeline account. Its a MANDATORY STEP.
  * @returns 
  */
 export async function populateAccountWithContextDefaults(): Promise<PipelineMultiEnvMonitoringProps> {
@@ -62,7 +62,8 @@ export class PipelineMultiEnvMonitoring {
         const prodArgoAddonConfig = createArgoAddonConfig('prod', 'https://github.com/aws-samples/eks-blueprints-workloads.git');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
-        const gitOwner = 'aws-samples';
+        // const gitOwner = 'aws-samples'; 
+        const gitOwner = 'prakkie'; 
         const gitRepositoryName = 'cdk-eks-blueprints-patterns';
 
         const amgIamSetupStackProps: AmgIamSetupStackProps = {
@@ -92,7 +93,8 @@ export class PipelineMultiEnvMonitoring {
             .repository({
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',
-                targetRevision: 'main',
+                // targetRevision: 'main',
+                targetRevision: 'multi-account-COA',
             })
             .enableCrossAccountKeys()
             .wave({
@@ -110,26 +112,26 @@ export class PipelineMultiEnvMonitoring {
                                 prodArgoAddonConfig,
                             )
                     },
-                    {
-                        id: PROD2_ENV_ID,
-                        stackBuilder: blueprintCloudWatch
-                            .clone(context.prodEnv2.region, context.prodEnv2.account)
-                            .addOns(new blueprints.NestedStackAddOn({
-                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
-                                id: "cloudwatch-iam-nested-stack"
-                            }))
-                            .addOns(
-                                prodArgoAddonConfig,
-                            )
-                    },
-                    {
-                        id: MON_ENV_ID,
-                        stackBuilder: <blueprints.StackBuilder>{
-                            build(scope: Construct): cdk.Stack {
-                                return new AmgIamSetupStack(scope, "amg-iam-setup", amgIamSetupStackProps);
-                            }
-                        }
-                    },
+                    // {
+                    //     id: PROD2_ENV_ID,
+                    //     stackBuilder: blueprintCloudWatch
+                    //         .clone(context.prodEnv2.region, context.prodEnv2.account)
+                    //         .addOns(new blueprints.NestedStackAddOn({
+                    //             builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
+                    //             id: "cloudwatch-iam-nested-stack"
+                    //         }))
+                    //         .addOns(
+                    //             prodArgoAddonConfig,
+                    //         )
+                    // },
+                    // {
+                    //     id: MON_ENV_ID,
+                    //     stackBuilder: <blueprints.StackBuilder>{
+                    //         build(scope: Construct): cdk.Stack {
+                    //             return new AmgIamSetupStack(scope, "amg-iam-setup", amgIamSetupStackProps);
+                    //         }
+                    //     }
+                    // },
                 ],
             })
             .build(scope, "multi-account-central-pipeline", {
@@ -144,7 +146,8 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
             bootstrapRepo: {
                 repoUrl: repoUrl,
                 path: `envs/${environment}`,
-                targetRevision: 'main',
+                // targetRevision: 'main',
+                targetRevision: 'multi-account-COA',
             },
             bootstrapValues: {
                 spec: {
