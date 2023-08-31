@@ -106,6 +106,7 @@ export class PipelineMultiEnvMonitoring {
                         id: PROD1_ENV_ID,
                         stackBuilder: blueprintAmp
                             .clone(context.prodEnv1.region, context.prodEnv1.account)
+                            .version('auto')
                             .addOns(new blueprints.NestedStackAddOn({
                                 builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
                                 id: "amp-iam-nested-stack"
