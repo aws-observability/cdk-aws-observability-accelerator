@@ -64,7 +64,8 @@ export class PipelineMultiEnvMonitoring {
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
         const gitOwner = 'prakkie'; 
-        const gitRepositoryName = 'cdk-eks-blueprints-patterns';
+        // const gitRepositoryName = 'cdk-eks-blueprints-patterns';
+        const gitRepositoryName = 'cdk-aws-observability-accelerator';
 
         const amgIamSetupStackProps: AmgIamSetupStackProps = {
             roleName: "amgWorkspaceIamRole",
@@ -76,7 +77,8 @@ export class PipelineMultiEnvMonitoring {
         };
 
         blueprints.CodePipelineStack.builder()
-            .application("npx ts-node bin/pipeline-multienv-monitoring.ts")
+            // .application("npx ts-node bin/pipeline-multienv-monitoring.ts")
+            .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-central-pipeline")
             .owner(gitOwner)
             .codeBuildPolicies([ 
