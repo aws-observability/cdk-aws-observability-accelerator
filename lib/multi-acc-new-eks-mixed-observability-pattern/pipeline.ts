@@ -149,16 +149,19 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
             bootstrapRepo: {
                 repoUrl: repoUrl,
                 path: `envs/${environment}`,
-                // targetRevision: 'main',
-                targetRevision: 'multi-account-COA',
+                targetRevision: 'main',
+                // credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
+                // credentialsType: 'SSH',
+
+
             },
-            bootstrapValues: {
-                spec: {
-                    ingress: {
-                        host: 'teamblueprints.com',
-                    }
-                },
-            },
+            // bootstrapValues: {
+            //     spec: {
+            //         ingress: {
+            //             host: 'teamblueprints.com',
+            //         }
+            //     },
+            // },
         }
     );
 }
