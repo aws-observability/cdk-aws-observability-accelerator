@@ -150,22 +150,18 @@ function createArgoAddonConfig(environment: string, repoUrl: string): blueprints
                 repoUrl: repoUrl,
                 path: `envs/${environment}`,
                 targetRevision: 'main',
-                // credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
-                // credentialsType: 'SSH',
+                credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
+                credentialsType: 'SSH',
             },
-            values: {
-                server: {
-                    service: {
-                        type: 'LoadBalancer'
-                    }
-                }
-            },
-            // bootstrapValues: {
-            //     spec: {
-            //         ingress: {
-            //             host: 'teamblueprints.com',
+            // values: {
+            //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
+            //         service: {
+            //             type: 'LoadBalancer'
             //         }
-            //     },
+            //     }
+            // },
+            // bootstrapValues: {
+            //     "region": "us-west-2"
             // },
         }
     );
