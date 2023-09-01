@@ -4,6 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
+import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
 import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
@@ -57,6 +58,7 @@ export class PipelineMultiEnvMonitoring {
 
         const blueprintAmp = new AmpMonitoringConstruct().create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
+        const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
         // Argo configuration per environment
         const prodArgoAddonConfig = createArgoAddonConfig('prod', 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main');
@@ -68,13 +70,9 @@ export class PipelineMultiEnvMonitoring {
         // const gitRepositoryName = 'cdk-eks-blueprints-patterns';
         const gitRepositoryName = 'cdk-aws-observability-accelerator';
 
-        const amgIamSetupStackProps: AmgIamSetupStackProps = {
+        const AmgIamSetupStackProps: AmgIamSetupStackProps = {
             roleName: "amgWorkspaceIamRole",
-            accounts: [context.prodEnv1.account!, context.prodEnv2.account!],
-            env: {
-                account: context.monitoringEnv.account!,
-                region: context.monitoringEnv.region!
-            }
+            accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
         blueprints.CodePipelineStack.builder()
@@ -129,6 +127,19 @@ export class PipelineMultiEnvMonitoring {
                                 prodArgoAddonConfig,
                             )
                     },
+                    // {
+                    //     id: MON_ENV_ID,
+                    //     stackBuilder: blueprintAmg
+                    //         .name(MON_ENV_ID)
+                    //         .clone(context.monitoringEnv.region, context.monitoringEnv.account)
+                    //         .addOns(new blueprints.NestedStackAddOn({
+                    //             builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
+                    //             id: "amg-iam-nested-stack"
+                    //         }))
+                    //         .addOns(
+                    //             grafanaOperatorArgoAddonConfig,
+                    //         )
+                    // },                    
                     // {
                     //     id: MON_ENV_ID,
                     //     stackBuilder: <blueprints.StackBuilder>{
