@@ -115,18 +115,18 @@ export class PipelineMultiEnvMonitoring {
                                 prodArgoAddonConfig,
                             )
                     },
-                    // {
-                    //     id: PROD2_ENV_ID,
-                    //     stackBuilder: blueprintCloudWatch
-                    //         .clone(context.prodEnv2.region, context.prodEnv2.account)
-                    //         .addOns(new blueprints.NestedStackAddOn({
-                    //             builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
-                    //             id: "cloudwatch-iam-nested-stack"
-                    //         }))
-                    //         .addOns(
-                    //             prodArgoAddonConfig,
-                    //         )
-                    // },
+                    {
+                        id: PROD2_ENV_ID,
+                        stackBuilder: blueprintCloudWatch
+                            .clone(context.prodEnv2.region, context.prodEnv2.account)
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
+                                id: "cloudwatch-iam-nested-stack"
+                            }))
+                            .addOns(
+                                prodArgoAddonConfig,
+                            )
+                    },
                     // {
                     //     id: MON_ENV_ID,
                     //     stackBuilder: <blueprints.StackBuilder>{

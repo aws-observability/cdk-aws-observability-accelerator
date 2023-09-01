@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { utils } from '@aws-quickstart/eks-blueprints';
-import * as team from './teams/multi-account-monitoring'; // Team implementations
+import * as team from './teams/multi-account-monitoring'; // for teams implementation
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class AmpMonitoringConstruct {
@@ -22,6 +22,7 @@ export default class AmpMonitoringConstruct {
     
         const account = contextAccount! || process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = contextRegion! || process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
+        
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
@@ -53,15 +54,17 @@ export default class AmpMonitoringConstruct {
         }
 
         const addOns: Array<blueprints.ClusterAddOn> = [
-            // new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
-            // new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
-            // new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns
-            // new blueprints.addons.PrometheusNodeExporterAddOn(), // part of enableOpenSourcePatternAddOns
-            // new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.XrayAdotAddOn(),
-            // new blueprints.addons.NginxAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
-            new blueprints.addons.SecretsStoreAddOn()      
+            new blueprints.addons.SecretsStoreAddOn(),
+            // new blueprints.addons.NginxAddOn(),            
+            /* already part of enableOpenSourcePatternAddOns
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
+            new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
+            new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns
+            new blueprints.addons.PrometheusNodeExporterAddOn(), // part of enableOpenSourcePatternAddOns
+            new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
+            */               
         ];
 
         return ObservabilityBuilder.builder()
@@ -77,44 +80,3 @@ export default class AmpMonitoringConstruct {
 
 
 }
-
-
-
-    // build(scope: Construct, id: string, account?: string, region?: string ) {
-    //     // Setup platform team
-    //     const accountID = account ?? process.env.CDK_DEFAULT_ACCOUNT! ;
-    //     const awsRegion =  region ?? process.env.CDK_DEFAULT_REGION! ;
- 
-    //     const stackID = `${id}-blueprint`;
-    //     this.create(scope, accountID, awsRegion)
-    //         .build(scope, stackID);
-    // }
-
-    // create(scope: Construct, account?: string, region?: string ) {
-    //     // Setup platform team
-    //     const accountID = account ?? process.env.CDK_DEFAULT_ACCOUNT! ;
-    //     const awsRegion =  region ?? process.env.CDK_DEFAULT_REGION! ;
-    //     const ampWorkspaceName = "multi-account-monitoring";
-    //     const ampPrometheusEndpoint = (blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace).attrPrometheusEndpoint;
-
-    //     return blueprints.EksBlueprint.builder()
-    //         .account(accountID)
-    //         .region(awsRegion)
-    //         .version('auto')
-    //         .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
-    //         .addOns(
-    //             new blueprints.AwsLoadBalancerControllerAddOn,
-    //             new blueprints.CertManagerAddOn,
-    //             new blueprints.KubeStateMetricsAddOn,
-    //             new blueprints.PrometheusNodeExporterAddOn,
-    //             new blueprints.AdotCollectorAddOn,
-    //             new blueprints.addons.AmpAddOn({
-    //                 ampPrometheusEndpoint: ampPrometheusEndpoint,
-    //             }),
-    //             new blueprints.XrayAdotAddOn,
-    //             new blueprints.NginxAddOn,
-    //             new blueprints.ClusterAutoScalerAddOn,
-    //             new blueprints.SecretsStoreAddOn
-    //         )
-    //         .teams(new team.TeamGeordi, new team.CorePlatformTeam);
-    // }
