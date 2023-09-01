@@ -54,7 +54,7 @@ export class PipelineMultiEnvMonitoring {
         // environments IDs consts
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
-        const MON_ENV_ID = `coa-central-mon-${context.monitoringEnv.region}`;
+        const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
 
         const blueprintAmp = new AmpMonitoringConstruct().create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
@@ -158,6 +158,7 @@ function createArgoAddonConfig(environment: string, repoUrl: string, path: strin
                 // credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 // credentialsType: 'SSH',
             },
+
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
