@@ -44,21 +44,18 @@ export default class CloudWatchMonitoringConstruct {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);        
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
             new blueprints.addons.SecretsStoreAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
-            }),
-            // new blueprints.addons.NginxAddOn(),            
-            /* already part of enableNativePatternAddOns */
+            }),     
+            /* already part of enableNativePatternAddOns 
             new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns
+            new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns         
             new blueprints.addons.PrometheusNodeExporterAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
-            /**/               
+            */
         ];
   
         return ObservabilityBuilder.builder()
@@ -66,8 +63,6 @@ export default class CloudWatchMonitoringConstruct {
             .region(region)
             .version('auto')
             .enableNativePatternAddOns()
-            // .enableOpenSourcePatternAddOns(ampAddOnProps)
-            // .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .teams(new team.TeamGeordi, new team.CorePlatformTeam);
     }  
