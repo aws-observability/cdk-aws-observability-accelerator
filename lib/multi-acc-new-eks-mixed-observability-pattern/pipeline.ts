@@ -51,12 +51,12 @@ export class PipelineMultiEnvMonitoring {
     async buildAsync(scope: Construct) {
         const context = await populateAccountWithContextDefaults();
         // environments IDs consts
-        const PROD1_ENV_ID = `eks-prod1-${context.prodEnv1.region}`;
-        const PROD2_ENV_ID = `eks-prod2-${context.prodEnv2.region}`;
+        const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
+        const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `central-monitoring-${context.monitoringEnv.region}`;
 
         const blueprintAmp = new AmpMonitoringConstruct().create(scope, context.prodEnv1.account, context.prodEnv1.region);
-        const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region);
+        const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
 
         // Argo configuration per environment
         const prodArgoAddonConfig = createArgoAddonConfig('prod', 'https://github.com/aws-samples/eks-blueprints-workloads.git');
@@ -77,7 +77,6 @@ export class PipelineMultiEnvMonitoring {
         };
 
         blueprints.CodePipelineStack.builder()
-            // .application("npx ts-node bin/pipeline-multienv-monitoring.ts")
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-central-pipeline")
             .owner(gitOwner)
@@ -105,6 +104,7 @@ export class PipelineMultiEnvMonitoring {
                     {
                         id: PROD1_ENV_ID,
                         stackBuilder: blueprintAmp
+                            .name(PROD1_ENV_ID)                        
                             .clone(context.prodEnv1.region, context.prodEnv1.account)
                             .version('auto')
                             .addOns(new blueprints.NestedStackAddOn({
@@ -118,6 +118,7 @@ export class PipelineMultiEnvMonitoring {
                     {
                         id: PROD2_ENV_ID,
                         stackBuilder: blueprintCloudWatch
+                            .name(PROD2_ENV_ID)
                             .clone(context.prodEnv2.region, context.prodEnv2.account)
                             .addOns(new blueprints.NestedStackAddOn({
                                 builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),

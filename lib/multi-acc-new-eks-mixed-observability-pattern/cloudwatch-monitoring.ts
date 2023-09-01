@@ -29,7 +29,7 @@ export default class CloudWatchMonitoringConstruct {
     //         .build(scope, stackID);
     // }
 
-    create(scope: Construct, contextAccount?: string, contextRegion?: string, stackId?: string ) {
+    create(scope: Construct, contextAccount?: string, contextRegion?: string, Id?: string ) {
     
         const account = contextAccount! || process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = contextRegion! || process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
@@ -44,10 +44,11 @@ export default class CloudWatchMonitoringConstruct {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);        
         const addOns: Array<blueprints.ClusterAddOn> = [
+            cloudWatchAdotAddOn,            
             new blueprints.addons.ClusterAutoScalerAddOn(),
             new blueprints.addons.SecretsStoreAddOn(),
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
+            new blueprints.addons.CloudWatchLogsAddon({ 
+                logGroupPrefix: `/aws/eks/${Id}`,
                 logRetentionDays: 30
             }),     
             /* already part of enableNativePatternAddOns 
