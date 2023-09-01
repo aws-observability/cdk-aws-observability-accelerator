@@ -59,7 +59,8 @@ export class PipelineMultiEnvMonitoring {
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
 
         // Argo configuration per environment
-        const prodArgoAddonConfig = createArgoAddonConfig('prod', 'https://github.com/aws-samples/eks-blueprints-workloads.git');
+        const prodArgoAddonConfig = createArgoAddonConfig('prod', 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main');
+        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig('monitoring','https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
@@ -136,6 +137,7 @@ export class PipelineMultiEnvMonitoring {
                     //         }
                     //     }
                     // },
+                    // grafanaOperatorArgoAddonConfig, // ArgoCD config for grafana-operator             
                 ],
             })
             .build(scope, "multi-account-central-pipeline", {
@@ -144,13 +146,13 @@ export class PipelineMultiEnvMonitoring {
     }
 }
 
-function createArgoAddonConfig(environment: string, repoUrl: string): blueprints.ArgoCDAddOn {
+function createArgoAddonConfig(environment: string, repoUrl: string, path: string, branch: string): blueprints.ArgoCDAddOn {
     return new blueprints.ArgoCDAddOn(
         {
             bootstrapRepo: {
                 repoUrl: repoUrl,
-                path: `envs/${environment}`,
-                targetRevision: 'main',
+                path: path,
+                targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
             },
