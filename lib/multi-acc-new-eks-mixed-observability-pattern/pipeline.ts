@@ -142,7 +142,7 @@ export class PipelineMultiEnvMonitoring {
                     },         
                 ],
             })
-            .build(scope, "multi-acc-central-pipeline", {
+            .build(scope, "multi-account-central-pipeline", {
                 env: context.pipelineEnv
             });
     }
