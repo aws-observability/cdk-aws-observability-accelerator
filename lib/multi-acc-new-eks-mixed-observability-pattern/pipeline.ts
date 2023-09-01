@@ -54,7 +54,7 @@ export class PipelineMultiEnvMonitoring {
         // environments IDs consts
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
-        const MON_ENV_ID = `central-monitoring-${context.monitoringEnv.region}`;
+        const MON_ENV_ID = `central-mntrng-${context.monitoringEnv.region}`;
 
         const blueprintAmp = new AmpMonitoringConstruct().create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
@@ -77,7 +77,7 @@ export class PipelineMultiEnvMonitoring {
 
         blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
-            .name("multi-account-central-pipeline")
+            .name("multi-acc-central-pipeline")
             .owner(gitOwner)
             .codeBuildPolicies([ 
                 new iam.PolicyStatement({
