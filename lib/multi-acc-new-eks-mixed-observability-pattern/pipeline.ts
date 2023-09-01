@@ -127,19 +127,19 @@ export class PipelineMultiEnvMonitoring {
                                 prodArgoAddonConfig,
                             )
                     },
-                    // {
-                    //     id: MON_ENV_ID,
-                    //     stackBuilder: blueprintAmg
-                    //         .name(MON_ENV_ID)
-                    //         .clone(context.monitoringEnv.region, context.monitoringEnv.account)
-                    //         .addOns(new blueprints.NestedStackAddOn({
-                    //             builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
-                    //             id: "amg-iam-nested-stack"
-                    //         }))
-                    //         .addOns(
-                    //             grafanaOperatorArgoAddonConfig,
-                    //         )
-                    // },                    
+                    {
+                        id: MON_ENV_ID,
+                        stackBuilder: blueprintAmg
+                            .name(MON_ENV_ID)
+                            .clone(context.monitoringEnv.region, context.monitoringEnv.account)
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
+                                id: "amg-iam-nested-stack"
+                            }))
+                            .addOns(
+                                grafanaOperatorArgoAddonConfig,
+                            )
+                    },                    
                     // {
                     //     id: MON_ENV_ID,
                     //     stackBuilder: <blueprints.StackBuilder>{

@@ -91,9 +91,7 @@ export class AmgIamSetupStack extends NestedStack {
 
     public static builder(props: AmgIamSetupStackProps): blueprints.NestedStackBuilder {
         return {
-            build(scope: Construct, id: string, props: AmgIamSetupStackProps) {
-                console.log("-----------------------------------------HHH");
-                console.log(props.roleName);
+            build(scope: Construct, id: string) {
                 return new AmgIamSetupStack(scope, id, props);
             }
         };
