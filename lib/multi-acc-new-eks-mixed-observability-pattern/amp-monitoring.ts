@@ -56,8 +56,7 @@ export default class AmpMonitoringConstruct {
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
-            new blueprints.addons.SecretsStoreAddOn(),
-            // new blueprints.addons.NginxAddOn(),            
+            new blueprints.addons.SecretsStoreAddOn(),      
             /* already part of enableOpenSourcePatternAddOns
             new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
