@@ -48,22 +48,6 @@ export class AmgIamSetupStack extends NestedStack {
         //     description: 'Service Role for Amazon Managed Grafana',
         // });        
 
-        // Inline policy for Amazon Managed Prometheus
-        const AMGPrometheusPolicy = new PolicyStatement({
-            effect: Effect.ALLOW,
-            actions: [
-                "aps:ListWorkspaces",
-                "aps:DescribeWorkspace",
-                "aps:QueryMetrics",
-                "aps:GetLabels",
-                "aps:GetSeries",
-                "aps:GetMetricMetadata"
-            ],
-            resources: ['*']
-        });
-  
-        // workspaceRole.addToPolicy(AMGPrometheusPolicy);
-
         // Inline policy for SNS
         const AMGSNSPolicy = new PolicyStatement({
             effect: Effect.ALLOW,
@@ -73,7 +57,7 @@ export class AmgIamSetupStack extends NestedStack {
             resources: [`arn:aws:sns:*:${account}:grafana*`]
         });
   
-        // workspaceRole.addToPolicy(AMGSNSPolicy);                
+        workspaceRole.addToPolicy(AMGSNSPolicy);                
 
         
         for (let i = 0; i < props.accounts.length; i++) {
