@@ -100,20 +100,20 @@ export class PipelineMultiEnvMonitoring {
             .wave({
                 id: "prod-test",
                 stages: [
-                    // {
-                    //     id: PROD1_ENV_ID,
-                    //     stackBuilder: blueprintAmp
-                    //         .name(PROD1_ENV_ID)                        
-                    //         .clone(context.prodEnv1.region, context.prodEnv1.account)
-                    //         .version('auto')
-                    //         .addOns(new blueprints.NestedStackAddOn({
-                    //             builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
-                    //             id: "amp-iam-nested-stack"
-                    //         }))
-                    //         .addOns(
-                    //             prodArgoAddonConfig,
-                    //         )
-                    // },
+                    {
+                        id: PROD1_ENV_ID,
+                        stackBuilder: blueprintAmp
+                            .name(PROD1_ENV_ID)                        
+                            .clone(context.prodEnv1.region, context.prodEnv1.account)
+                            .version('auto')
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
+                                id: "amp-iam-nested-stack"
+                            }))
+                            .addOns(
+                                prodArgoAddonConfig,
+                            )
+                    },
                     {
                         id: PROD2_ENV_ID,
                         stackBuilder: blueprintCloudWatch
