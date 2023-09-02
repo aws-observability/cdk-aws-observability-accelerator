@@ -156,7 +156,8 @@ function createArgoAddonConfig(environment: string, repoUrl: string, path: strin
                 path: path,
                 targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
-                // credentialsType: 'SSH',
+                credentialsType: 'SSH',
+                
             },
 
             // values: {
