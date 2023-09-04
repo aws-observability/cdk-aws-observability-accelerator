@@ -100,33 +100,33 @@ export class PipelineMultiEnvMonitoring {
             .wave({
                 id: "prod-test",
                 stages: [
-                    // {
-                    //     id: PROD1_ENV_ID,
-                    //     stackBuilder: blueprintAmp
-                    //         .name(PROD1_ENV_ID)                        
-                    //         .clone(context.prodEnv1.region, context.prodEnv1.account)
-                    //         .version('auto')
-                    //         .addOns(new blueprints.NestedStackAddOn({
-                    //             builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
-                    //             id: "amp-iam-nested-stack"
-                    //         }))
-                    //         .addOns(
-                    //             prodArgoAddonConfig,
-                    //         )
-                    // },
-                    // {
-                    //     id: PROD2_ENV_ID,
-                    //     stackBuilder: blueprintCloudWatch
-                    //         .name(PROD2_ENV_ID)
-                    //         .clone(context.prodEnv2.region, context.prodEnv2.account)
-                    //         .addOns(new blueprints.NestedStackAddOn({
-                    //             builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
-                    //             id: "cloudwatch-iam-nested-stack"
-                    //         }))
-                    //         .addOns(
-                    //             prodArgoAddonConfig,
-                    //         )
-                    // },
+                    {
+                        id: PROD1_ENV_ID,
+                        stackBuilder: blueprintAmp
+                            .name(PROD1_ENV_ID)                        
+                            .clone(context.prodEnv1.region, context.prodEnv1.account)
+                            .version('auto')
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
+                                id: "amp-iam-nested-stack"
+                            }))
+                            .addOns(
+                                prodArgoAddonConfig,
+                            )
+                    },
+                    {
+                        id: PROD2_ENV_ID,
+                        stackBuilder: blueprintCloudWatch
+                            .name(PROD2_ENV_ID)
+                            .clone(context.prodEnv2.region, context.prodEnv2.account)
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
+                                id: "cloudwatch-iam-nested-stack"
+                            }))
+                            .addOns(
+                                prodArgoAddonConfig,
+                            )
+                    },
                     {
                         id: MON_ENV_ID,
                         stackBuilder: blueprintAmg
@@ -155,8 +155,8 @@ function createArgoAddonConfig(environment: string, repoUrl: string, path: strin
                 repoUrl: repoUrl,
                 path: path,
                 targetRevision: branch,
-                credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
-                credentialsType: 'SSH',
+                // credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
+                // credentialsType: 'SSH',
                 
             },
 
