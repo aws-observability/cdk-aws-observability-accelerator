@@ -61,8 +61,8 @@ export class PipelineMultiEnvMonitoring {
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
         // Argo configuration per environment
-        const prodArgoAddonConfig = createArgoAddonConfig('prod', 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main');
-        const grafanaOperatorArgoAddonConfig = createArgoAddonConfigWithSSH('monitoring','https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main');
+        const prodArgoAddonConfig = createArgoAddonConfig('https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
+        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig('https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
@@ -136,9 +136,9 @@ export class PipelineMultiEnvMonitoring {
                                 builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
                                 id: "amg-iam-nested-stack"
                             }))
-                            .addOns(
-                                grafanaOperatorArgoAddonConfig,
-                            )
+                            // .addOns(
+                            //     grafanaOperatorArgoAddonConfig,
+                            // )
                     },         
                 ],
             })
@@ -148,17 +148,40 @@ export class PipelineMultiEnvMonitoring {
     }
 }
 
-function createArgoAddonConfigWithSSH(environment: string, repoUrl: string, path: string, branch: string): blueprints.ArgoCDAddOn {
-    return new blueprints.ArgoCDAddOn(
-        {
+type repoTypeValues = 'public' | 'private';
+function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+
+    branch = branch! || 'main';
+    repoType = repoType! || 'public';
+
+    let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
+
+    if (repoType.toLocaleLowerCase() === 'public') {
+        ArgoCDAddOnProps = {
+            bootstrapRepo: {
+                repoUrl: repoUrl,
+                path: path,
+                targetRevision: branch,
+            // values: {
+            //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
+            //         service: {
+            //             type: 'LoadBalancer'
+            //         }
+            //     }
+            // },
+            // bootstrapValues: {
+            //     "region": "us-west-2"
+            // },
+            }
+        }
+    } else {
+        ArgoCDAddOnProps = {
             bootstrapRepo: {
                 repoUrl: repoUrl,
                 path: path,
                 targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
-                
-            },
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
@@ -169,28 +192,9 @@ function createArgoAddonConfigWithSSH(environment: string, repoUrl: string, path
             // bootstrapValues: {
             //     "region": "us-west-2"
             // },
-        }
-    );
-}
+            }
+        }        
+    }
 
-function createArgoAddonConfig(environment: string, repoUrl: string, path: string, branch: string): blueprints.ArgoCDAddOn {
-    return new blueprints.ArgoCDAddOn(
-        {
-            bootstrapRepo: {
-                repoUrl: repoUrl,
-                path: path,
-                targetRevision: branch,
-            },
-            // values: {
-            //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
-            //         service: {
-            //             type: 'LoadBalancer'
-            //         }
-            //     }
-            // },
-            // bootstrapValues: {
-            //     "region": "us-west-2"
-            // },
-        }
-    );
+    return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
