@@ -162,6 +162,7 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
                 repoUrl: repoUrl,
                 path: path,
                 targetRevision: branch,
+            },
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
@@ -171,8 +172,7 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
             // },
             // bootstrapValues: {
             //     "region": "us-west-2"
-            // },
-            }
+            // },            
         }
     } else {
         ArgoCDAddOnProps = {
@@ -182,6 +182,7 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
                 targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
+            },
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
@@ -190,9 +191,9 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
             //     }
             // },
             // bootstrapValues: {
-            //     "region": "us-west-2"
-            // },
-            }
+            //     "region": "us-west-2",
+
+            // },            
         }        
     }
 
