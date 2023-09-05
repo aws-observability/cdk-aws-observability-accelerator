@@ -159,7 +159,6 @@ function createArgoAddonConfigWithSSH(environment: string, repoUrl: string, path
                 credentialsType: 'SSH',
                 
             },
-
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
@@ -182,7 +181,6 @@ function createArgoAddonConfig(environment: string, repoUrl: string, path: strin
                 path: path,
                 targetRevision: branch,
             },
-
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
