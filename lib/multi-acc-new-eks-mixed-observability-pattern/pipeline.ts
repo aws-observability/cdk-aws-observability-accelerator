@@ -213,8 +213,10 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
             //     }
             // },
             bootstrapValues: {
-                "AMG_AWS_REGION": "monitoringEnv.region",
-
+                "AMG_AWS_REGION": "us-west-2",
+                "AMP_ENDPOINT_URL": "https://aps-workspaces.us-west-2.amazonaws.com/workspaces/ws-ee78c283-7181-4bc4-b3f1-0a3b3a0985ae/",
+                "AMG_ENDPOINT_URL": "https://g-4c90610700.grafana-workspace.us-west-2.amazonaws.com",
+                "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
             },            
         }        
     }
