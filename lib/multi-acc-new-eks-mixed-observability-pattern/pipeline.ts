@@ -136,9 +136,9 @@ export class PipelineMultiEnvMonitoring {
                                 builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
                                 id: "amg-iam-nested-stack"
                             }))
-                            .addOns(
-                                grafanaOperatorArgoAddonConfig,
-                            )
+                            // .addOns(
+                            //     grafanaOperatorArgoAddonConfig,
+                            // )
                     },         
                 ],
             })
