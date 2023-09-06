@@ -82,7 +82,6 @@ export class PipelineMultiEnvMonitoring {
         fluxRepository.values!.AMP_ENDPOINT_URL = "ampEndpoint";
         fluxRepository.values!.AMG_ENDPOINT_URL = "amgEndpointUrl";
 
-
         blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-acc-central-pipeline")
@@ -146,7 +145,21 @@ export class PipelineMultiEnvMonitoring {
                             }))
                             .addOns(
                                 // grafanaOperatorArgoAddonConfig,
-                                new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+                                // new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+                                new blueprints.addons.FluxCDAddOn({
+                                    repositories:[{
+                                        name: "aws-observability-accelerator",
+                                        namespace: undefined,
+                                        repository: {
+                                            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
+                                            targetRevision: "main",
+                                        },
+                                        values: {
+                                            "region": "us-east-2"
+                                        },
+                                        kustomizations: [{kustomizationPath: "./artifacts/grafana-operator-manifests/eks/infrastructure"}],
+                                   }],
+                                })
                             )
                     },         
                 ],
