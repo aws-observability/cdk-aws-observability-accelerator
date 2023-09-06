@@ -144,22 +144,22 @@ export class PipelineMultiEnvMonitoring {
                                 id: "amg-iam-nested-stack"
                             }))
                             .addOns(
-                                // grafanaOperatorArgoAddonConfig,
+                                grafanaOperatorArgoAddonConfig,
                                 // new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
-                                new blueprints.addons.FluxCDAddOn({
-                                    repositories:[{
-                                        name: "aws-observability-accelerator",
-                                        namespace: undefined,
-                                        repository: {
-                                            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
-                                            targetRevision: "main",
-                                        },
-                                        values: {
-                                            "region": "us-east-2"
-                                        },
-                                        kustomizations: [{kustomizationPath: "./artifacts/grafana-operator-manifests/eks/infrastructure"}],
-                                   }],
-                                })
+                                // new blueprints.addons.FluxCDAddOn({
+                                //     repositories:[{
+                                //         name: "aws-observability-accelerator",
+                                //         namespace: undefined,
+                                //         repository: {
+                                //             repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
+                                //             targetRevision: "main",
+                                //         },
+                                //         values: {
+                                //             "region": "us-east-2"
+                                //         },
+                                //         kustomizations: [{kustomizationPath: "./artifacts/grafana-operator-manifests/eks/infrastructure"}],
+                                //    }],
+                                // })
                             )
                     },         
                 ],
@@ -212,10 +212,10 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
             //         }
             //     }
             // },
-            // bootstrapValues: {
-            //     "region": "us-west-2",
+            bootstrapValues: {
+                "AMG_AWS_REGION": "monitoringEnv.region",
 
-            // },            
+            },            
         }        
     }
 
