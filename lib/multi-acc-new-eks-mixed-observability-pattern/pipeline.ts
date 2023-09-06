@@ -144,6 +144,9 @@ export class PipelineMultiEnvMonitoring {
                                 id: "amg-iam-nested-stack"
                             }))
                             .addOns(
+                                new blueprints.addons.GrafanaOperatorAddon({
+                                    createNamespace: true,
+                                }),
                                 grafanaOperatorArgoAddonConfig,
                                 // new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
                                 // new blueprints.addons.FluxCDAddOn({
