@@ -1,4 +1,5 @@
 import * as blueprints from '@aws-quickstart/eks-blueprints';
+import { utils } from '@aws-quickstart/eks-blueprints';
 import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
@@ -75,6 +76,13 @@ export class PipelineMultiEnvMonitoring {
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
+        // All Grafana Dashboard URLs from `cdk.json`
+        const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
+        fluxRepository.values!.AMG_AWS_REGION = context.monitoringEnv.region;
+        fluxRepository.values!.AMP_ENDPOINT_URL = "ampEndpoint";
+        fluxRepository.values!.AMG_ENDPOINT_URL = "amgEndpointUrl";
+
+
         blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-acc-central-pipeline")
@@ -136,9 +144,10 @@ export class PipelineMultiEnvMonitoring {
                                 builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
                                 id: "amg-iam-nested-stack"
                             }))
-                            // .addOns(
-                            //     grafanaOperatorArgoAddonConfig,
-                            // )
+                            .addOns(
+                                // grafanaOperatorArgoAddonConfig,
+                                new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+                            )
                     },         
                 ],
             })
