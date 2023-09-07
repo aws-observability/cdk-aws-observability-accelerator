@@ -9,6 +9,7 @@ import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
 import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
+import * as amp from 'aws-cdk-lib/aws-aps';
 
 const logger = blueprints.utils.logger;
 
@@ -57,13 +58,23 @@ export class PipelineMultiEnvMonitoring {
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
 
-        const blueprintAmp = new AmpMonitoringConstruct().create(scope, context.prodEnv1.account, context.prodEnv1.region);
+
+//
+        const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
+        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
+        const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
+        const ampWorkspaceArn = ampWorkspace.attrArn;
+
+        const ampConstruct = new AmpMonitoringConstruct();
+        const blueprintAmp = ampConstruct.create(scope, ampWorkspaceName, ampWorkspace, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
+        console.log(ampEndpoint);
+
         // Argo configuration per environment
-        const prodArgoAddonConfig = createArgoAddonConfig('https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
-        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig('https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
+        const prodArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
+        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
@@ -76,11 +87,6 @@ export class PipelineMultiEnvMonitoring {
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
-        // All Grafana Dashboard URLs from `cdk.json`
-        const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
-        fluxRepository.values!.AMG_AWS_REGION = context.monitoringEnv.region;
-        fluxRepository.values!.AMP_ENDPOINT_URL = "ampEndpoint";
-        fluxRepository.values!.AMG_ENDPOINT_URL = "amgEndpointUrl";
 
         blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
@@ -137,32 +143,14 @@ export class PipelineMultiEnvMonitoring {
                     {
                         id: MON_ENV_ID,
                         stackBuilder: blueprintAmg
-                            // .name(MON_ENV_ID)
+                            .name(MON_ENV_ID)
                             .clone(context.monitoringEnv.region, context.monitoringEnv.account)
                             .addOns(new blueprints.NestedStackAddOn({
                                 builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
                                 id: "amg-iam-nested-stack"
                             }))
                             .addOns(
-                                new blueprints.addons.GrafanaOperatorAddon({
-                                    createNamespace: true,
-                                }),
                                 grafanaOperatorArgoAddonConfig,
-                                // new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
-                                // new blueprints.addons.FluxCDAddOn({
-                                //     repositories:[{
-                                //         name: "aws-observability-accelerator",
-                                //         namespace: undefined,
-                                //         repository: {
-                                //             repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator',
-                                //             targetRevision: "main",
-                                //         },
-                                //         values: {
-                                //             "region": "us-east-2"
-                                //         },
-                                //         kustomizations: [{kustomizationPath: "./artifacts/grafana-operator-manifests/eks/infrastructure"}],
-                                //    }],
-                                // })
                             )
                     },         
                 ],
@@ -174,10 +162,13 @@ export class PipelineMultiEnvMonitoring {
 }
 
 type repoTypeValues = 'public' | 'private';
-function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+
+function createArgoAddonConfig(region: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
 
     branch = branch! || 'main';
     repoType = repoType! || 'public';
+
+    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
@@ -188,15 +179,15 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
                 path: path,
                 targetRevision: branch,
             },
+            bootstrapValues: {
+                "region": region
+            },            
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
             //             type: 'LoadBalancer'
             //         }
             //     }
-            // },
-            // bootstrapValues: {
-            //     "region": "us-west-2"
             // },            
         }
     } else {
@@ -208,19 +199,19 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
             },
+            bootstrapValues: {
+                "AMG_AWS_REGION": region,
+                "AMP_ENDPOINT_URL": "ampEndpoint",
+                "AMG_ENDPOINT_URL": amgEndpointUrl,
+                "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
+            },
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
             //             type: 'LoadBalancer'
             //         }
             //     }
-            // },
-            bootstrapValues: {
-                "AMG_AWS_REGION": "us-west-2",
-                "AMP_ENDPOINT_URL": "https://aps-workspaces.us-west-2.amazonaws.com/workspaces/ws-ee78c283-7181-4bc4-b3f1-0a3b3a0985ae/",
-                "AMG_ENDPOINT_URL": "https://g-4c90610700.grafana-workspace.us-west-2.amazonaws.com",
-                "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
-            },            
+            // },                        
         }        
     }
 
