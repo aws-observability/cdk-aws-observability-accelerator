@@ -65,7 +65,7 @@ export default class AmpMonitoringConstruct {
             new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
             */               
         ];
-
+     
         return ObservabilityBuilder.builder()
             .account(account)
             .region(region)

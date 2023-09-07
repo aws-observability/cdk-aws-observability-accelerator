@@ -194,7 +194,7 @@ function createArgoAddonConfig(region: string | undefined, repoUrl: string, path
             },
             bootstrapValues: {
                 "AMG_AWS_REGION": region,
-                "AMP_ENDPOINT_URL": ampEndpoint,
+                "AMP_ENDPOINT_URL": "AMP_ENDPOINT_URL",
                 "AMG_ENDPOINT_URL": amgEndpointUrl,
                 "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
             },
