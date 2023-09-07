@@ -7,34 +7,27 @@ import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class AmpMonitoringConstruct {
 
-    build(scope: Construct, id: string, InAmpWorkspaceName: string, InAmpWorkspace: amp.CfnWorkspace, contextAccount?: string, contextRegion?: string ) {
+    build(scope: Construct, id: string, contextAccount?: string, contextRegion?: string ) {
 
         const stackId = `${id}-observability-accelerator`;
 
         const account = contextAccount! || process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = contextRegion! || process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
-        const ampWorkspaceName = InAmpWorkspaceName;
-        const ampWorkspace = InAmpWorkspace;
 
-        this.create(scope, ampWorkspaceName, ampWorkspace, account, region)
+        this.create(scope, account, region)
             .build(scope, stackId);
     }
 
-    create(scope: Construct, InAmpWorkspaceName: string, InAmpWorkspace: amp.CfnWorkspace, contextAccount?: string, contextRegion?: string ) {
+    create(scope: Construct, contextAccount?: string, contextRegion?: string ) {
     
         const account = contextAccount! || process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = contextRegion! || process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
-        // const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
-        // const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
-        // const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        // const ampWorkspaceArn = ampWorkspace.attrArn;
-        
-        const ampWorkspaceName = InAmpWorkspaceName;
-        const ampWorkspace = InAmpWorkspace;
+        const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
+        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
         const ampWorkspaceArn = ampWorkspace.attrArn;
-
+        
         const ampAddOnProps: blueprints.AmpAddOnProps = {
             ampPrometheusEndpoint: ampEndpoint,
             ampRules: {

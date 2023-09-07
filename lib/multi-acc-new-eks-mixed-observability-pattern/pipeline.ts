@@ -13,7 +13,7 @@ import * as amp from 'aws-cdk-lib/aws-aps';
 
 const logger = blueprints.utils.logger;
 
-let ampEndpoint: string;
+let ampEndpoint: string | undefined;
 
 /**
  * Function relies on a secret called "cdk-context" defined in the us-east-1 region in pipeline account. Its a MANDATORY STEP.
@@ -60,16 +60,8 @@ export class PipelineMultiEnvMonitoring {
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
 
-
-//
-        const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
-        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
-        // const ampWorkspaceArn = ampWorkspace.attrArn;        
-        ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-
-
         const ampConstruct = new AmpMonitoringConstruct();
-        const blueprintAmp = ampConstruct.create(scope, ampWorkspaceName, ampWorkspace, context.prodEnv1.account, context.prodEnv1.region);
+        const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
