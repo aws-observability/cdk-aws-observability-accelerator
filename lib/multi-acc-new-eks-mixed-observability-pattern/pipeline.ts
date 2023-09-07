@@ -13,6 +13,8 @@ import * as amp from 'aws-cdk-lib/aws-aps';
 
 const logger = blueprints.utils.logger;
 
+let ampEndpoint: string;
+
 /**
  * Function relies on a secret called "cdk-context" defined in the us-east-1 region in pipeline account. Its a MANDATORY STEP.
  * @returns 
@@ -62,18 +64,17 @@ export class PipelineMultiEnvMonitoring {
 //
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
-        const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        const ampWorkspaceArn = ampWorkspace.attrArn;
+        // const ampWorkspaceArn = ampWorkspace.attrArn;        
+        ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
+
 
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, ampWorkspaceName, ampWorkspace, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
-        console.log(ampEndpoint);
-
         // Argo configuration per environment
-        const prodArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
+        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
         const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
@@ -168,7 +169,7 @@ function createArgoAddonConfig(region: string | undefined, repoUrl: string, path
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
-    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
+    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL! || "g-4c90610700.grafana-workspace.us-west-2.amazonaws.com" ;
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
@@ -201,7 +202,7 @@ function createArgoAddonConfig(region: string | undefined, repoUrl: string, path
             },
             bootstrapValues: {
                 "AMG_AWS_REGION": region,
-                "AMP_ENDPOINT_URL": "ampEndpoint",
+                "AMP_ENDPOINT_URL": ampEndpoint,
                 "AMG_ENDPOINT_URL": amgEndpointUrl,
                 "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
             },
