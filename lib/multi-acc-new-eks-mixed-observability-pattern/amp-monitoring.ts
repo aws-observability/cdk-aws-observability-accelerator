@@ -3,6 +3,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as team from './teams/multi-account-monitoring'; // for teams implementation
+import * as cdk from 'aws-cdk-lib';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
 export default class AmpMonitoringConstruct {
@@ -65,6 +66,11 @@ export default class AmpMonitoringConstruct {
             new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
             */               
         ];
+
+        // new cdk.CfnOutput(scope, 'ampEndpoint', {
+        //     value: ampEndpoint,
+        //     exportName: 'ampEndpoint',
+        //   });        
      
         return ObservabilityBuilder.builder()
             .account(account)

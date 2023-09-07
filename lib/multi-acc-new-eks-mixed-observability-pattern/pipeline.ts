@@ -116,10 +116,7 @@ export class PipelineMultiEnvMonitoring {
                 .addOns(
                     prodArgoAddonConfig,
                 )
-        },)
-        .build(scope, "multi-account-central-pipeline", {
-            env: context.pipelineEnv
-        });
+        },);
 
         const prod2Stage = pipeline.stage({
             id: PROD2_ENV_ID,
@@ -133,8 +130,9 @@ export class PipelineMultiEnvMonitoring {
                 .addOns(
                     prodArgoAddonConfig,
                 )
-        },)
-        .build(scope, "multi-account-central-pipeline", {
+        },);
+
+        pipeline.build(scope, "multi-account-central-pipeline", {
             env: context.pipelineEnv
         });
 
