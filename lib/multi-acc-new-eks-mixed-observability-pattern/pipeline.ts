@@ -67,7 +67,7 @@ export class PipelineMultiEnvMonitoring {
 
         // Argo configuration per environment
         const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
-        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
+        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
@@ -212,12 +212,12 @@ export class PipelineMultiEnvMonitoring {
 
 type repoTypeValues = 'public' | 'private';
 
-function createArgoAddonConfig(account: string | undefined, region: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
 
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
-    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL! || "https://g-4c90610700.grafana-workspace.us-west-2.amazonaws.com" ;
+    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL!;
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
@@ -229,8 +229,8 @@ function createArgoAddonConfig(account: string | undefined, region: string | und
                 targetRevision: branch,
             },
             bootstrapValues: {
-                "AMG_AWS_REGION": region,
-                "AMP_ACCOUNT_ID": account,
+                "AMG_AWS_REGION": amgRegion,
+                "AMP_ACCOUNT_ID": ampAccount,
                 "AMP_ENDPOINT_URL": "UPDATE_ME_WITH_AMP_ENDPOINT_URL",
                 "AMG_ENDPOINT_URL": amgEndpointUrl,
                 // "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
@@ -251,6 +251,7 @@ function createArgoAddonConfig(account: string | undefined, region: string | und
             // },            
         }
     } else {
+
         ArgoCDAddOnProps = {
             bootstrapRepo: {
                 repoUrl: repoUrl,
@@ -260,8 +261,8 @@ function createArgoAddonConfig(account: string | undefined, region: string | und
                 credentialsType: 'SSH',
             },
             bootstrapValues: {
-                "AMG_AWS_REGION": region,
-                "AMP_ACCOUNT_ID": account,
+                "AMG_AWS_REGION": amgRegion,
+                "AMP_ACCOUNT_ID": ampAccount,
                 "AMP_ENDPOINT_URL": "UPDATE_ME_WITH_AMP_ENDPOINT_URL",
                 "AMG_ENDPOINT_URL": amgEndpointUrl,
                 "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
