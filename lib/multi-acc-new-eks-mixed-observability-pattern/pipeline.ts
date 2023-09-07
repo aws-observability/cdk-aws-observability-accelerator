@@ -217,7 +217,7 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
-    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL!;
+    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL! || "UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS";
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
