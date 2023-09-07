@@ -67,11 +67,6 @@ export default class AmpMonitoringConstruct {
             */               
         ];
 
-        // new cdk.CfnOutput(scope, 'ampEndpoint', {
-        //     value: ampEndpoint,
-        //     exportName: 'ampEndpoint',
-        //   });        
-     
         return ObservabilityBuilder.builder()
             .account(account)
             .region(region)
