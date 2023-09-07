@@ -66,8 +66,8 @@ export class PipelineMultiEnvMonitoring {
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
         // Argo configuration per environment
-        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
-        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
+        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
+        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.monitoringEnv.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
@@ -156,7 +156,7 @@ export class PipelineMultiEnvMonitoring {
 
 type repoTypeValues = 'public' | 'private';
 
-function createArgoAddonConfig(region: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+function createArgoAddonConfig(account: string | undefined, region: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
 
     branch = branch! || 'main';
     repoType = repoType! || 'public';
@@ -194,6 +194,7 @@ function createArgoAddonConfig(region: string | undefined, repoUrl: string, path
             },
             bootstrapValues: {
                 "AMG_AWS_REGION": region,
+                "AMP_ACCOUNT_ID": account,
                 "AMP_ENDPOINT_URL": "AMP_ENDPOINT_URL",
                 "AMG_ENDPOINT_URL": amgEndpointUrl,
                 "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
