@@ -81,7 +81,7 @@ export class PipelineMultiEnvMonitoring {
         };
 
 
-        blueprints.CodePipelineStack.builder()
+        const pline = blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-acc-central-pipeline")
             .owner(gitOwner)
@@ -133,24 +133,25 @@ export class PipelineMultiEnvMonitoring {
                                 prodArgoAddonConfig,
                             )
                     },
-                    // {
-                    //     id: MON_ENV_ID,
-                    //     stackBuilder: blueprintAmg
-                    //         .name(MON_ENV_ID)
-                    //         .clone(context.monitoringEnv.region, context.monitoringEnv.account)
-                    //         .addOns(new blueprints.NestedStackAddOn({
-                    //             builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
-                    //             id: "amg-iam-nested-stack"
-                    //         }))
-                    //         .addOns(
-                    //             grafanaOperatorArgoAddonConfig,
-                    //         )
-                    // },         
+                    {
+                        id: MON_ENV_ID,
+                        stackBuilder: blueprintAmg
+                            .name(MON_ENV_ID)
+                            .clone(context.monitoringEnv.region, context.monitoringEnv.account)
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
+                                id: "amg-iam-nested-stack"
+                            }))
+                            .addOns(
+                                grafanaOperatorArgoAddonConfig,
+                            )
+                    },       
                 ],
             })
             .build(scope, "multi-account-central-pipeline", {
                 env: context.pipelineEnv
             });
+
     }
 }
 
