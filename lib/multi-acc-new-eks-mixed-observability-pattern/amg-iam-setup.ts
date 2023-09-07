@@ -37,7 +37,7 @@ export class AmgIamSetupStack extends NestedStack {
             roleName: props.roleName,
             assumedBy: new ServicePrincipal('grafana.amazonaws.com').withConditions({
                 StringEquals: {'aws:SourceAccount': `${account}`},
-                StringLike: {'aws:SourceArn': `arn:aws:grafana:${region}:${account}:workspaces/*`}
+                StringLike: {'aws:SourceArn': `arn:aws:grafana:${region}:${account}:/workspaces/*`}
             }),
             description: 'Service Role for Amazon Managed Grafana',
         });        

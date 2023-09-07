@@ -9,11 +9,8 @@ import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
 import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
-import * as amp from 'aws-cdk-lib/aws-aps';
 
 const logger = blueprints.utils.logger;
-
-let ampEndpoint: string | undefined;
 
 /**
  * Function relies on a secret called "cdk-context" defined in the us-east-1 region in pipeline account. Its a MANDATORY STEP.
@@ -80,61 +77,7 @@ export class PipelineMultiEnvMonitoring {
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
-        // const pipeline = blueprints.CodePipelineStack.builder()
-        //     .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
-        //     .name("multi-acc-central-pipeline")
-        //     .owner(gitOwner)
-        //     .codeBuildPolicies([ 
-        //         new iam.PolicyStatement({
-        //             resources: ["*"],
-        //             actions: [    
-        //                 "sts:AssumeRole",
-        //                 "secretsmanager:GetSecretValue",
-        //                 "secretsmanager:DescribeSecret",
-        //                 "cloudformation:*"
-        //             ]
-        //         })
-        //     ])
-        //     .repository({
-        //         repoUrl: gitRepositoryName,
-        //         credentialsSecretName: 'github-token',
-        //         // targetRevision: 'main',
-        //         targetRevision: 'multi-account-COA',
-        //     })
-        //     .enableCrossAccountKeys();
-
-        // const prod1Stage = pipeline.stage({
-        //     id: PROD1_ENV_ID,
-        //     stackBuilder: blueprintAmp
-        //         .name(PROD1_ENV_ID)                        
-        //         .clone(context.prodEnv1.region, context.prodEnv1.account)
-        //         .version('auto')
-        //         .addOns(new blueprints.NestedStackAddOn({
-        //             builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
-        //             id: "amp-iam-nested-stack"
-        //         }))
-        //         .addOns(
-        //             prodArgoAddonConfig,
-        //         )
-        // },);
-
-        // const prod2Stage = pipeline.stage({
-        //     id: PROD2_ENV_ID,
-        //     stackBuilder: blueprintCloudWatch
-        //         .name(PROD2_ENV_ID)
-        //         .clone(context.prodEnv2.region, context.prodEnv2.account)
-        //         .addOns(new blueprints.NestedStackAddOn({
-        //             builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
-        //             id: "cloudwatch-iam-nested-stack"
-        //         }))
-        //         .addOns(
-        //             prodArgoAddonConfig,
-        //         )
-        // },);
-
-        // pipeline.build(scope, "multi-account-central-pipeline", {
-        //     env: context.pipelineEnv
-        // });
+        const AmgIamRoleArn = `arn:aws:iam::${context.prodEnv1.account}:role/${AmgIamSetupStackProps.roleName}`
 
         const pline = blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
@@ -168,7 +111,7 @@ export class PipelineMultiEnvMonitoring {
                             .clone(context.prodEnv1.region, context.prodEnv1.account)
                             .version('auto')
                             .addOns(new blueprints.NestedStackAddOn({
-                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", context.monitoringEnv.account!),
+                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", AmgIamRoleArn!),
                                 id: "amp-iam-nested-stack"
                             }))
                             .addOns(
@@ -181,7 +124,7 @@ export class PipelineMultiEnvMonitoring {
                             .name(PROD2_ENV_ID)
                             .clone(context.prodEnv2.region, context.prodEnv2.account)
                             .addOns(new blueprints.NestedStackAddOn({
-                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", context.monitoringEnv.account!),
+                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", AmgIamRoleArn!),
                                 id: "cloudwatch-iam-nested-stack"
                             }))
                             .addOns(

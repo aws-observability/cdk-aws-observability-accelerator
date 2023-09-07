@@ -10,20 +10,22 @@ import * as cdk from 'aws-cdk-lib';
  */
 export class AmpIamSetupStack extends NestedStack {
 
-    public static builder(roleName: string, trustAccount: string): blueprints.NestedStackBuilder {
+    public static builder(roleName: string, trustArn: string): blueprints.NestedStackBuilder {
         return {
             build(scope: Construct, id: string, props: NestedStackProps) {
-                return new AmpIamSetupStack(scope, id, props, roleName, trustAccount);
+                return new AmpIamSetupStack(scope, id, props, roleName, trustArn);
             }
         };
     }
 
-    constructor(scope: Construct, id: string, props: NestedStackProps, roleName: string, trustAccount: string) {
+    constructor(scope: Construct, id: string, props: NestedStackProps, roleName: string, trustArn: string) {
         super(scope, id, props);
 
         const role = new iam.Role(this, 'amp-iam-trust-role', {
             roleName: roleName,
-            assumedBy: new iam.AccountPrincipal(trustAccount),
+            path: '/service-role/',
+            assumedBy: new iam.ArnPrincipal(trustArn),
+            // assumedBy: new iam.AccountPrincipal(trustAccount),            
             description: 'AMP role to assume from central account',
         });
 
