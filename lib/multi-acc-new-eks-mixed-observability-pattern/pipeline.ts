@@ -93,7 +93,7 @@ export class PipelineMultiEnvMonitoring {
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
-        const AmgIamRoleArn = `arn:aws:iam::${context.prodEnv1.account}:role/${AmgIamSetupStackProps.roleName}`
+        const AmgIamRoleArn = `arn:aws:iam::${context.monitoringEnv.account}:role/${AmgIamSetupStackProps.roleName}`
 
         const pline = blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
