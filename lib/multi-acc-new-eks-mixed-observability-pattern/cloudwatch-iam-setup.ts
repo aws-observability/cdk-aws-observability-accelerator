@@ -23,7 +23,7 @@ export class CloudWatchIamSetupStack extends NestedStack {
 
         const role = new iam.Role(this, 'cloudwatch-iam-trust-role', {
             roleName: roleName,
-            path: '/service-role/',
+            // path: '/service-role/',
             assumedBy: new iam.ArnPrincipal(trustArn),
             // assumedBy: new iam.AccountPrincipal(trustAccount),
             description: 'CloudWatch role to assume from central account',

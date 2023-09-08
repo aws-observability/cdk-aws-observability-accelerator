@@ -24,8 +24,8 @@ export class AmpIamSetupStack extends NestedStack {
         const role = new iam.Role(this, 'amp-iam-trust-role', {
             roleName: roleName,
             // path: '/service-role/',
-            // assumedBy: new iam.ArnPrincipal(trustArn),
-            assumedBy: new iam.AccountPrincipal(this.account),            
+            assumedBy: new iam.ArnPrincipal(trustArn),
+            // assumedBy: new iam.AccountPrincipal(this.account),            
             description: 'AMP role to assume from central account',
         });
 
