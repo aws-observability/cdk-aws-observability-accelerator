@@ -185,18 +185,18 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 path: path,
                 targetRevision: branch,
             },
-            bootstrapValues: {
-                AMG_AWS_REGION: amgRegion,
-                AMP_ACCOUNT_ID: ampAccount,
-                AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
-                AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
-                GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
-                GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
-                GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
-                GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
-                GRAFANA_NODES_DASH_URL: nodesDashUrl,
-                GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
-            },      
+            // bootstrapValues: {
+            //     AMG_AWS_REGION: amgRegion,
+            //     AMP_ACCOUNT_ID: ampAccount,
+            //     AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
+            //     AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
+            //     GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
+            //     GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
+            //     GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
+            //     GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
+            //     GRAFANA_NODES_DASH_URL: nodesDashUrl,
+            //     GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
+            // },   
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
@@ -215,18 +215,18 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
             },
-            bootstrapValues: {
-                AMG_AWS_REGION: amgRegion,
-                AMP_ACCOUNT_ID: ampAccount,
-                AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
-                AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
-                GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
-                GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
-                GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
-                GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
-                GRAFANA_NODES_DASH_URL: nodesDashUrl,
-                GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
-            },
+            // bootstrapValues: {
+            //     AMG_AWS_REGION: amgRegion,
+            //     AMP_ACCOUNT_ID: ampAccount,
+            //     AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
+            //     AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
+            //     GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
+            //     GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
+            //     GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
+            //     GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
+            //     GRAFANA_NODES_DASH_URL: nodesDashUrl,
+            //     GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
+            // },
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
             //         service: {
@@ -236,6 +236,19 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
             // },                        
         }        
     }
+
+    ArgoCDAddOnProps.bootstrapValues = {
+        AMG_AWS_REGION: amgRegion,
+        AMP_ACCOUNT_ID: ampAccount,
+        AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
+        AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
+        GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
+        GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
+        GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
+        GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
+        GRAFANA_NODES_DASH_URL: nodesDashUrl,
+        GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
+    };
 
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
