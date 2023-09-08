@@ -12,6 +12,13 @@ import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 
 const logger = blueprints.utils.logger;
 
+let clusterDashUrl: string;
+let kubeletDashUrl: string;
+let namespaceWorkloadsDashUrl: string;
+let nodeExporterDashUrl: string;
+let nodesDashUrl: string;
+let workloadsDashUrl: string;
+
 /**
  * Function relies on a secret called "cdk-context" defined in the us-east-1 region in pipeline account. Its a MANDATORY STEP.
  * @returns 
@@ -57,19 +64,28 @@ export class PipelineMultiEnvMonitoring {
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
 
+      // All Grafana Dashboard URLs from `cdk.json` if present
+      clusterDashUrl = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
+      const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
+      const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
+      const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
+      const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
+      const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);        
+
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
         // Argo configuration per environment
-        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','envs/prod','main','public');
-        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/one-observability-demo.git','grafana-operator-chart','main','private');
+        // CHANGE ME FINALLY
+        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','artifacts/sample-apps/envs/prod','main','public');
+        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/aws-observability-accelerator.git','artifacts/grafana-operator-chart','artifacts','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
+        // CHANGE ME FINALLY
         const gitOwner = 'Prakkie'; 
-        // const gitRepositoryName = 'cdk-eks-blueprints-patterns';
         const gitRepositoryName = 'cdk-aws-observability-accelerator';
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
@@ -170,17 +186,16 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 targetRevision: branch,
             },
             bootstrapValues: {
-                "AMG_AWS_REGION": amgRegion,
-                "AMP_ACCOUNT_ID": ampAccount,
-                "AMP_ENDPOINT_URL": "UPDATE_ME_WITH_AMP_ENDPOINT_URL",
-                "AMG_ENDPOINT_URL": "UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS",
-                // "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
-                "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
-                "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
-                "GRAFANA_NSWRKLDS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
-                "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
-                "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
-                "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"        
+                AMG_AWS_REGION: amgRegion,
+                AMP_ACCOUNT_ID: ampAccount,
+                AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
+                AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
+                GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
+                GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
+                GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
+                GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
+                GRAFANA_NODES_DASH_URL: nodesDashUrl,
+                GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
             },      
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
@@ -201,17 +216,16 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 credentialsType: 'SSH',
             },
             bootstrapValues: {
-                "AMG_AWS_REGION": amgRegion,
-                "AMP_ACCOUNT_ID": ampAccount,
-                "AMP_ENDPOINT_URL": "UPDATE_ME_WITH_AMP_ENDPOINT_URL",
-                "AMG_ENDPOINT_URL": "UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS",
-                // "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
-                "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
-                "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
-                "GRAFANA_NSWRKLDS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
-                "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
-                "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
-                "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
+                AMG_AWS_REGION: amgRegion,
+                AMP_ACCOUNT_ID: ampAccount,
+                AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
+                AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
+                GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
+                GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
+                GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
+                GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
+                GRAFANA_NODES_DASH_URL: nodesDashUrl,
+                GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
             },
             // values: {
             //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
