@@ -160,8 +160,6 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
-    const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL! || "UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS";
-
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
     if (repoType.toLocaleLowerCase() === 'public') {
@@ -175,7 +173,7 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 "AMG_AWS_REGION": amgRegion,
                 "AMP_ACCOUNT_ID": ampAccount,
                 "AMP_ENDPOINT_URL": "UPDATE_ME_WITH_AMP_ENDPOINT_URL",
-                "AMG_ENDPOINT_URL": amgEndpointUrl,
+                "AMG_ENDPOINT_URL": "UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS",
                 // "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
                 "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
                 "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
@@ -206,7 +204,7 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 "AMG_AWS_REGION": amgRegion,
                 "AMP_ACCOUNT_ID": ampAccount,
                 "AMP_ENDPOINT_URL": "UPDATE_ME_WITH_AMP_ENDPOINT_URL",
-                "AMG_ENDPOINT_URL": amgEndpointUrl,
+                "AMG_ENDPOINT_URL": "UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS",
                 // "GRAFANA_NODEEXP_DASH_URL": "https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/grafana-dashboards/nodeexporter-nodes.json",
                 "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
                 "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
