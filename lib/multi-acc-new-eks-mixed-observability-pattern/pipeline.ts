@@ -79,7 +79,7 @@ export class PipelineMultiEnvMonitoring {
 
         // Argo configuration per environment
         // CHANGE ME FINALLY
-        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/aws-samples/eks-blueprints-workloads.git','artifacts/sample-apps/envs/prod','main','public');
+        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/iamprakkie/aws-observability-accelerator.git','artifacts/sample-apps/envs/prod','artifacts','public');
         const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/aws-observability-accelerator.git','artifacts/grafana-operator-chart','artifacts','private');
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
@@ -114,7 +114,8 @@ export class PipelineMultiEnvMonitoring {
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',
                 // targetRevision: 'main',
-                targetRevision: 'multi-account-COA',
+                // UPDATE ME FINALLY
+                targetRevision: 'multi-account-COA', 
             })
             .enableCrossAccountKeys()
             .wave({
