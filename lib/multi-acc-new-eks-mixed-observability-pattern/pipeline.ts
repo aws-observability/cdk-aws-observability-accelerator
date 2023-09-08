@@ -66,11 +66,11 @@ export class PipelineMultiEnvMonitoring {
 
       // All Grafana Dashboard URLs from `cdk.json` if present
       clusterDashUrl = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-      const kubeletDashUrl: string = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-      const namespaceWorkloadsDashUrl: string = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
-      const nodeExporterDashUrl: string = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
-      const nodesDashUrl: string = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-      const workloadsDashUrl: string = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);        
+      kubeletDashUrl = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
+      namespaceWorkloadsDashUrl = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
+      nodeExporterDashUrl = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
+      nodesDashUrl = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
+      workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);        
 
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
