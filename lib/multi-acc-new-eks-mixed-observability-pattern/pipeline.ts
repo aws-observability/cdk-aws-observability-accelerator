@@ -92,7 +92,7 @@ export class PipelineMultiEnvMonitoring {
             context.prodEnv1.account, context.prodEnv1.region, 
             context.prodEnv2.account, context.prodEnv2.region,
             'https://github.com/iamprakkie/aws-observability-accelerator.git',
-            'artifacts/grafana-operator-chart',
+            'artifacts/sample-apps/grafana-operator-app',
             'artifacts',
             'private'
         );
