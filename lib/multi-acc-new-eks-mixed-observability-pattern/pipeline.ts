@@ -248,9 +248,6 @@ function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: stri
     }
 
     ArgoCDAddOnProps.bootstrapValues = {
-        spec: {
-            syncPolicy: {}
-        },
         AMP_ASSUME_ROLE_ARN: ampAssumeRoleArn,
         AMP_AWS_REGION: ampRegion,
         CW_ASSUME_ROLE_ARN: cwAssumeRoleArn,
