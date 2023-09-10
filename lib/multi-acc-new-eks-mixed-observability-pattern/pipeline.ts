@@ -12,6 +12,8 @@ import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 
 const logger = blueprints.utils.logger;
 
+type repoTypeValues = 'public' | 'private';
+
 let clusterDashUrl: string;
 let kubeletDashUrl: string;
 let namespaceWorkloadsDashUrl: string;
@@ -79,8 +81,21 @@ export class PipelineMultiEnvMonitoring {
 
         // Argo configuration per environment
         // CHANGE ME FINALLY
-        const prodArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.prodEnv1.region, 'https://github.com/iamprakkie/aws-observability-accelerator.git','artifacts/sample-apps/envs/prod','artifacts','public');
-        const grafanaOperatorArgoAddonConfig = createArgoAddonConfig(context.prodEnv1.account, context.monitoringEnv.region, 'https://github.com/iamprakkie/aws-observability-accelerator.git','artifacts/grafana-operator-chart','artifacts','private');
+        const prodArgoAddonConfig = createArgoAddonConfig(
+            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'artifacts/sample-apps/envs/prod',
+            'artifacts',
+            'public'
+        );
+
+        const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
+            context.prodEnv1.account, context.prodEnv1.region, 
+            context.prodEnv2.account, context.prodEnv2.region,
+            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'artifacts/grafana-operator-chart',
+            'artifacts',
+            'private'
+        );
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
@@ -170,9 +185,7 @@ export class PipelineMultiEnvMonitoring {
     }
 }
 
-type repoTypeValues = 'public' | 'private';
-
-function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
 
     branch = branch! || 'main';
     repoType = repoType! || 'public';
@@ -186,25 +199,6 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 path: path,
                 targetRevision: branch,
             },
-            // bootstrapValues: {
-            //     AMG_AWS_REGION: amgRegion,
-            //     AMP_ACCOUNT_ID: ampAccount,
-            //     AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
-            //     AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
-            //     GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
-            //     GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
-            //     GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
-            //     GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
-            //     GRAFANA_NODES_DASH_URL: nodesDashUrl,
-            //     GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
-            // },   
-            // values: {
-            //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
-            //         service: {
-            //             type: 'LoadBalancer'
-            //         }
-            //     }
-            // },            
         }
     } else {
 
@@ -215,32 +209,45 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
                 targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
+            },                     
+        }        
+    }    
+    return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
+}
+
+function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: string | undefined, cwAccount: string | undefined, cwRegion: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+
+    branch = branch! || 'main';
+    repoType = repoType! || 'public';
+
+    let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
+
+    if (repoType.toLocaleLowerCase() === 'public') {
+        ArgoCDAddOnProps = {
+            bootstrapRepo: {
+                repoUrl: repoUrl,
+                path: path,
+                targetRevision: branch,
             },
-            // bootstrapValues: {
-            //     AMG_AWS_REGION: amgRegion,
-            //     AMP_ACCOUNT_ID: ampAccount,
-            //     AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
-            //     AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
-            //     GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
-            //     GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
-            //     GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
-            //     GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
-            //     GRAFANA_NODES_DASH_URL: nodesDashUrl,
-            //     GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
-            // },
-            // values: {
-            //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
-            //         service: {
-            //             type: 'LoadBalancer'
-            //         }
-            //     }
-            // },                        
+        }
+    } else {
+
+        ArgoCDAddOnProps = {
+            bootstrapRepo: {
+                repoUrl: repoUrl,
+                path: path,
+                targetRevision: branch,
+                credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
+                credentialsType: 'SSH',
+            },                     
         }        
     }
 
     ArgoCDAddOnProps.bootstrapValues = {
-        AMG_AWS_REGION: amgRegion,
         AMP_ACCOUNT_ID: ampAccount,
+        AMP_AWS_REGION: ampRegion,
+        CW_ACCOUNT_ID: cwAccount,
+        CW_AWS_REGION: cwRegion,        
         AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
         AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
         GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
@@ -251,5 +258,13 @@ function createArgoAddonConfig(ampAccount: string | undefined, amgRegion: string
         GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
     };
 
+    // ArgoCDAddOnProps.values = {
+    //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
+    //         service: {
+    //             type: 'LoadBalancer'
+    //         }
+    //     }
+    // };       
+    
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
