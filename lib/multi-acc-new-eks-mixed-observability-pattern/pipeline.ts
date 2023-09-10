@@ -88,6 +88,7 @@ export class PipelineMultiEnvMonitoring {
             'public'
         );
 
+        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
         const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
             context.prodEnv1.account, context.prodEnv1.region, 
             context.prodEnv2.account, context.prodEnv2.region,
@@ -220,6 +221,9 @@ function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: stri
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
+    const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/ampPrometheusDataSourceRole`
+    const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/cloudwatchDataSourceRole`
+
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
     if (repoType.toLocaleLowerCase() === 'public') {
@@ -244,9 +248,9 @@ function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: stri
     }
 
     ArgoCDAddOnProps.bootstrapValues = {
-        AMP_ACCOUNT_ID: ampAccount,
+        AMP_ASSUME_ROLE_ARN: ampAssumeRoleArn,
         AMP_AWS_REGION: ampRegion,
-        CW_ACCOUNT_ID: cwAccount,
+        CW_ASSUME_ROLE_ARN: cwAssumeRoleArn,
         CW_AWS_REGION: cwRegion,        
         AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
         AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
