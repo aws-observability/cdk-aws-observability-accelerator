@@ -35,7 +35,7 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             new blueprints.addons.AwsLoadBalancerControllerAddOn(),
             new blueprints.addons.CertManagerAddOn(certManagerAddOnProps),
             new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.CoreDnsAddOn(),
+            new blueprints.addons.CoreDnsAddOn(coreDnsAddOnProps),
             new blueprints.addons.KubeProxyAddOn(),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.MetricsServerAddOn(),
