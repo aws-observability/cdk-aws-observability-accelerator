@@ -113,22 +113,7 @@ View the Performance Monitoring Dashboard:
 
 ## Viewing Logs
 
-By default, we deploy a FluentBit daemon set in the cluster to collect worker logs for all namespaces. Logs are collected and exported to Amazon CloudWatch Logs, which enables you to centralize the logs from all of your systems, applications,
-and AWS services that you use, in a single, highly scalable service.
-
-## Using CloudWatch Logs Insights to Query Logs
-
-Navigate to CloudWatch, then go to "Logs Insights"
-
-In the dropdown, select any of the logs that begin with "/aws/eks/single-new-eks-awsnative-observability-accelerator" and run a query.
-
-Example with "kubesystem" log group:
-
-![logs-query](../images/logs-insights1.png)
-
-Then you can view the results of your query:
-
-![logs-results](../images/logs-insights2.png)
+Refer to "Using CloudWatch Logs Insights to Query Logs in [Logging](../../logs.md).
 
 
 ## Teardown

@@ -102,7 +102,7 @@ prometheus-node-exporter   Active   13m
 - On a same view, select 'EKS Pods', which provides insights overview of all the pods as shown below
 ![Container Insights - EKS Pods](../images/awsnative-container-insights-2.png)
 
-- Please see [Single New EKS Cluster AWS Mixed Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md#viewing-logs) for Logs.
+- Refer to "Using CloudWatch Logs Insights to Query Logs in [Logging](../../logs.md).
 
 ## Teardown
 
