@@ -12,7 +12,7 @@ export interface AmgIamSetupStackProps extends NestedStackProps {
     /**
      * Role to create for the AMG stack that grants access to the specified accounts for AMP and CloudWatch metrics.
      */
-    roleName: string,
+    roleArn: string,
 
     /**
      * Monitored accounts. These contain ampPrometheusDataSourceRole and cloudwatchPrometheusDataSourceRole roles 
@@ -30,17 +30,18 @@ export class AmgIamSetupStack extends NestedStack {
         super(scope, id, props);
 
         const account = this.account;
-        const region = this.region;
 
-        // Create role
-        const workspaceRole = new Role(this, 'amg-iam-role', {
-            roleName: props.roleName,
-            assumedBy: new ServicePrincipal('grafana.amazonaws.com').withConditions({
-                StringEquals: {'aws:SourceAccount': `${account}`},
-                StringLike: {'aws:SourceArn': `arn:aws:grafana:${region}:${account}:/workspaces/*`}
-            }),
-            description: 'Service Role for Amazon Managed Grafana',
-        });        
+        // Create role - commented as we are expecting pre-existing AMG and their role from it.
+        // const workspaceRole = new Role(this, 'amg-iam-role', {
+        //     roleName: props.roleName,
+        //     assumedBy: new ServicePrincipal('grafana.amazonaws.com').withConditions({
+        //         StringEquals: {'aws:SourceAccount': `${account}`},
+        //         StringLike: {'aws:SourceArn': `arn:aws:grafana:${region}:${account}:/workspaces/*`}
+        //     }),
+        //     description: 'Service Role for Amazon Managed Grafana',
+        // }); 
+
+        const workspaceRole = Role.fromRoleArn(this, 'ExistingRole', props.roleArn);
 
         // Inline policy for SNS
         const AMGSNSPolicy = new PolicyStatement({
@@ -51,11 +52,11 @@ export class AmgIamSetupStack extends NestedStack {
             resources: [`arn:aws:sns:*:${account}:grafana*`]
         });
   
-        workspaceRole.addToPolicy(AMGSNSPolicy);                
-
+        // workspaceRole.addToPolicy(AMGSNSPolicy);  
+        workspaceRole.addToPrincipalPolicy(AMGSNSPolicy);   
         
         for (let i = 0; i < props.accounts.length; i++) {
-            workspaceRole.addToPolicy(new PolicyStatement({
+            workspaceRole.addToPrincipalPolicy(new PolicyStatement({
                 actions: [
                     "sts:AssumeRole"
                 ],

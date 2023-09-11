@@ -2,6 +2,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
@@ -14,6 +15,7 @@ const logger = blueprints.utils.logger;
 
 type repoTypeValues = 'public' | 'private';
 
+let amgWorkspaceUrl: string;
 let clusterDashUrl: string;
 let kubeletDashUrl: string;
 let namespaceWorkloadsDashUrl: string;
@@ -22,12 +24,12 @@ let nodesDashUrl: string;
 let workloadsDashUrl: string;
 
 /**
- * Function relies on a secret called "cdk-context" defined in the us-east-1 region in pipeline account. Its a MANDATORY STEP.
+ * Function relies on a secret called "cdk-context" defined in COA_PIPELINE_REGION region in pipeline account. Its a MANDATORY STEP.
  * @returns 
  */
-export async function populateAccountWithContextDefaults(): Promise<PipelineMultiEnvMonitoringProps> {
+export async function populateAccountWithContextDefaults(region: string): Promise<PipelineMultiEnvMonitoringProps> {
     // Populate Context Defaults for all the accounts
-    const cdkContext = JSON.parse(await blueprints.utils.getSecretValue('cdk-context', 'us-east-1'))['context'] as PipelineMultiEnvMonitoringProps;
+    const cdkContext = JSON.parse(await blueprints.utils.getSecretValue('cdk-context', region))['context'] as PipelineMultiEnvMonitoringProps;
     logger.debug(`Retrieved CDK context ${JSON.stringify(cdkContext)}`);
     return cdkContext;
 }
@@ -59,20 +61,55 @@ export interface PipelineMultiEnvMonitoringProps {
  */
 export class PipelineMultiEnvMonitoring {
 
+    readonly inPipelineRegion = process.env.COA_PIPELINE_REGION! || process.env.CDK_DEFAULT_REGION!;
+    readonly inPipelineGitOwner = process.env.COA_PIPELINE_GIT_OWNER;
+
+    async getSSMSecureString(scope: Construct, parameterName: string): Promise<string> { 
+        const ssmValue = ssm.StringParameter.fromSecureStringParameterAttributes(scope, 'SSMParameter', {
+            parameterName: parameterName,
+          });
+        return ssmValue.stringValue;
+    }
+    
     async buildAsync(scope: Construct) {
-        const context = await populateAccountWithContextDefaults();
+
+        // Checks for Git Owner
+        if (!this.inPipelineRegion) {
+            logger.debug("ERROR: COA_PIPELINE_REGION or CDK_DEFAULT_REGION environment variable is not defined.");
+            process.exit(1);
+        }
+
+        if (!this.inPipelineGitOwner) {
+            logger.debug("ERROR: COA_PIPELINE_GIT_OWNER environment variable is not defined.");
+            process.exit(1); 
+        }        
+
+        process.exit(1);
+        const context = await populateAccountWithContextDefaults(this.inPipelineRegion);
         // environments IDs consts
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
 
-      // All Grafana Dashboard URLs from `cdk.json` if present
-      clusterDashUrl = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-      kubeletDashUrl = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-      namespaceWorkloadsDashUrl = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
-      nodeExporterDashUrl = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
-      nodesDashUrl = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-      workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);        
+        let parsedSSMValue: string | any;
+
+        // All Grafana Dashboard URLs from `cdk.json` if present
+        clusterDashUrl = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
+        kubeletDashUrl = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
+        namespaceWorkloadsDashUrl = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
+        nodeExporterDashUrl = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
+        nodesDashUrl = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
+        workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
+        
+        const amgSSMParameter = '/cdk-accelerator/amg-info'; // Replace with your parameter name
+
+        this.getSSMSecureString(scope, amgSSMParameter).then((ssmValue) => {
+            parsedSSMValue = JSON.parse(ssmValue)['amg'];
+            logger.debug(`Retrieved SecureString ${amgSSMParameter}:: ${JSON.stringify(ssmValue)}`);
+        });
+
+        amgWorkspaceUrl = parsedSSMValue.workspaceURL;
+        const amgWorkspaceIAMRoleARN = parsedSSMValue.workspaceIAMRoleARN;
 
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
@@ -105,13 +142,12 @@ export class PipelineMultiEnvMonitoring {
         const gitRepositoryName = 'cdk-aws-observability-accelerator';
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
-            roleName: "amgWorkspaceIamRole",
+            // roleName: "amgWorkspaceIamRole",
+            roleArn: amgWorkspaceIAMRoleARN,
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
-        const AmgIamRoleArn = `arn:aws:iam::${context.monitoringEnv.account}:role/${AmgIamSetupStackProps.roleName}`
-
-        const pline = blueprints.CodePipelineStack.builder()
+        blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-acc-central-pipeline")
             .owner(gitOwner)
@@ -144,7 +180,7 @@ export class PipelineMultiEnvMonitoring {
                             .clone(context.prodEnv1.region, context.prodEnv1.account)
                             .version('auto')
                             .addOns(new blueprints.NestedStackAddOn({
-                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", AmgIamRoleArn!),
+                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", amgWorkspaceIAMRoleARN!),
                                 id: "amp-iam-nested-stack"
                             }))
                             .addOns(
@@ -157,7 +193,7 @@ export class PipelineMultiEnvMonitoring {
                             .name(PROD2_ENV_ID)
                             .clone(context.prodEnv2.region, context.prodEnv2.account)
                             .addOns(new blueprints.NestedStackAddOn({
-                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", AmgIamRoleArn!),
+                                builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
                                 id: "cloudwatch-iam-nested-stack"
                             }))
                             .addOns(
@@ -253,7 +289,7 @@ function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: stri
         CW_ASSUME_ROLE_ARN: cwAssumeRoleArn,
         CW_AWS_REGION: cwRegion,        
         AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
-        AMG_ENDPOINT_URL: 'UPDATE_ME_WITH_AMG_ENDPOINT_URL_STARTING_WITH_HTTPS',
+        AMG_ENDPOINT_URL: amgWorkspaceUrl,
         GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
         GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
         GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
