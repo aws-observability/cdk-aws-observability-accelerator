@@ -156,7 +156,8 @@ If you need Java observability you can instead use:
         }
       ]
     },
-    "java.pattern.enabled": true
+    "java.pattern.enabled": true,
+    "nginx.pattern.enabled": true
   }
 ```
 
