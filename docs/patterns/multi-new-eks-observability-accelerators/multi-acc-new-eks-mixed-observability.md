@@ -31,7 +31,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 1. An AWS account under AWS Control Tower called Pipeline Account (aka `pipelineEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 1. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 
-### Other recommended Steps
+### SSO Profile Setup
 
 1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html) are complete before proceeding to next steps.
 1. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
@@ -99,14 +99,58 @@ The following figure illustrates the architecture of the pattern we will be depl
     aws configure sso --profile monitoring-account
     ```
 
-1. Login to required profile using `aws sso login --profile <profile name>`
+1. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
 
     ```bash
     export AWS_PROFILE='pipeline-account'
     aws sso login --profile $AWS_PROFILE
     ```
+### Other Configurations
 
-## Deploying
+1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. `/cdk-accelerator/cdk-context` parameter must be stored as a plain text in the following format for all four AWS accounts used in this pattern.
+
+    ```bash
+    export COA_PIPELINE_ACCOUNT_ID=$(aws configure get sso_account_id --profile pipeline-account)
+    export COA_PIPELINE_REGION=$(aws configure get region --profile pipeline-account)
+
+    export COA_PROD1_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod1-account)
+    export COA_PROD1_REGION=$(aws configure get region --profile prod1-account)
+
+    export COA_PROD2_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod2-account)
+    export COA_PROD2_REGION=$(aws configure get region --profile prod2-account)
+
+    export COA_MON_ACCOUNT_ID=$(aws configure get sso_account_id --profile monitoring-account)
+    export COA_MON_REGION=$(aws configure get region --profile monitoring-account)
+
+    aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+        --type "SecureString" \
+        --overwrite \
+        --name "/cdk-accelerator/cdk-context" \
+        --description "AWS account details of different environments used by Multi account mixed CDK Observability Accelerator pattern" \
+        --value '{
+            "context": {
+                "pipelineEnv": {
+                    "account": $COA_PIPELINE_ACCOUNT_ID,
+                    "region": $COA_PIPELINE_REGION
+
+                },            
+                "prodEnv1": {
+                    "account": $COA_PROD1_ACCOUNT_ID,
+                    "region": $COA_PROD1_REGION
+                },
+                "prodEnv2": {
+                    "account": $COA_PROD2_ACCOUNT_ID,
+                    "region": $COA_PROD2_REGION
+                },
+                "monitoringEnv": {
+                    "account": $COA_MON_ACCOUNT_ID,
+                    "region": $COA_MON_REGION
+                }
+            }
+        }'
+    ```
+
+## Deployment
 
 1. Fork this repository to your GitHub organisation/user.
 2. Clone your forked repository.
