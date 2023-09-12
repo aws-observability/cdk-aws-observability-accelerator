@@ -87,9 +87,9 @@ export class PipelineMultiEnvMonitoring {
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
         
         // Get AMG info from SSM SecureString
-        const parsedSSMValue = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
-        amgWorkspaceUrl = parsedSSMValue.workspaceURL;
-        const amgWorkspaceIAMRoleARN = parsedSSMValue.workspaceIAMRoleARN;
+        const amgInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
+        amgWorkspaceUrl = amgInfo.workspaceURL;
+        const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
         //creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
@@ -116,10 +116,11 @@ export class PipelineMultiEnvMonitoring {
             'private'
         );
 
-        // const { gitOwner, gitRepositoryName } = await getRepositoryData();
+        // get CodePipeline Source Github info
         // const gitOwner = 'aws-samples'; 
-        const gitOwner = await getSSMSecureString('/cdk-accelerator/pipeline-git-owner',this.pipelineRegion);
-        const gitRepositoryName = 'cdk-aws-observability-accelerator';
+        const pipelineSrcInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/pipeline-git-owner',this.pipelineRegion))['pipelineSource'];
+        const gitOwner = pipelineSrcInfo.gitOwner;
+        const gitRepositoryName = pipelineSrcInfo.gitRepoName;
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
             // roleName: "amgWorkspaceIamRole",
