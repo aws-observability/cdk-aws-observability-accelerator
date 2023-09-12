@@ -1,11 +1,11 @@
-import * as AWS from 'aws-sdk';
+import { SSM } from 'aws-sdk';
 
 // function to get SSM Parameterstor Securestring value
 export async function getSSMSecureString(parameterName: string, region: string): Promise<string> {  
     
     let secureStringValue: string;
     secureStringValue='';
-    const ssm = new AWS.SSM({
+    const ssm = new SSM({
         region: region
     }); // Create an SSM client
 

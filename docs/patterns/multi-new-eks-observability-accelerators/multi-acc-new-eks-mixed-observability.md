@@ -9,27 +9,102 @@ The following figure illustrates the architecture of the pattern we will be depl
 ## Objective
 
 1. Deploying two production grade Amazon EKS cluster across 2 AWS Accounts ( Prod1, Prod2 account ) through a Continuous Deployment infrastructure pipeline triggered upon a commit to the repository that holds the pipeline configuration in an another AWS account (pipeline account).
-1. Deploying ADOT add-on, AMP add-on to Prod 1 Amazon EKS Cluster to remote write metrics to AMP workspace in Prod 1 AWS Account. 
-1. Deploying ADOT add-on, CloudWatch add-on to Prod 2 Amazon EKS Cluster to write metrics to CloudWatch in Prod 2 AWS Account.
-1. Configuring GitOps tooling (ArgoCD addon) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using ArgoCD projects.
-1. Setting up IAM roles in Prod 1 and Prod 2 Accounts to allow an AMG service role in the Monitoring account (mon-account) to access metrics from AMP workspace in Prod 1 account and CloudWatch namespace in Prod 2 account.
-1. Setting Amazon Managed Grafana to visualize AMP metrics from Amazon EKS cluster in Prod account 1 and CloudWatch metrics on workloads in Amazon EKS cluster in Prod account 2.
-1. Installing Grafana Operator in Monitoring account (mon-account) to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
-1. Installing External Secrets Operator in Monitoring account (mon-account) to retrieve and Sync the Grafana API keys.
+2. Deploying ADOT add-on, AMP add-on to Prod 1 Amazon EKS Cluster to remote write metrics to AMP workspace in Prod 1 AWS Account.
+3. Deploying ADOT add-on, CloudWatch add-on to Prod 2 Amazon EKS Cluster to write metrics to CloudWatch in Prod 2 AWS Account.
+4. Configuring GitOps tooling (ArgoCD addon) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using ArgoCD projects.
+5. Setting up IAM roles in Prod 1 and Prod 2 Accounts to allow an AMG service role in the Monitoring account (mon-account) to access metrics from AMP workspace in Prod 1 account and CloudWatch namespace in Prod 2 account.
+6. Setting Amazon Managed Grafana to visualize AMP metrics from Amazon EKS cluster in Prod account 1 and CloudWatch metrics on workloads in Amazon EKS cluster in Prod account 2.
+7. Installing Grafana Operator in Monitoring account (mon-account) to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
+8. Installing External Secrets Operator in Monitoring account (mon-account) to retrieve and Sync the Grafana API keys.
 
 ### GitOps confguration
 
 - For GitOps, the blueprint bootstrap the ArgoCD addon and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
 - You can find the team-geordie configuration for this pattern in the workload repository under the folder [`team-geordie`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/teams/team-geordie).
-- GitOps based management of Amazon Grafana resources like: Datasources and Dashboards, is achieved using ArgoCD application [`grafana-operator-app`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/grafana-operator-app). Grafana Operator resources are deployed using [`grafana-operator-chart`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/grafana-operator-chart).
+- GitOps based management of Amazon Grafana resources (like: Datasources and Dashboards) is achieved using ArgoCD application [`grafana-operator-app`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/grafana-operator-app). Grafana Operator resources are deployed using [`grafana-operator-chart`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/grafana-operator-chart).
 
 ## Prerequisites
 
 1. AWS Control Tower deployed in your AWS environment in the management account. If you have not already installed AWS Control Tower, follow the [Getting Started with AWS Control Tower documentation](https://docs.aws.amazon.com/controltower/latest/userguide/getting-started-with-control-tower.html), or you can enable AWS Organizations in the AWS Management Console account and enable AWS SSO.
-2. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka prodEnv1) provisioned using the AWS Service Catalog Account Factory product AWS Control Tower Account vending process or AWS Organization.
-3. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka prodEnv2) provisioned using the AWS Service Catalog Account Factory product AWS Control Tower Account vending process or AWS Organization.
-4. An AWS account under AWS Control Tower called Pipeline Account (aka pipelineEnv) provisioned using the AWS Service Catalog Account Factory product AWS Control Tower Account vending process or AWS Organization.
-5. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka monitoringEnv) provisioned using the AWS Service Catalog Account Factory product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka **`prodEnv1`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka **`prodEnv2`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html)] product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Pipeline Account (aka **`pipelineEnv`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka **`monitoringEnv`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+
+### Other recommended Steps
+
+1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here(https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html)] are complete before proceeding to next steps.
+1. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
+1. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for **`pipelineEnv`** account:
+
+    ```bash
+    aws configure sso --profile pipeline-account
+    ```
+
+    ```bash
+    # sample configuration
+    # SSO session name (Recommended): coa-multi-access-sso
+    # SSO start URL [None]: https://d-XXXXXXXXXX.awsapps.com/start#/
+    # SSO region [None]: us-west-2
+    # SSO registration scopes [sso:account:access]:sso:account:access
+
+    # Attempting to automatically open the SSO authorization page in your default browser.
+    # If the browser does not open or you wish to use a different device to authorize this request, open the following URL:
+
+    # https://device.sso.us-west-2.amazonaws.com/
+
+    # Then enter the code:
+
+    # XXXX-XXXX
+    # There are 7 AWS accounts available to you.
+    # Using the account ID 111122223333
+    # There are 2 roles available to you.
+    # Using the role name "AWSAdministratorAccess"
+    # CLI default client Region [None]: us-west-2
+    # CLI default output format [None]: json
+
+    # To use this profile, specify the profile name using --profile, as shown:
+
+    # aws s3 ls --profile pipeline-account
+
+    ```
+
+1. Then, configure profile for **`prod1Env`** AWS account. 
+
+    ```bash
+    aws configure sso --profile prod1-account
+    ```
+
+    ```bash
+    # sample configuration
+    # SSO session name (Recommended): coa-multi-access-sso
+    # There are 7 AWS accounts available to you.
+    # Using the account ID 444455556666
+    # There are 2 roles available to you.
+    # Using the role name "AWSAdministratorAccess"
+    # CLI default client Region [None]: us-west-2
+    # CLI default output format [None]: json
+
+    # To use this profile, specify the profile name using --profile, as shown:
+
+    # aws s3 ls --profile prod2-account
+    ```
+1. Then, configure profile for **`prod2Env`** AWS account. 
+    ```bash
+    aws configure sso --profile prod2-account
+    ```
+
+1. Then, configure profile for **`monitoringEnv`** AWS account. 
+    ```bash
+    aws configure sso --profile monitoring-account
+    ```
+
+1. Login to required profile using `aws sso login --profile <profile name>`
+
+    ```bash
+    export AWS_PROFILE='pipeline-account'
+    aws sso login --profile $AWS_PROFILE
+    ```
 
 ## Deploying
 
