@@ -130,21 +130,21 @@ The following figure illustrates the architecture of the pattern we will be depl
         --value '{
             "context": {
                 "pipelineEnv": {
-                    "account": $COA_PIPELINE_ACCOUNT_ID,
-                    "region": $COA_PIPELINE_REGION
+                    "account": '$COA_PIPELINE_ACCOUNT_ID',
+                    "region": '$COA_PIPELINE_REGION'
 
                 },            
                 "prodEnv1": {
-                    "account": $COA_PROD1_ACCOUNT_ID,
-                    "region": $COA_PROD1_REGION
+                    "account": '$COA_PROD1_ACCOUNT_ID',
+                    "region": '$COA_PROD1_REGION'
                 },
                 "prodEnv2": {
-                    "account": $COA_PROD2_ACCOUNT_ID,
-                    "region": $COA_PROD2_REGION
+                    "account": '$COA_PROD2_ACCOUNT_ID',
+                    "region": '$COA_PROD2_REGION'
                 },
                 "monitoringEnv": {
-                    "account": $COA_MON_ACCOUNT_ID,
-                    "region": $COA_MON_REGION
+                    "account": '$COA_MON_ACCOUNT_ID',
+                    "region": '$COA_MON_REGION'
                 }
             }
         }'
