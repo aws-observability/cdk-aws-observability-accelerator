@@ -26,16 +26,16 @@ The following figure illustrates the architecture of the pattern we will be depl
 ## Prerequisites
 
 1. AWS Control Tower deployed in your AWS environment in the management account. If you have not already installed AWS Control Tower, follow the [Getting Started with AWS Control Tower documentation](https://docs.aws.amazon.com/controltower/latest/userguide/getting-started-with-control-tower.html), or you can enable AWS Organizations in the AWS Management Console account and enable AWS SSO.
-1. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka **`prodEnv1`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
-1. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka **`prodEnv2`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html)] product AWS Control Tower Account vending process or AWS Organization.
-1. An AWS account under AWS Control Tower called Pipeline Account (aka **`pipelineEnv`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
-1. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka **`monitoringEnv`**) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka `prodEnv1`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka `prodEnv2`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html)] product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Pipeline Account (aka `pipelineEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+1. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 
 ### Other recommended Steps
 
-1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here(https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html)] are complete before proceeding to next steps.
+1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html) are complete before proceeding to next steps.
 1. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
-1. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for **`pipelineEnv`** account:
+1. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for `pipelineEnv` account:
 
     ```bash
     aws configure sso --profile pipeline-account
@@ -69,7 +69,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 
     ```
 
-1. Then, configure profile for **`prod1Env`** AWS account. 
+1. Then, configure profile for `prod1Env` AWS account. 
 
     ```bash
     aws configure sso --profile prod1-account
@@ -89,12 +89,12 @@ The following figure illustrates the architecture of the pattern we will be depl
 
     # aws s3 ls --profile prod2-account
     ```
-1. Then, configure profile for **`prod2Env`** AWS account. 
+1. Then, configure profile for `prod2Env` AWS account. 
     ```bash
     aws configure sso --profile prod2-account
     ```
 
-1. Then, configure profile for **`monitoringEnv`** AWS account. 
+1. Then, configure profile for `monitoringEnv` AWS account. 
     ```bash
     aws configure sso --profile monitoring-account
     ```
