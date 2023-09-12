@@ -10,6 +10,7 @@ import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
 import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
+import { getSSMSecureString } from './getSSMSecureString';
 
 const logger = blueprints.utils.logger;
 
@@ -28,8 +29,7 @@ let workloadsDashUrl: string;
  * @returns 
  */
 export async function populateAccountWithContextDefaults(region: string): Promise<PipelineMultiEnvMonitoringProps> {
-    // Populate Context Defaults for all the accounts
-    const cdkContext = JSON.parse(await blueprints.utils.getSecretValue('cdk-context', region))['context'] as PipelineMultiEnvMonitoringProps;
+    const cdkContext = JSON.parse(await getSSMSecureString('/cdk-accelerator/cdk-context',region))['context'] as PipelineMultiEnvMonitoringProps;
     logger.debug(`Retrieved CDK context ${JSON.stringify(cdkContext)}`);
     return cdkContext;
 }
@@ -61,37 +61,9 @@ export interface PipelineMultiEnvMonitoringProps {
  */
 export class PipelineMultiEnvMonitoring {
 
-    readonly inPipelineRegion = process.env.COA_PIPELINE_REGION! || process.env.CDK_DEFAULT_REGION!;
-    readonly inPipelineGitOwner = process.env.COA_PIPELINE_GIT_OWNER;
-
-    async getSSMSecureString(scope: Construct, parameterName: string): Promise<string> { 
-        const ssmValue = ssm.StringParameter.fromSecureStringParameterAttributes(scope, 'SSMParameter', {
-            parameterName: parameterName,
-          });
-        return ssmValue.stringValue;
-    }
+    readonly pipelineRegion = process.env.COA_PIPELINE_REGION! || process.env.CDK_DEFAULT_REGION!;
     
     async buildAsync(scope: Construct) {
-
-        // Checks for Git Owner
-        if (!this.inPipelineRegion) {
-            logger.debug("ERROR: COA_PIPELINE_REGION or CDK_DEFAULT_REGION environment variable is not defined.");
-            process.exit(1);
-        }
-
-        if (!this.inPipelineGitOwner) {
-            logger.debug("ERROR: COA_PIPELINE_GIT_OWNER environment variable is not defined.");
-            process.exit(1); 
-        }        
-
-        process.exit(1);
-        const context = await populateAccountWithContextDefaults(this.inPipelineRegion);
-        // environments IDs consts
-        const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
-        const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
-        const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
-
-        let parsedSSMValue: string | any;
 
         // All Grafana Dashboard URLs from `cdk.json` if present
         clusterDashUrl = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
@@ -99,18 +71,27 @@ export class PipelineMultiEnvMonitoring {
         namespaceWorkloadsDashUrl = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
         nodeExporterDashUrl = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
         nodesDashUrl = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-        workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
+        workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);        
+
+        // Checks for Git Owner
+        if (!this.pipelineRegion) {
+            logger.debug("ERROR: COA_PIPELINE_REGION or CDK_DEFAULT_REGION environment variable is not defined.");
+            process.exit(101);
+        }
+
+        // environments IDs consts
+        const context = await populateAccountWithContextDefaults(this.pipelineRegion);
+
+        const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
+        const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
+        const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
         
-        const amgSSMParameter = '/cdk-accelerator/amg-info'; // Replace with your parameter name
-
-        this.getSSMSecureString(scope, amgSSMParameter).then((ssmValue) => {
-            parsedSSMValue = JSON.parse(ssmValue)['amg'];
-            logger.debug(`Retrieved SecureString ${amgSSMParameter}:: ${JSON.stringify(ssmValue)}`);
-        });
-
+        // Get AMG info from SSM SecureString
+        const parsedSSMValue = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
         amgWorkspaceUrl = parsedSSMValue.workspaceURL;
         const amgWorkspaceIAMRoleARN = parsedSSMValue.workspaceIAMRoleARN;
 
+        //creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
@@ -137,8 +118,7 @@ export class PipelineMultiEnvMonitoring {
 
         // const { gitOwner, gitRepositoryName } = await getRepositoryData();
         // const gitOwner = 'aws-samples'; 
-        // CHANGE ME FINALLY
-        const gitOwner = 'Prakkie'; 
+        const gitOwner = await getSSMSecureString('/cdk-accelerator/pipeline-git-owner',this.pipelineRegion);
         const gitRepositoryName = 'cdk-aws-observability-accelerator';
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
