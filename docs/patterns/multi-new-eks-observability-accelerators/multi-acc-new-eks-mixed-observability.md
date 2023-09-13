@@ -359,10 +359,7 @@ The following figure illustrates the architecture of the pattern we will be depl
     - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and 
     - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana.
 
-1. Next, manually follow the following steps from [AWS Open Source blog](https://aws.amazon.com/blogs/opensource/setting-up-amazon-managed-grafana-cross-account-data-source-using-customer-managed-iam-roles/#:~:text=AWS%20SSO%20in%20the%20management%20account) :
-
-17. Query metrics in Monitoring account from Amazon Managed Prometheus workspace in Prod 1 Account
-18. Query metrics in the Monitoring account from Amazon CloudWatch in Prod 1 Account
+1. <NEED STEPS TO FIX GF DS>
 
 ![Metrics from AMP](./images/AMG%20-%20Metrics%20from%20AMP.png)
 
