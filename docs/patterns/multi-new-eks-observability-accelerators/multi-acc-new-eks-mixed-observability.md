@@ -1,8 +1,8 @@
-# Multi Account Open Source Observability Pattern.
+# Multi Account Mixed Observability Observability Accelerator
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Multi Account Mixed Observability pattern using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
+The following figure illustrates the architecture of the pattern we will be deploying for Multi Account Mixed Observability Accelerator using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
 
 ![Architecture](../images/multi-acc-mixed-observability.png)
 
@@ -28,338 +28,344 @@ The following figure illustrates the architecture of the pattern we will be depl
 ### AWS Accounts
 
 1. AWS Control Tower deployed in your AWS environment in the management account. If you have not already installed AWS Control Tower, follow the [Getting Started with AWS Control Tower documentation](https://docs.aws.amazon.com/controltower/latest/userguide/getting-started-with-control-tower.html), or you can enable AWS Organizations in the AWS Management Console account and enable AWS SSO.
-1. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka `prodEnv1`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
-1. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka `prodEnv2`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html)] product AWS Control Tower Account vending process or AWS Organization.
-1. An AWS account under AWS Control Tower called Pipeline Account (aka `pipelineEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
-1. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
-1. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of `monitoringEnv` account.
+2. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka `prodEnv1`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+3. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka `prodEnv2`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html)] product AWS Control Tower Account vending process or AWS Organization.
+4. An AWS account under AWS Control Tower called Pipeline Account (aka `pipelineEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+5. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
+6. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of `monitoringEnv` account. Enable Data sources **AWS X-Ray, Amazon Managed Service for Prometheus and Amazon Cloudwatch**.
 
 ### SSO Profile Setup
 
 1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html) are complete before proceeding to next steps.
-1. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
-1. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for `pipelineEnv` account:
+2. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
+3. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for `pipelineEnv` account:
 
-    ```bash
-    aws configure sso --profile pipeline-account
-    ```
+```bash
+aws configure sso --profile pipeline-account
+```
 
-    ```bash
-    # sample configuration
-    # SSO session name (Recommended): coa-multi-access-sso
-    # SSO start URL [None]: https://d-XXXXXXXXXX.awsapps.com/start#/
-    # SSO region [None]: us-west-2
-    # SSO registration scopes [sso:account:access]:sso:account:access
+```bash
+# sample configuration
+# SSO session name (Recommended): coa-multi-access-sso
+# SSO start URL [None]: https://d-XXXXXXXXXX.awsapps.com/start
+# SSO region [None]: us-west-2
+# SSO registration scopes [sso:account:access]:sso:account:access
 
-    # Attempting to automatically open the SSO authorization page in your default browser.
-    # If the browser does not open or you wish to use a different device to authorize this request, open the following URL:
+# Attempting to automatically open the SSO authorization page in your default browser.
+# If the browser does not open or you wish to use a different device to authorize this request, open the following URL:
 
-    # https://device.sso.us-west-2.amazonaws.com/
+# https://device.sso.us-west-2.amazonaws.com/
 
-    # Then enter the code:
+# Then enter the code:
 
-    # XXXX-XXXX
-    # There are 7 AWS accounts available to you.
-    # Using the account ID 111122223333
-    # There are 2 roles available to you.
-    # Using the role name "AWSAdministratorAccess"
-    # CLI default client Region [None]: us-west-2
-    # CLI default output format [None]: json
+# XXXX-XXXX
+# There are 7 AWS accounts available to you.
+# Using the account ID 111122223333
+# There are 2 roles available to you.
+# Using the role name "AWSAdministratorAccess"
+# CLI default client Region [None]: us-west-2
+# CLI default output format [None]: json
 
-    # To use this profile, specify the profile name using --profile, as shown:
+# To use this profile, specify the profile name using --profile, as shown:
 
-    # aws s3 ls --profile pipeline-account
+# aws s3 ls --profile pipeline-account
 
-    ```
+```
 
-1. Then, configure profile for `prod1Env` AWS account. 
+4. Then, configure profile for `prod1Env` AWS account.
 
-    ```bash
-    aws configure sso --profile prod1-account
-    ```
+```bash
+aws configure sso --profile prod1-account
+```
 
-    ```bash
-    # sample configuration
-    # SSO session name (Recommended): coa-multi-access-sso
-    # There are 7 AWS accounts available to you.
-    # Using the account ID 444455556666
-    # There are 2 roles available to you.
-    # Using the role name "AWSAdministratorAccess"
-    # CLI default client Region [None]: us-west-2
-    # CLI default output format [None]: json
+```bash
+# sample configuration
+# SSO session name (Recommended): coa-multi-access-sso
+# There are 7 AWS accounts available to you.
+# Using the account ID 444455556666
+# There are 2 roles available to you.
+# Using the role name "AWSAdministratorAccess"
+# CLI default client Region [None]: us-west-2
+# CLI default output format [None]: json
 
-    # To use this profile, specify the profile name using --profile, as shown:
+# To use this profile, specify the profile name using --profile, as shown:
 
-    # aws s3 ls --profile prod2-account
-    ```
-1. Then, configure profile for `prod2Env` AWS account. 
-    ```bash
-    aws configure sso --profile prod2-account
-    ```
+# aws s3 ls --profile prod2-account
+```
 
-1. Then, configure profile for `monitoringEnv` AWS account. 
-    ```bash
-    aws configure sso --profile monitoring-account
-    ```
+5. Then, configure profile for `prod2Env` AWS account.
 
-1. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
+```bash { promptEnv=false }
+aws configure sso --profile prod2-account
+```
 
-    ```bash
-    export AWS_PROFILE='pipeline-account'
-    aws sso login --profile $AWS_PROFILE
-    ```
+6. Then, configure profile for `monitoringEnv` AWS account.
 
-1. Export environment variables for further use.
+```bash
+aws configure sso --profile monitoring-account
+```
 
-    ```bash
-    export COA_PIPELINE_ACCOUNT_ID=$(aws configure get sso_account_id --profile pipeline-account)
-    export COA_PIPELINE_REGION=$(aws configure get region --profile pipeline-account)
+7. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
 
-    export COA_PROD1_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod1-account)
-    export COA_PROD1_REGION=$(aws configure get region --profile prod1-account)
+```bash { promptEnv=false }
+export AWS_PROFILE='pipeline-account'
+aws sso login --profile $AWS_PROFILE
+```
 
-    export COA_PROD2_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod2-account)
-    export COA_PROD2_REGION=$(aws configure get region --profile prod2-account)
+8. Export environment variables for further use.
 
-    export COA_MON_ACCOUNT_ID=$(aws configure get sso_account_id --profile monitoring-account)
-    export COA_MON_REGION=$(aws configure get region --profile monitoring-account)
-    ```
+```bash
+export COA_PIPELINE_ACCOUNT_ID=$(aws configure get sso_account_id --profile pipeline-account)
+export COA_PIPELINE_REGION=$(aws configure get region --profile pipeline-account)
+
+export COA_PROD1_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod1-account)
+export COA_PROD1_REGION=$(aws configure get region --profile prod1-account)
+
+export COA_PROD2_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod2-account)
+export COA_PROD2_REGION=$(aws configure get region --profile prod2-account)
+
+export COA_MON_ACCOUNT_ID=$(aws configure get sso_account_id --profile monitoring-account)
+export COA_MON_REGION=$(aws configure get region --profile monitoring-account)
+```
 
 ### Amazon Grafana Configuration
 
 1. Get details of Amazon Grafana in `monitoringEnv` region of `monitoringEnv` account for further use.
 
-    ```bash
-    read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " COA_AMG_WORKSPACE_NAME
-    ```
-    
-1. Get Amazon Grafana Workspace URL and IAM Role.
-    ```bash
-    export COA_AMG_WORKSPACE_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
-        --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].endpoint" \
-        --output text)"
+```bash { promptEnv=false }
+read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " amgname_input
+export COA_AMG_WORKSPACE_NAME=$amgname_input
+```
 
-    export COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
-        --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
-        --output text)
+2. Get Amazon Grafana Workspace URL and IAM Role.
 
-    export COA_AMG_WORKSPACE_ROLE_ARN=$(aws grafana describe-workspace --profile monitoring-account --region ${COA_MON_REGION} \
-        --workspace-id $COA_AMG_WORKSPACE_ID \
-        --query "workspace.workspaceRoleArn" \
-        --output text)
-    ```
+```bash { promptEnv=false }
+export COA_AMG_WORKSPACE_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
+    --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].endpoint" \
+    --output text)"
 
-1. Store info on Amazon Grafana in SSM SecureString Parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
+export COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
+    --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
+    --output text)
 
-    ```bash
-    aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-        --type "SecureString" \
-        --overwrite \
-        --name "/cdk-accelerator/amg-info" \
-        --description "Info on Amazon Grafana in Monitoring Account" \
-        --value '{
-        "amg": {
-            "workspaceName": "${COA_AMG_WORKSPACE_NAME}",
-            "workspaceURL": "${COA_AMG_WORKSPACE_URL}",
-            "workspaceIAMRoleARN": "${COA_AMG_WORKSPACE_ROLE_ARN}"
-        }
-    }'   
-    ```
+export COA_AMG_WORKSPACE_ROLE_ARN=$(aws grafana describe-workspace --profile monitoring-account --region ${COA_MON_REGION} \
+    --workspace-id $COA_AMG_WORKSPACE_ID \
+    --query "workspace.workspaceRoleArn" \
+    --output text)
+```
 
-1. Create Grafana workspace API key
-    ```bash
-    export COA_AMG_API_KEY=$(aws grafana create-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
-        --key-name "grafana-operator-key" \
-        --key-role "ADMIN" \
-        --seconds-to-live 432000 \
-        --workspace-id $COA_AMG_WORKSPACE_ID \
-        --query key \
-        --output text)
-    ```
+3. Store info on Amazon Grafana in SSM SecureString Parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
 
-1. Store Amazon Grafana workspace API key in SSM SecureString Parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
+```bash
+aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --type "SecureString" \
+    --overwrite \
+    --name "/cdk-accelerator/amg-info" \
+    --description "Info on Amazon Grafana in Monitoring Account" \
+    --value '{
+    "amg": {
+        "workspaceName": "'${COA_AMG_WORKSPACE_NAME}'",
+        "workspaceURL": "'${COA_AMG_WORKSPACE_URL}'",
+        "workspaceIAMRoleARN": "'${COA_AMG_WORKSPACE_ROLE_ARN}'"
+    }
+}'   
+```
 
-    ```bash
-    aws ssm put-parameter --profile monitoring-account --region ${COA_MON_REGION} \
-        --type "SecureString" \
-        --overwrite \
-        --name "/cdk-accelerator/grafana-api-key" \
-        --description "Amazon Grafana workspace API key for use by External Secrets Operator" \
-        --value ${COA_AMG_API_KEY}
-    ```
+4. Create Grafana workspace API key
+
+```bash { promptEnv=false }
+export COA_AMG_API_KEY=$(aws grafana create-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
+    --key-name "grafana-operator-key" \
+    --key-role "ADMIN" \
+    --seconds-to-live 432000 \
+    --workspace-id $COA_AMG_WORKSPACE_ID \
+    --query key \
+    --output text)
+```
+
+5. Store Amazon Grafana workspace API key in SSM SecureString Parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
+
+```bash { promptEnv=false }
+aws ssm put-parameter --profile monitoring-account --region ${COA_MON_REGION} \
+    --type "SecureString" \
+    --overwrite \
+    --name "/cdk-accelerator/grafana-api-key" \
+    --description "Amazon Grafana workspace API key for use by External Secrets Operator" \
+    --value ${COA_AMG_API_KEY}
+```
 
 ### CodePipeline GitHub Source Configuration
 
 1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
 
-    ```bash
-    read -p "Pipeline source GitHub Owner Name: " COA_PIPELINE_GIT_OWNER
-    ```
+```bash { promptEnv=true }
+read -p "Pipeline source GitHub Owner Name: " gitowner_input
+export COA_PIPELINE_GIT_OWNER=$gitowner_input
+```
 
-    ```bash
-    aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-        --type "SecureString" \
-        --overwrite \
-        --name "/cdk-accelerator/pipeline-git-info" \
-        --description "CodePipeline source GitHub info" \
-        --value '{
-            "pipelineSource": {
-                "gitOwner": "${COA_PIPELINE_GIT_OWNER}",
-                "gitRepoName": "cdk-aws-observability-accelerator",
-                "gitBranch": "main"
-            }
-        }'
-    ```
+```bash { promptEnv=false }
+aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --type "SecureString" \
+    --overwrite \
+    --name "/cdk-accelerator/pipeline-git-info" \
+    --description "CodePipeline source GitHub info" \
+    --value '{
+        "pipelineSource": {
+            "gitOwner": "'${COA_PIPELINE_GIT_OWNER}'",
+            "gitRepoName": "cdk-aws-observability-accelerator",
+            "gitBranch": "main"
+        }
+    }'
+```
 
-1. Create secret `github-ssh-key` in `pipelineEnv` region of `pipelineEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
+2. Create secret `github-ssh-key` in `pipelineEnv` region of `pipelineEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
-    ```bash
-    read -p "GitHub SSH PRIVATE key: " COA_GIT_SSH_KEY
-    ```
+```bash { promptEnv=false }
+read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
+eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --name "github-ssh-key" \
+    --description "SSH private key for ArgoCD authentication to GitHub repository" \
+    --cli-input-json file:///tmp/input-json-for-git-ssh-key.json
+rm /tmp/input-json-for-git-ssh-key.json
+```
 
-    ```bash
-    aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-        --name "github-ssh-key" \
-        --description "SSH private key for ArgoCD authentication to GitHub repository" \
-        --secret-string '{
-            "sshPrivateKey":"${COA_GIT_SSH_KEY}",
-            "url":"git@github"
-        }'
+3. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
 
-    unset $COA_GIT_SSH_KEY
-    ```
+- **repo** - to read the repository
+- __admin:repo_hook__ - to use webhooks
 
-1. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
-    - **repo** - to read the repository
-    - **admin:repo_hook** - to use webhooks
+```bash
+read -p "GitHub Personal Access Token: " gitpat_input
+export COA_GIT_PAT=$gitpat_input
+unset gitpat_input
+```
 
-    ```bash
-    read -p "GitHub Personal Access Token: " COA_GIT_PAT
-    ```
-    ```bash
-    aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-        --name "github-token" \
-        --description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
-        --secret-string "${COA_GIT_PAT}"
+```bash
+aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --name "github-token" \
+    --description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
+    --secret-string "${COA_GIT_PAT}"
 
-    unset $COA_GIT_PAT
-    ```
+unset $COA_GIT_PAT
+```
 
 ### Other Configurations
 
-1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this pattern.
+1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this Observability Accelerator pattern.
 
-    ```bash
-    aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-        --type "SecureString" \
-        --overwrite \
-        --name "/cdk-accelerator/cdk-context" \
-        --description "AWS account details of different environments used by Multi account mixed CDK Observability Accelerator pattern" \
-        --value '{
-            "context": {
-                "pipelineEnv": {
-                    "account": "'$COA_PIPELINE_ACCOUNT_ID'",
-                    "region": "'$COA_PIPELINE_REGION'"
+```bash
+aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --type "SecureString" \
+    --overwrite \
+    --name "/cdk-accelerator/cdk-context" \
+    --description "AWS account details of different environments used by Multi account mixed CDK Observability Accelerator pattern" \
+    --value '{
+        "context": {
+            "pipelineEnv": {
+                "account": "'$COA_PIPELINE_ACCOUNT_ID'",
+                "region": "'$COA_PIPELINE_REGION'"
 
-                },            
-                "prodEnv1": {
-                    "account": "'$COA_PROD1_ACCOUNT_ID'",
-                    "region": "'$COA_PROD1_REGION'"
-                },
-                "prodEnv2": {
-                    "account": "'$COA_PROD2_ACCOUNT_ID'",
-                    "region": "'$COA_PROD2_REGION'"
-                },
-                "monitoringEnv": {
-                    "account": "'$COA_MON_ACCOUNT_ID'",
-                    "region": "'$COA_MON_REGION'"
-                }
+            },            
+            "prodEnv1": {
+                "account": "'$COA_PROD1_ACCOUNT_ID'",
+                "region": "'$COA_PROD1_REGION'"
+            },
+            "prodEnv2": {
+                "account": "'$COA_PROD2_ACCOUNT_ID'",
+                "region": "'$COA_PROD2_REGION'"
+            },
+            "monitoringEnv": {
+                "account": "'$COA_MON_ACCOUNT_ID'",
+                "region": "'$COA_MON_REGION'"
             }
-        }'
-    ```
+        }
+    }'
+```
 
-1. Create IAM user `team-geordi` in `prod1Env` and `prod2Env` AWS Account
+2. Create IAM user `team-geordi` in `prod1Env` and `prod2Env` AWS Account
 
-    ```bash
-    aws iam create-user --profile prod1-account --user-name team-geordi
-    aws iam create-user --profile prod2-account --user-name team-geordi
-    ```
+```bash
+aws iam create-user --profile prod1-account --user-name team-geordi
+aws iam create-user --profile prod2-account --user-name team-geordi
+```
 
-1. Create IAM user `team-platform` in Prod 1 and Prod 2 AWS Account
+3. Create IAM user `team-platform` in Prod 1 and Prod 2 AWS Account
 
-    ```bash
-    aws iam create-user --profile prod1-account --user-name team-platform
-    aws iam create-user --profile prod2-account --user-name team-platform
-    ```
+```bash
+aws iam create-user --profile prod1-account --user-name team-platform
+aws iam create-user --profile prod2-account --user-name team-platform
+```
 
 ## Deployment
 
 1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
+2. Install the AWS CDK Toolkit globally on host machine.
 
-1. Install the AWS CDK Toolkit globally on host machine.
+```bash
+npm install -g aws-cdk
+```
 
-    ```bash
-    npm install -g aws-cdk
-    ```
+3. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
 
-1. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
+```bash
+git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
+cd cdk-aws-observability-accelerator
+```
 
-    ```bash
-    git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
-    cd cdk-aws-observability-accelerator
-    ```
+4. Install project dependencies.
 
-1. Install project dependencies.
+```bash
+npm i
+```
 
-    ```bash
-    npm i
-    ```
+5. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
 
-1. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
+```bash
+# bootstrap pipelineEnv account WITHOUT explicit trust 
+env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile pipeline-account \
+    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+    aws://${COA_PIPELINE_ACCOUNT_ID}/${COA_PIPELINE_REGION}
 
-    ```bash
-    # bootstrap pipelineEnv account WITHOUT explicit trust 
-    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile pipeline-account \
-        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-        aws://${COA_PIPELINE_ACCOUNT_ID}/${COA_PIPELINE_REGION}
+# bootstrap prodEnv1 account with trust access from pipelineEnv account
+env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+    --trust ${COA_PIPELINE_ACCOUNT_ID} \
+    aws://${COA_PROD1_ACCOUNT_ID}/${COA_PROD1_REGION}
 
-    # bootstrap prodEnv1 account with trust access from pipelineEnv account
-    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
-        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-        --trust ${COA_PIPELINE_ACCOUNT_ID} \
-        aws://${COA_PROD1_ACCOUNT_ID}/${COA_PROD1_REGION}
+# bootstrap prodEnv2 account with trust access from pipelineEnv account
+env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+    --trust ${COA_PIPELINE_ACCOUNT_ID} \
+    aws://${COA_PROD2_ACCOUNT_ID}/${COA_PROD2_REGION}
 
-    # bootstrap prodEnv2 account with trust access from pipelineEnv account
-    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
-        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-        --trust ${COA_PIPELINE_ACCOUNT_ID} \
-        aws://${COA_PROD2_ACCOUNT_ID}/${COA_PROD2_REGION}
+# bootstrap monitoringEnv account with trust access from pipelineEnv account
+env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+    --trust ${COA_PIPELINE_ACCOUNT_ID} \
+    aws://${COA_MON_ACCOUNT_ID}/${COA_MON_REGION}
+```
 
-    # bootstrap monitoringEnv account with trust access from pipelineEnv account
-    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
-        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-        --trust ${COA_PIPELINE_ACCOUNT_ID} \
-        aws://${COA_MON_ACCOUNT_ID}/${COA_MON_REGION}
-    ```
+6. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account.
 
-1. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account.
+```bash
+export AWS_PROFILE='pipeline-account'
+export AWS_REGION=${COA_PIPELINE_REGION}
 
-    ```bash
-    export AWS_PROFILE='pipeline-account'
-    export AWS_REGION=${COA_PIPELINE_REGION}
+make build
+make pattern pipeline-multienv-monitoring deploy multi-account-central-pipeline
+```
 
-    make build
-    make pattern pipeline-multienv-monitoring deploy multi-account-central-pipeline
-    ```
+7. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) to check pipeline that deploys multiple Amazon EKS clusters to different environments.
+8. The deployment automation will create
 
-1. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) to check pipeline that deploys multiple Amazon EKS clusters to different environments.
+   - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account,
+   - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and
+   - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana.
 
-1. The deployment automation will create 
-    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account, 
-    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and 
-    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana.
+9. 
 
-1. <NEED STEPS TO FIX GF DS>
+   <NEED STEPS TO FIX GF DS>
 
 ![Metrics from AMP](./images/AMG%20-%20Metrics%20from%20AMP.png)
 
