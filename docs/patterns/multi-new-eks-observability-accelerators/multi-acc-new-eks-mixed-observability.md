@@ -102,6 +102,13 @@ The following figure illustrates the architecture of the pattern we will be depl
     aws configure sso --profile monitoring-account
     ```
 
+1. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
+
+    ```bash
+    export AWS_PROFILE='pipeline-account'
+    aws sso login --profile $AWS_PROFILE
+    ```
+
 1. Export environment variables for further use.
 
     ```bash
@@ -116,13 +123,6 @@ The following figure illustrates the architecture of the pattern we will be depl
 
     export COA_MON_ACCOUNT_ID=$(aws configure get sso_account_id --profile monitoring-account)
     export COA_MON_REGION=$(aws configure get region --profile monitoring-account)
-    ```
-
-1. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
-
-    ```bash
-    export AWS_PROFILE='pipeline-account'
-    aws sso login --profile $AWS_PROFILE
     ```
 
 ### Amazon Grafana Configuration
@@ -190,18 +190,10 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ### CodePipeline GitHub Source Configuration
 
-1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name and branch which will be used as source for CodePipeline.
+1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
 
     ```bash
     read -p "Pipeline source GitHub Owner Name: " COA_PIPELINE_GIT_OWNER
-    ```
-
-    ```bash
-    read -p "Pipeline source GitHub Repository Name: " COA_PIPELINE_GIT_REPO
-    ```
-
-    ```bash
-    read -p "Pipeline source GitHub Repository Branch: " COA_PIPELINE_GIT_BRANCH
     ```
 
     ```bash
@@ -213,8 +205,8 @@ The following figure illustrates the architecture of the pattern we will be depl
         --value '{
             "pipelineSource": {
                 "gitOwner": "${COA_PIPELINE_GIT_OWNER}",
-                "gitRepoName": "${COA_PIPELINE_GIT_REPO}",
-                "gitBranch": "${COA_PIPELINE_GIT_BRANCH}"
+                "gitRepoName": "cdk-aws-observability-accelerator",
+                "gitBranch": "main"
             }
         }'
     ```
@@ -233,7 +225,7 @@ The following figure illustrates the architecture of the pattern we will be depl
             "sshPrivateKey":"${COA_GIT_SSH_KEY}",
             "url":"git@github"
         }'
-        
+
     unset $COA_GIT_SSH_KEY
     ```
 
@@ -289,128 +281,36 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ## Deployment
 
-1. Fork this repository to your GitHub organisation/user.
-2. Clone your forked repository.
-3. Set environment variable `AWS_REGION` with region from where `pipelineEnv` account will be bootstrapped.
+1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
 
-```bash
-export AWS_REGION=<YOUR AWS REGION>
-```
+1. Set environment variable `AWS_PROFILE` and `AWS_REGION` with `pipelineEnv` region.
 
-4. Install the AWS CDK Toolkit globally on your machine using
+    ```bash
+    export AWS_REGION=${COA_PIPELINE_REGION}
+    ```
 
-```bash
-npm install -g aws-cdk
-```
+1. Install the AWS CDK Toolkit globally on host machine.
 
+    ```bash
+    npm install -g aws-cdk
+    ```
 
+1. Create IAM user `team-geordi` in `prod1Env` and `prod2Env` AWS Account
 
-7. Create secret `cdk-context` in `us-east-1` region as a plain text in AWS Secrets Manager for the GitHub pipeline in `pipelineEnv` account. `cdk-context` secret must be stored as a plain text in the following format in AWS Secrets Manager for cdk context for all the 4 AWS accounts used by the solution in `pipelineEnv` account. This secret must be created in `us-east-1` region.
+    ```bash
+    aws iam create-user --profile prod1-account --user-name team-geordi
+    aws iam create-user --profile prod2-account --user-name team-geordi
+    ```
 
-```bash
-aws secretsmanager create-secret --region us-east-1 \
---name cdk-context \
---description "AWS account details of different environments used by Multi account open source Observability pattern" \
---secret-string '{
-"context": {
-    "prodEnv1": {
-        "account": "<prodEnv1 account number>",
-        "region": "<AWS REGION>"
-    },
-    "prodEnv2": {
-        "account": "<prodEnv2 account number>",
-        "region": "<AWS REGION>"
-    },
-    "pipelineEnv": {
-        "account": "<pipelineEnv account number>",
-        "region": "<AWS REGION>"
-    },
-    "monitoringEnv": {
-        "account": "<prodmonitoringEnvEnv1 account number>",
-        "region": "<AWS REGION>"
-    }
-}
-}'
-```
+1. Create IAM user `team-platform` in Prod 1 and Prod 2 AWS Account
 
-8. Create the following IAM users and attach `administrator` policy to required accounts.
-9. IAM user `pipeline-admin` with `administrator` policy in Pipeline AWS Account
+    ```bash
+    aws iam create-user --profile prod1-account --user-name team-platform
+    aws iam create-user --profile prod2-account --user-name team-platform
+    ```
 
-```bash
-aws iam create-user \
-[--profile pipelineEnv-admin-profile] \
---user-name pipeline-admin
+1. Install project dependencies by running `npm install` in the main folder of this cloned repository.
 
-aws iam attach-user-policy \
-[--profile pipelineEnv-admin-profile] \
---user-name pipeline-admin \
---policy-arn arn:aws:iam::aws:policy/AdministratorAccess
-```
-
-2. IAM user `prod1-admin` with `administrator` policy in Prod 1 AWS Account
-
-```bash
-aws iam create-user \
-[--profile prodEnv1-admin-profile] \
---user-name prod1-admin
-
-aws iam attach-user-policy \
-[--profile prodEnv1-admin-profile] \
---user-name prod1-admin \
---policy-arn arn:aws:iam::aws:policy/AdministratorAccess
-```
-
-3. IAM user `prod2-admin` with `administrator` policy in Prod 2 AWS Account
-
-```bash
-aws iam create-user \
-[--profile prodEnv2-admin-profile] \
---user-name prod2-admin
-
-aws iam attach-user-policy \
-[--profile prodEnv2-admin-profile] \
---user-name prod2-admin \
---policy-arn arn:aws:iam::aws:policy/AdministratorAccess
-```
-
-4. IAM user `mon-admin` with `administrator` policy in Monitoring AWS Account
-
-```bash
-aws iam create-user \
-[--profile monitoringEnv-admin-profile] \
---user-name mon-admin
-
-aws iam attach-user-policy \
-[--profile monitoringEnv-admin-profile] \
---user-name mon-admin \
---policy-arn arn:aws:iam::aws:policy/AdministratorAccess
-```
-
-5. IAM user `team-geordi` in Prod 1 and Prod 2 AWS Account
-
-```bash
-aws iam create-user \
-[--profile prodEnv1-admin-profile] \
---user-name team-geordi
-
-aws iam create-user \
-[--profile prodEnv2-admin-profile] \
---user-name team-geordi        
-```
-
-6. IAM user `team-platform` in Prod 1 and Prod 2 AWS Account
-
-```bash
-aws iam create-user \
-[--profile prodEnv1-admin-profile] \
---user-name team-platform
-
-aws iam create-user \
-[--profile prodEnv2-admin-profile] \
---user-name team-platform     
-```
-
-9. Install project dependencies by running `npm install` in the main folder of this cloned repository
 10. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
 
 ```bash
