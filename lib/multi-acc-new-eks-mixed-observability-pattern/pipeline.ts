@@ -117,9 +117,10 @@ export class PipelineMultiEnvMonitoring {
 
         // get CodePipeline Source Github info
         // const gitOwner = 'aws-samples'; 
-        const pipelineSrcInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/pipeline-git-owner',this.pipelineRegion))['pipelineSource'];
+        const pipelineSrcInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/pipeline-git-info',this.pipelineRegion))['pipelineSource'];
         const gitOwner = pipelineSrcInfo.gitOwner;
         const gitRepositoryName = pipelineSrcInfo.gitRepoName;
+        const gitBranch = pipelineSrcInfo.gitBranch;
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
             // roleName: "amgWorkspaceIamRole",
@@ -147,7 +148,7 @@ export class PipelineMultiEnvMonitoring {
                 credentialsSecretName: 'github-token',
                 // targetRevision: 'main',
                 // UPDATE ME FINALLY
-                targetRevision: 'multi-account-COA', 
+                targetRevision: gitBranch, 
             })
             .enableCrossAccountKeys()
             .wave({

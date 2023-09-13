@@ -130,25 +130,48 @@ The following figure illustrates the architecture of the pattern we will be depl
 1. Get details of Amazon Grafana in `monitoringEnv` region of `monitoringEnv` account for further use.
 
     ```bash
-    read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " user_input
+    read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " amgname_input
     ```
+    
     ```bash
-    export COA_AMG_WORKSPACE_NAME="$user_input"
+    export COA_AMG_WORKSPACE_NAME="$amgname_input"
     ```
 
-1. Get Amazon Grafana Endpoint URL
+1. Get Amazon Grafana Workspace URL and IAM Role.
     ```bash
-    export COA_AMG_ENDPOINT_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
+    export COA_AMG_WORKSPACE_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
         --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].endpoint" \
         --output text)"
-    ```
 
-1. Create Grafana workspace API key
-    ```bash
     export COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
         --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
         --output text)
 
+    export COA_AMG_WORKSPACE_ROLE_ARN=$(aws grafana describe-workspace --profile monitoring-account --region ${COA_MON_REGION} \
+        --workspace-id $COA_AMG_WORKSPACE_ID \
+        --query "workspace.workspaceRoleArn" \
+        --output text)
+    ```
+
+1. Store info on Amazon Grafana in SSM SecureString Parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
+
+    ```bash
+    aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+        --type "SecureString" \
+        --overwrite \
+        --name "/cdk-accelerator/amg-info" \
+        --description "Info on Amazon Grafana in Monitoring Account" \
+        --value '{
+        "amg": {
+            "workspaceName": "${COA_AMG_WORKSPACE_NAME}",
+            "workspaceURL": "${COA_AMG_WORKSPACE_URL}",
+            "workspaceIAMRoleARN": "${COA_AMG_WORKSPACE_ROLE_ARN}"
+        }
+    }'   
+    ```
+
+1. Create Grafana workspace API key
+    ```bash
     export COA_AMG_API_KEY=$(aws grafana create-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
         --key-name "grafana-operator-key" \
         --key-role "ADMIN" \
@@ -169,9 +192,46 @@ The following figure illustrates the architecture of the pattern we will be depl
         --value ${COA_AMG_API_KEY}
     ```
 
+### CodePipeline GitHub Source Configuration
+
+1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name and branch which will be used as source for CodePipeline.
+
+    ```bash
+    read -p "Pipeline source GitHub Owner Name: " gitowner_input
+    ```
+
+    ```bash
+    read -p "Pipeline source GitHub Repository Name: " gitrepo_input
+    ```
+
+    ```bash
+    read -p "Pipeline source GitHub Repository Branch: " gitbranch_input
+    ```
+
+    ```bash
+    export COA_PIPELINE_GIT_OWNER="${gitowner_input}"
+    export COA_PIPELINE_GIT_REPO="${gitrepo_input}"
+    export COA_PIPELINE_GIT_BRANCH="${gitbranch_input}"
+    ```
+
+    ```bash
+    aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+        --type "SecureString" \
+        --overwrite \
+        --name "/cdk-accelerator/pipeline-git-info" \
+        --description "CodePipeline source GitHub info" \
+        --value '{
+            "pipelineSource": {
+                "gitOwner": "${COA_PIPELINE_GIT_OWNER}",
+                "gitRepoName": "${COA_PIPELINE_GIT_REPO}",
+                "gitBranch": "${COA_PIPELINE_GIT_BRANCH}"
+            }
+        }'
+    ```
+
 ### Other Configurations
 
-1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. `/cdk-accelerator/cdk-context` parameter must be stored as a plain text in the following format for all four AWS accounts used in this pattern.
+1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this pattern.
 
     ```bash
     aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
@@ -201,6 +261,7 @@ The following figure illustrates the architecture of the pattern we will be depl
             }
         }'
     ```
+
 
 ## Deployment
 
