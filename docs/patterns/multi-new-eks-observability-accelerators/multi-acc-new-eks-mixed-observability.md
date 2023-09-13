@@ -25,12 +25,14 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ## Prerequisites
 
+### AWS Accounts
+
 1. AWS Control Tower deployed in your AWS environment in the management account. If you have not already installed AWS Control Tower, follow the [Getting Started with AWS Control Tower documentation](https://docs.aws.amazon.com/controltower/latest/userguide/getting-started-with-control-tower.html), or you can enable AWS Organizations in the AWS Management Console account and enable AWS SSO.
 1. An AWS account under AWS Control Tower called Prod 1 Account(Workloads Account A aka `prodEnv1`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 1. An AWS account under AWS Control Tower called Prod 2 Account(Workloads Account B aka `prodEnv2`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html)] product AWS Control Tower Account vending process or AWS Organization.
 1. An AWS account under AWS Control Tower called Pipeline Account (aka `pipelineEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 1. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
-1. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of your `monitoringEnv` account.
+1. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of `monitoringEnv` account.
 
 ### SSO Profile Setup
 
@@ -100,15 +102,7 @@ The following figure illustrates the architecture of the pattern we will be depl
     aws configure sso --profile monitoring-account
     ```
 
-1. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
-
-    ```bash
-    export AWS_PROFILE='pipeline-account'
-    aws sso login --profile $AWS_PROFILE
-    ```
-### Other Configurations
-
-1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. `/cdk-accelerator/cdk-context` parameter must be stored as a plain text in the following format for all four AWS accounts used in this pattern.
+1. Export environment variables for further use.
 
     ```bash
     export COA_PIPELINE_ACCOUNT_ID=$(aws configure get sso_account_id --profile pipeline-account)
@@ -122,7 +116,64 @@ The following figure illustrates the architecture of the pattern we will be depl
 
     export COA_MON_ACCOUNT_ID=$(aws configure get sso_account_id --profile monitoring-account)
     export COA_MON_REGION=$(aws configure get region --profile monitoring-account)
+    ```
 
+1. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
+
+    ```bash
+    export AWS_PROFILE='pipeline-account'
+    aws sso login --profile $AWS_PROFILE
+    ```
+
+### Amazon Grafana Configuration
+
+1. Get details of Amazon Grafana in `monitoringEnv` region of `monitoringEnv` account for further use.
+
+    ```bash
+    read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " user_input
+    ```
+    ```bash
+    export COA_AMG_WORKSPACE_NAME="$user_input"
+    ```
+
+1. Get Amazon Grafana Endpoint URL
+    ```bash
+    export COA_AMG_ENDPOINT_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
+        --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].endpoint" \
+        --output text)"
+    ```
+
+1. Create Grafana workspace API key
+    ```bash
+    export COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
+        --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
+        --output text)
+
+    export COA_AMG_API_KEY=$(aws grafana create-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
+        --key-name "grafana-operator-key" \
+        --key-role "ADMIN" \
+        --seconds-to-live 432000 \
+        --workspace-id $COA_AMG_WORKSPACE_ID \
+        --query key \
+        --output text)
+    ```
+
+1. Store Amazon Grafana workspace API key in SSM SecureString Parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
+
+    ```bash
+    aws ssm put-parameter --profile monitoring-account --region ${COA_MON_REGION} \
+        --type "SecureString" \
+        --overwrite \
+        --name "/cdk-accelerator/grafana-api-key" \
+        --description "Amazon Grafana workspace API key for use by External Secrets Operator" \
+        --value ${COA_AMG_API_KEY}
+    ```
+
+### Other Configurations
+
+1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. `/cdk-accelerator/cdk-context` parameter must be stored as a plain text in the following format for all four AWS accounts used in this pattern.
+
+    ```bash
     aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
         --type "SecureString" \
         --overwrite \
