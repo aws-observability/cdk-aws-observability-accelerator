@@ -222,7 +222,8 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
 
 ```bash { promptEnv=false }
 read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
-eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+# eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
 aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --name "github-ssh-key" \
     --description "SSH private key for ArgoCD authentication to GitHub repository" \
