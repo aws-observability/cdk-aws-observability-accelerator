@@ -130,13 +130,9 @@ The following figure illustrates the architecture of the pattern we will be depl
 1. Get details of Amazon Grafana in `monitoringEnv` region of `monitoringEnv` account for further use.
 
     ```bash
-    read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " amgname_input
+    read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " COA_AMG_WORKSPACE_NAME
     ```
     
-    ```bash
-    export COA_AMG_WORKSPACE_NAME="$amgname_input"
-    ```
-
 1. Get Amazon Grafana Workspace URL and IAM Role.
     ```bash
     export COA_AMG_WORKSPACE_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
@@ -197,21 +193,15 @@ The following figure illustrates the architecture of the pattern we will be depl
 1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name and branch which will be used as source for CodePipeline.
 
     ```bash
-    read -p "Pipeline source GitHub Owner Name: " gitowner_input
+    read -p "Pipeline source GitHub Owner Name: " COA_PIPELINE_GIT_OWNER
     ```
 
     ```bash
-    read -p "Pipeline source GitHub Repository Name: " gitrepo_input
+    read -p "Pipeline source GitHub Repository Name: " COA_PIPELINE_GIT_REPO
     ```
 
     ```bash
-    read -p "Pipeline source GitHub Repository Branch: " gitbranch_input
-    ```
-
-    ```bash
-    export COA_PIPELINE_GIT_OWNER="${gitowner_input}"
-    export COA_PIPELINE_GIT_REPO="${gitrepo_input}"
-    export COA_PIPELINE_GIT_BRANCH="${gitbranch_input}"
+    read -p "Pipeline source GitHub Repository Branch: " COA_PIPELINE_GIT_BRANCH
     ```
 
     ```bash
@@ -227,6 +217,40 @@ The following figure illustrates the architecture of the pattern we will be depl
                 "gitBranch": "${COA_PIPELINE_GIT_BRANCH}"
             }
         }'
+    ```
+
+1. Create secret `github-ssh-key` in `pipelineEnv` region of `pipelineEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
+
+    ```bash
+    read -p "GitHub SSH PRIVATE key: " COA_GIT_SSH_KEY
+    ```
+
+    ```bash
+    aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+        --name "github-ssh-key" \
+        --description "SSH private key for ArgoCD authentication to GitHub repository" \
+        --secret-string '{
+            "sshPrivateKey":"${COA_GIT_SSH_KEY}",
+            "url":"git@github"
+        }'
+        
+    unset $COA_GIT_SSH_KEY
+    ```
+
+1. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
+    - **repo** - to read the repository
+    - **admin:repo_hook** - to use webhooks
+
+    ```bash
+    read -p "GitHub Personal Access Token: " COA_GIT_PAT
+    ```
+    ```bash
+    aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+        --name "github-token" \
+        --description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
+        --secret-string "${COA_GIT_PAT}"
+
+    unset $COA_GIT_PAT
     ```
 
 ### Other Configurations
@@ -279,28 +303,7 @@ export AWS_REGION=<YOUR AWS REGION>
 npm install -g aws-cdk
 ```
 
-5. Create secret `github-ssh-key` in `AWS_REGION` of `pipelineEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in `pipelineEnv` account. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). The secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
-```bash
-aws secretsmanager create-secret --region $AWS_REGION \
---name github-ssh-key \
---description "SSH private key for ArgoCD authentication to GitHub repository" \
---secret-string '{
-    "sshPrivateKey":"<SSH private key>",
-    "url":"git@github"
-}'
-```
-
-6. Create `github-token` secret in `AWS_REGION` of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager for the GitHub pipeline in `pipelineEnv` account. For more information on how to set it up, please refer to the [docs](https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-create-personal-token-CLI.html). The GitHub Personal Access Token should have these scopes:
-7. *repo* - to read the repository
-8. _admin:repo_hook_ - if you plan to use webhooks (enabled by default)
-
-```bash
-aws secretsmanager create-secret --region $AWS_REGION \
---name github-token \
---description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
---secret-string "<GitHub Personal Access Token>"
-```
 
 7. Create secret `cdk-context` in `us-east-1` region as a plain text in AWS Secrets Manager for the GitHub pipeline in `pipelineEnv` account. `cdk-context` secret must be stored as a plain text in the following format in AWS Secrets Manager for cdk context for all the 4 AWS accounts used by the solution in `pipelineEnv` account. This secret must be created in `us-east-1` region.
 
