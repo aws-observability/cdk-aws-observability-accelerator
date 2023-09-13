@@ -278,23 +278,6 @@ The following figure illustrates the architecture of the pattern we will be depl
         }'
     ```
 
-
-## Deployment
-
-1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
-
-1. Set environment variable `AWS_PROFILE` and `AWS_REGION` with `pipelineEnv` region.
-
-    ```bash
-    export AWS_REGION=${COA_PIPELINE_REGION}
-    ```
-
-1. Install the AWS CDK Toolkit globally on host machine.
-
-    ```bash
-    npm install -g aws-cdk
-    ```
-
 1. Create IAM user `team-geordi` in `prod1Env` and `prod2Env` AWS Account
 
     ```bash
@@ -309,51 +292,75 @@ The following figure illustrates the architecture of the pattern we will be depl
     aws iam create-user --profile prod2-account --user-name team-platform
     ```
 
-1. Install project dependencies by running `npm install` in the main folder of this cloned repository.
+## Deployment
 
-10. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
+1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
 
-```bash
-# bootstrap prodEnv1 account with trust access from pipelineEnv account
-env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap \
-    [--profile prodEnv1-admin-profile] \
-    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-    --trust <pipelineEnv account number> \
-    aws://<prodEnv1 account number>/$AWS_REGION
+1. Install the AWS CDK Toolkit globally on host machine.
 
-# bootstrap prodEnv2 account with trust access from pipelineEnv account
-env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap \
-    [--profile prodEnv2-admin-profile] \
-    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-    --trust <pipelineEnv account number> \
-    aws://<prodEnv2 account number>/$AWS_REGION
+    ```bash
+    npm install -g aws-cdk
+    ```
 
-# bootstrap pipelineEnv account WITHOUT explicit trust 
-env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap \
-    [--profile pipelineEnv-admin-profile] \
-    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-    aws://<pipelineEnv account number>/$AWS_REGION
+1. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
 
-# bootstrap monitoringEnv account with trust access from pipelineEnv account
-env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap \
-    [--profile monitoringEnv-admin-profile] \
-    --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-    --trust <pipelineEnv account number> \
-    aws://<monitoringEnv account number>/$AWS_REGION
-```
+    ```bash
+    git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
+    cd cdk-aws-observability-accelerator
+    ```
 
-11. Modify the code of `lib/pipeline-multi-env-gitops/index.ts` and `lib/multi-account-monitoring/pipeline.ts` in your forked repo to point to your GitHub username/organisation. Look for the declared const of `gitOwner` and change it to your GitHub username and commit changes to your forked repo. This is needed because the AWS CodePipeline that will be automatically created will be triggered upon commits that are made in your forked repo.
-12. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack in `pipelineEnv` account:
+1. Install project dependencies.
 
-```bash
-make build
-make pattern pipeline-multienv-monitoring deploy multi-account-central-pipeline
-```
+    ```bash
+    npm i
+    ```
 
-13. Now you can go to [AWS CodePipeline console](https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines), and see how it was automatically created to deploy multiple Amazon EKS clusters to different environments.
-14. The deployment automation will create `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in Prod 1 Account, `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in Prod 2 Account and `amgWorkspaceIamRole` in monitoring account to assume roles in Prod 1 and Prod 2 account for retrieving and visualizing metrics in Grafana.
-15. Next, manually follow the following steps from [AWS Open Source blog](https://aws.amazon.com/blogs/opensource/setting-up-amazon-managed-grafana-cross-account-data-source-using-customer-managed-iam-roles/#:~:text=AWS%20SSO%20in%20the%20management%20account) :
-16. AWS SSO in the management account
+1. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
+
+    ```bash
+    # bootstrap pipelineEnv account WITHOUT explicit trust 
+    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile pipeline-account \
+        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+        aws://${COA_PIPELINE_ACCOUNT_ID}/${COA_PIPELINE_REGION}
+
+    # bootstrap prodEnv1 account with trust access from pipelineEnv account
+    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+        --trust ${COA_PIPELINE_ACCOUNT_ID} \
+        aws://${COA_PROD1_ACCOUNT_ID}/${COA_PROD1_REGION}
+
+    # bootstrap prodEnv2 account with trust access from pipelineEnv account
+    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+        --trust ${COA_PIPELINE_ACCOUNT_ID} \
+        aws://${COA_PROD2_ACCOUNT_ID}/${COA_PROD2_REGION}
+
+    # bootstrap monitoringEnv account with trust access from pipelineEnv account
+    env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+        --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
+        --trust ${COA_PIPELINE_ACCOUNT_ID} \
+        aws://${COA_MON_ACCOUNT_ID}/${COA_MON_REGION}
+    ```
+
+1. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account.
+
+    ```bash
+    export AWS_PROFILE='pipeline-account'
+    export AWS_REGION=${COA_PIPELINE_REGION}
+
+    make build
+    make pattern pipeline-multienv-monitoring deploy multi-account-central-pipeline
+    ```
+
+1. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) to check pipeline that deploys multiple Amazon EKS clusters to different environments.
+
+1. The deployment automation will create 
+    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account, 
+    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and 
+    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana.
+
+1. Next, manually follow the following steps from [AWS Open Source blog](https://aws.amazon.com/blogs/opensource/setting-up-amazon-managed-grafana-cross-account-data-source-using-customer-managed-iam-roles/#:~:text=AWS%20SSO%20in%20the%20management%20account) :
+
 17. Query metrics in Monitoring account from Amazon Managed Prometheus workspace in Prod 1 Account
 18. Query metrics in the Monitoring account from Amazon CloudWatch in Prod 1 Account
 
