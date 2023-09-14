@@ -139,7 +139,10 @@ export class PipelineMultiEnvMonitoring {
                         "sts:AssumeRole",
                         "secretsmanager:GetSecretValue",
                         "secretsmanager:DescribeSecret",
-                        "cloudformation:*"
+                        "cloudformation:*",
+                        "ssm:GetParameter",
+                        "ssm:PutParameter",
+                        "ssm:DescribeParameter"
                     ]
                 })
             ])

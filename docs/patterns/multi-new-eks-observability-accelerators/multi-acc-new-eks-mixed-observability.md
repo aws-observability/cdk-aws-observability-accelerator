@@ -34,6 +34,15 @@ The following figure illustrates the architecture of the pattern we will be depl
 5. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 6. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of `monitoringEnv` account. Enable Data sources **AWS X-Ray, Amazon Managed Service for Prometheus and Amazon Cloudwatch**.
 
+### Clone Repository
+
+1. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
+
+```bash
+git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
+cd cdk-aws-observability-accelerator
+```
+
 ### SSO Profile Setup
 
 1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html) are complete before proceeding to next steps.
@@ -222,8 +231,8 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
 
 ```bash { promptEnv=false }
 read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
-curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
-# eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+# curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
 aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --name "github-ssh-key" \
     --description "SSH private key for ArgoCD authentication to GitHub repository" \
@@ -307,16 +316,10 @@ aws iam create-user --profile prod2-account --user-name team-platform
 npm install -g aws-cdk
 ```
 
-3. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
-
-```bash
-git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
-cd cdk-aws-observability-accelerator
-```
-
 4. Install project dependencies.
 
 ```bash
+cd `git rev-parse --show-toplevel`
 npm i
 ```
 
@@ -335,13 +338,13 @@ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
     aws://${COA_PROD1_ACCOUNT_ID}/${COA_PROD1_REGION}
 
 # bootstrap prodEnv2 account with trust access from pipelineEnv account
-env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod2-account \
     --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
     --trust ${COA_PIPELINE_ACCOUNT_ID} \
     aws://${COA_PROD2_ACCOUNT_ID}/${COA_PROD2_REGION}
 
 # bootstrap monitoringEnv account with trust access from pipelineEnv account
-env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
+env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile monitoring-account \
     --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
     --trust ${COA_PIPELINE_ACCOUNT_ID} \
     aws://${COA_MON_ACCOUNT_ID}/${COA_MON_REGION}
@@ -349,12 +352,13 @@ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile prod1-account \
 
 6. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account.
 
-```bash
+```bash { promptEnv=false }
 export AWS_PROFILE='pipeline-account'
 export AWS_REGION=${COA_PIPELINE_REGION}
+cd `git rev-parse --show-toplevel`
 
 make build
-make pattern pipeline-multienv-monitoring deploy multi-account-central-pipeline
+make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-pipeline
 ```
 
 7. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) to check pipeline that deploys multiple Amazon EKS clusters to different environments.
