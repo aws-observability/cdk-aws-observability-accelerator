@@ -34,6 +34,11 @@ The following figure illustrates the architecture of the pattern we will be depl
 5. An AWS account under AWS Control Tower called Monitoring Account (Grafana Account aka `monitoringEnv`) provisioned using the [AWS Service Catalog Account Factory](https://docs.aws.amazon.com/controltower/latest/userguide/provision-as-end-user.html) product AWS Control Tower Account vending process or AWS Organization.
 6. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of `monitoringEnv` account. Enable Data sources **AWS X-Ray, Amazon Managed Service for Prometheus and Amazon Cloudwatch**.
 
+---
+> **_NOTE:_** This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env` and `prod2Env` AWS accounts. Make sure your account limits for EIP are increased to support additional 9 EIPs (1 per subnet).
+
+---
+
 ### Clone Repository
 
 1. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
@@ -404,8 +409,4 @@ done
 ### Custom Metrics from ho11y App on Amazon Managed Grafana Console using CloudWatch as data source
 
 ![Exploring Metrics from ho11y with CloudWatch as Data source in AMG Console](./images/Explore%20AMG.png)
-
-### Notes
-
-This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created by this pattern in Prod 1 and Prod 2 AWS Accounts. Make sure your account limits for EIP are increased to support additional 9 EIPs (1 per Subnets).
 
