@@ -120,7 +120,7 @@ aws configure sso --profile prod2-account
 aws configure sso --profile monitoring-account
 ```
 
-7. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account.
+7. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account. When SSO login expires, you can use this command to re-login.
 
 ```bash { promptEnv=false }
 export AWS_PROFILE='pipeline-account'
