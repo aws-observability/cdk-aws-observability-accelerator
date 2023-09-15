@@ -365,39 +365,57 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-
 1. Once all steps of `multi-acc-stages` in `multi-acc-central-pipeline` are complete, let us update kubeconfig with configurations of newly created EKS clusters.
 
 ```bash { promptEnv=false }
-export AWS_PROFILE='prod1-account'
-eval "$(aws cloudformation describe-stacks --profile $AWS_PROFILE --region ${COA_PROD1_REGION} \
+eval "$(aws cloudformation describe-stacks --profile prod1-account --region ${COA_PROD1_REGION} \
     --stack-name "coa-eks-prod1-${COA_PROD1_REGION}-coa-eks-prod1-${COA_PROD1_REGION}-blueprint" \
     --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
     --output text)"
 
-
-export AWS_PROFILE='prod2-account'
-eval "$(aws cloudformation describe-stacks --profile $AWS_PROFILE --region ${COA_PROD2_REGION} \
+eval "$(aws cloudformation describe-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
     --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
     --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
     --output text)"
 
-export AWS_PROFILE='monitoring-account'
-eval "$(aws cloudformation describe-stacks --profile $AWS_PROFILE --region ${COA_MON_REGION} \
+eval "$(aws cloudformation describe-stacks --profile monitoring-account --region ${COA_MON_REGION} \
     --stack-name "coa-cntrl-mon-${COA_MON_REGION}-coa-cntrl-mon-${COA_MON_REGION}-blueprint" \
     --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
     --output text)"
-
-export AWS_PROFILE='pipeline-account'
-export AWS_REGION=${COA_PIPELINE_REGION}
-
 ```
 
-2. Get Output from stacks to create kubeconfig
+2. Let us deploy ContainerInsights in `prod2Env` account.
 
-3. Deploy ContainerInsights in `prod2Env`
+```bash { promptEnv=false }
+prod2StackName=$(aws cloudformation list-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
+    --stack-status-filter CREATE_COMPLETE  \
+    --query "StackSummaries[?ParentId==null && StackName=='coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint'].StackName" \
+    --output text)
 
-4. Get AMP Endpoint URL from `prod1Env`
+prod2NGRole=$(aws cloudformation describe-stack-resources --profile prod2-account --region ${COA_PROD2_REGION} \
+    --stack-name ${prod2StackName} \
+    --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
+    --output text)
 
-5. Update argocd vars in `monitoringEnv`
+aws iam attach-role-policy --profile prod2-account --region ${COA_PROD2_REGION} \
+    --role-name ${prod2NGRole} \
+    --policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 
-6. Cleanup steps
+aws iam list-attached-role-policies --profile prod2-account --region ${COA_PROD2_REGION} \
+    --role-name $prod2NGRole | grep CloudWatchAgentServerPolicy || echo 'Policy not found'
+
+ClusterName=$(aws cloudformation describe-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
+    --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
+    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintClusterName')].OutputValue" \
+    --output text)
+kubeContext="arn:aws:eks:${COA_PROD2_REGION}:${COA_PROD2_ACCOUNT_ID}:cluster/${ClusterName}"  
+FluentBitHttpPort='2020'
+FluentBitReadFromHead='Off'
+[[ ${FluentBitReadFromHead} = 'On' ]] && FluentBitReadFromTail='Off'|| FluentBitReadFromTail='On'
+[[ -z ${FluentBitHttpPort} ]] && FluentBitHttpServer='Off' || FluentBitHttpServer='On'
+curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml | sed 's/{{cluster_name}}/'${ClusterName}'/;s/{{region_name}}/'${COA_PROD2_REGION}'/;s/{{http_server_toggle}}/"'${FluentBitHttpServer}'"/;s/{{http_server_port}}/"'${FluentBitHttpPort}'"/;s/{{read_from_head}}/"'${FluentBitReadFromHead}'"/;s/{{read_from_tail}}/"'${FluentBitReadFromTail}'"/' | kubectl --context $kubeContext apply -f - 
+```
+
+2. Get AMP Endpoint URL from `prod1Env`
+3. Update argocd vars in `monitoringEnv`
+4. Cleanup steps
 
    <NEED STEPS TO FIX GF DS>
 
