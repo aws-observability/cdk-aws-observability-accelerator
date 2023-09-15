@@ -19,26 +19,8 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*'],
         });
         
-        const certManagerAddOnProps : blueprints.CertManagerAddOnProps = {
-            installCRDs:true,
-            createNamespace:true,
-            namespace:"cert-manager",
-            values:{webhook: {securePort: 10260}}
-        };
-
-        const coreDnsAddOnProps : blueprints.coreDnsAddOnProps = {
-            version:"v1.10.1-eksbuild.1",
-            configurationValues:{ computeType: "Fargate" }
-        };
 
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
-            new blueprints.addons.CertManagerAddOn(certManagerAddOnProps),
-            new blueprints.addons.AdotCollectorAddOn(),
-            new blueprints.addons.CoreDnsAddOn(coreDnsAddOnProps),
-            new blueprints.addons.KubeProxyAddOn(),
-            new blueprints.addons.KubeStateMetricsAddOn(),
-            new blueprints.addons.MetricsServerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
@@ -60,12 +42,27 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             fargateProfiles,
             version: eks.KubernetesVersion.of("1.27")
         });
+
+        const certManagerAddOnProps : blueprints.CertManagerAddOnProps = {
+            installCRDs:true,
+            createNamespace:true,
+            namespace:"cert-manager",
+            values:{webhook: {securePort: 10260}}
+        };
+
+        const coreDnsAddOnProps : blueprints.CoreDnsAddOnProps = {
+            version:"v1.10.1-eksbuild.1",
+            configurationValues:{ computeType: "Fargate" }
+        };
         
         /* Use observability builder mixed pattern addons, aws native containerInsightsAddon
             causes conflict in fargate */
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .withCertManagerProps(certManagerAddOnProps)
+            .withCoreDnsProps(coreDnsAddOnProps)
+            .enableFargatePatternAddOns()
             .clusterProvider(fargateClusterProvider)
             .addOns(...addOns)
             .build(scope, stackId);
