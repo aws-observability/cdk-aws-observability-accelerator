@@ -7,6 +7,7 @@ import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
 import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
+import { CrossAccTrustRoleStack, CrossAccTrustRoleStackProps } from './CrossAccountTrustRole';
 import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 import { getSSMSecureString } from './getSSMSecureString';
@@ -33,29 +34,19 @@ export async function populateAccountWithContextDefaults(region: string): Promis
     return cdkContext;
 }
 
+/*
+* prodEnv1: PROD1 account ID and region
+* prodEnv2: PROD2 account ID and region 
+* monitoringEnv: MON account ID and region 
+ */
 export interface PipelineMultiEnvMonitoringProps {
-    /**
-     * Production workload environment (account/region) #1 
-     */
     prodEnv1: cdk.Environment;
-
-    /**
-     * Production workload environment (account/region) #2
-     */
     prodEnv2: cdk.Environment;
-
-    /**
-     * Environment (account/region) where pipeline will be running (generally referred to as CICD account)
-     */
     pipelineEnv: cdk.Environment;
-
-    /**
-     * Environment (account/region) where monitoring dashboards will be configured.
-     */
     monitoringEnv: cdk.Environment;
 }
 
-/**
+/*
  * Main multi-account monitoring pipeline.
  */
 export class PipelineMultiEnvMonitoring {
@@ -90,11 +81,48 @@ export class PipelineMultiEnvMonitoring {
         amgWorkspaceUrl = amgInfo.workspaceURL;
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
+        //Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP
+        const CrossAccTrustRoleStackProps: CrossAccTrustRoleStackProps = {
+            roleName: "ampPrometheusDataSourceRole",
+            trustArn: amgWorkspaceIAMRoleARN!,
+            actions: [
+                "aps:ListWorkspaces",
+                "aps:DescribeWorkspace",
+                "aps:QueryMetrics",
+                "aps:GetLabels",
+                "aps:GetSeries",
+                "aps:GetMetricMetadata",
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+                "xray:GetSamplingStatisticSummaries",
+                "xray:BatchGetTraces",
+                "xray:GetServiceGraph",
+                "xray:GetTraceGraph",
+                "xray:GetTraceSummaries",
+                "xray:GetGroups",
+                "xray:GetGroup",
+                "xray:ListTagsForResource",
+                "xray:GetTimeSeriesServiceStatistics",
+                "xray:GetInsightSummaries",
+                "xray:GetInsight",
+                "xray:GetInsightEvents",
+                "xray:GetInsightImpactGraph",
+                "ssm:GetParameter"
+            ],            
+        }
+
+
         //creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
+
+
+
+        //Cross Account Trust Role for PROD1 account to trust MON account to get AMP workspace URL
 
         // Argo configuration per environment
         // CHANGE ME FINALLY
@@ -115,6 +143,12 @@ export class PipelineMultiEnvMonitoring {
             'private'
         );
 
+        const AmgIamSetupStackProps: AmgIamSetupStackProps = {
+            // roleName: "amgWorkspaceIamRole",
+            roleArn: amgWorkspaceIAMRoleARN,
+            accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
+        };
+
         // get CodePipeline Source Github info
         // const gitOwner = 'aws-samples'; 
         const pipelineSrcInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/pipeline-git-info',this.pipelineRegion))['pipelineSource'];
@@ -122,11 +156,6 @@ export class PipelineMultiEnvMonitoring {
         const gitRepositoryName = pipelineSrcInfo.gitRepoName;
         const gitBranch = pipelineSrcInfo.gitBranch;
 
-        const AmgIamSetupStackProps: AmgIamSetupStackProps = {
-            // roleName: "amgWorkspaceIamRole",
-            roleArn: amgWorkspaceIAMRoleARN,
-            accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
-        };
 
         blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
@@ -164,7 +193,8 @@ export class PipelineMultiEnvMonitoring {
                             .clone(context.prodEnv1.region, context.prodEnv1.account)
                             .version('auto')
                             .addOns(new blueprints.NestedStackAddOn({
-                                builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", amgWorkspaceIAMRoleARN!),
+                                // builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", amgWorkspaceIAMRoleARN!),
+                                builder: CrossAccTrustRoleStack.builder(CrossAccTrustRoleStackProps),
                                 id: "amp-iam-nested-stack"
                             }))
                             .addOns(
