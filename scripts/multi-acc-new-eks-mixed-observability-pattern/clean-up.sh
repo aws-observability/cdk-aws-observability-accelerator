@@ -12,6 +12,8 @@ source ${SCRIPT_PATH}/source-envs.sh # sets required environment variables
 #     exit 1
 # fi
 
+# clean up apps from all envs
+
 
 pipeline=(pipeline-account COA_PIPELINE_ACCOUNT_ID COA_PIPELINE_REGION)
 prod1=(prod1-account COA_PROD1_ACCOUNT_ID COA_PROD1_REGION)
