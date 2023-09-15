@@ -35,15 +35,16 @@ The following figure illustrates the architecture of the pattern we will be depl
 6. [An existing Amazon Managed Grafana Workspace](https://aws.amazon.com/blogs/mt/amazon-managed-grafana-getting-started/) in `monitoringEnv` region of `monitoringEnv` account. Enable Data sources **AWS X-Ray, Amazon Managed Service for Prometheus and Amazon Cloudwatch**.
 
 ---
-> **_NOTE:_** This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env` and `prod2Env` AWS accounts. Make sure your account limits for EIP are increased to support additional 9 EIPs (1 per subnet).
+
+> ___NOTE:___ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env` and `prod2Env` AWS accounts. Make sure your account limits for EIP are increased to support additional 9 EIPs (1 per subnet).
 
 ---
 
 ### Clone Repository
 
-1. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository.
+1. Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository, if not done already.
 
-```bash
+```bash { promptEnv=false }
 git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
 cd cdk-aws-observability-accelerator
 ```
@@ -109,7 +110,7 @@ aws configure sso --profile prod1-account
 
 5. Then, configure profile for `prod2Env` AWS account.
 
-```bash { promptEnv=false }
+```bash
 aws configure sso --profile prod2-account
 ```
 
@@ -128,7 +129,7 @@ aws sso login --profile $AWS_PROFILE
 
 8. Export environment variables for further use.
 
-```bash
+```bash { promptEnv=false }
 export COA_PIPELINE_ACCOUNT_ID=$(aws configure get sso_account_id --profile pipeline-account)
 export COA_PIPELINE_REGION=$(aws configure get region --profile pipeline-account)
 
@@ -199,7 +200,7 @@ export COA_AMG_API_KEY=$(aws grafana create-workspace-api-key --profile monitori
 
 5. Store Amazon Grafana workspace API key in SSM SecureString Parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
 
-```bash { promptEnv=false }
+```bash
 aws ssm put-parameter --profile monitoring-account --region ${COA_MON_REGION} \
     --type "SecureString" \
     --overwrite \
@@ -217,7 +218,7 @@ read -p "Pipeline source GitHub Owner Name: " gitowner_input
 export COA_PIPELINE_GIT_OWNER=$gitowner_input
 ```
 
-```bash { promptEnv=false }
+```bash
 aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --type "SecureString" \
     --overwrite \
@@ -232,13 +233,13 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
     }'
 ```
 
-2. Create secret `github-ssh-key` in `pipelineEnv` region of `pipelineEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
+2. Create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
 ```bash { promptEnv=false }
 read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
 eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
 # curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
-aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+aws secretsmanager create-secret --profile monitoring-account --region ${COA_MON_REGION} \
     --name "github-ssh-key" \
     --description "SSH private key for ArgoCD authentication to GitHub repository" \
     --cli-input-json file:///tmp/input-json-for-git-ssh-key.json
@@ -250,7 +251,7 @@ rm /tmp/input-json-for-git-ssh-key.json
 - **repo** - to read the repository
 - __admin:repo_hook__ - to use webhooks
 
-```bash
+```bash { promptEnv=false }
 read -p "GitHub Personal Access Token: " gitpat_input
 export COA_GIT_PAT=$gitpat_input
 unset gitpat_input
@@ -298,20 +299,6 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
     }'
 ```
 
-2. Create IAM user `team-geordi` in `prod1Env` and `prod2Env` AWS Account
-
-```bash
-aws iam create-user --profile prod1-account --user-name team-geordi
-aws iam create-user --profile prod2-account --user-name team-geordi
-```
-
-3. Create IAM user `team-platform` in Prod 1 and Prod 2 AWS Account
-
-```bash
-aws iam create-user --profile prod1-account --user-name team-platform
-aws iam create-user --profile prod2-account --user-name team-platform
-```
-
 ## Deployment
 
 1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
@@ -330,7 +317,7 @@ npm i
 
 5. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
 
-```bash
+```bash { promptEnv=false }
 # bootstrap pipelineEnv account WITHOUT explicit trust 
 env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile pipeline-account \
     --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
@@ -366,14 +353,51 @@ make build
 make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-pipeline
 ```
 
-7. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) to check pipeline that deploys multiple Amazon EKS clusters to different environments.
-8. The deployment automation will create
+7. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region. Check status of pipeline that deploys multiple Amazon EKS clusters to different environments.
+8. The deployment also creates
 
    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account,
    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and
-   - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana.
+   - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana
 
-9. 
+## Post Deployment
+
+1. Once all steps of `multi-acc-stages` in `multi-acc-central-pipeline` are complete, let us update kubeconfig with configurations of newly created EKS clusters.
+
+```bash { promptEnv=false }
+export AWS_PROFILE='prod1-account'
+eval "$(aws cloudformation describe-stacks --profile $AWS_PROFILE --region ${COA_PROD1_REGION} \
+    --stack-name "coa-eks-prod1-${COA_PROD1_REGION}-coa-eks-prod1-${COA_PROD1_REGION}-blueprint" \
+    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
+    --output text)"
+
+
+export AWS_PROFILE='prod2-account'
+eval "$(aws cloudformation describe-stacks --profile $AWS_PROFILE --region ${COA_PROD2_REGION} \
+    --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
+    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
+    --output text)"
+
+export AWS_PROFILE='monitoring-account'
+eval "$(aws cloudformation describe-stacks --profile $AWS_PROFILE --region ${COA_MON_REGION} \
+    --stack-name "coa-cntrl-mon-${COA_MON_REGION}-coa-cntrl-mon-${COA_MON_REGION}-blueprint" \
+    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
+    --output text)"
+
+export AWS_PROFILE='pipeline-account'
+export AWS_REGION=${COA_PIPELINE_REGION}
+
+```
+
+2. Get Output from stacks to create kubeconfig
+
+3. Deploy ContainerInsights in `prod2Env`
+
+4. Get AMP Endpoint URL from `prod1Env`
+
+5. Update argocd vars in `monitoringEnv`
+
+6. Cleanup steps
 
    <NEED STEPS TO FIX GF DS>
 
@@ -385,7 +409,7 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-
 
 1. Run the below command in both clusters to generate traces to X-Ray and Amazon Managed Grafana Console out the sample `ho11y` app :
 
-```sh
+```bash { promptEnv=false }
 frontend_pod=`kubectl get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
 loop_counter=0
 while [ $loop_counter -le 5000 ] ;
