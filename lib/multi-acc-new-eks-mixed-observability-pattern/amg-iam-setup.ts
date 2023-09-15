@@ -15,7 +15,7 @@ export interface AmgIamSetupStackProps extends NestedStackProps {
     roleArn: string,
 
     /**
-     * Monitored accounts. These contain ampPrometheusDataSourceRole and cloudwatchPrometheusDataSourceRole roles 
+     * Monitored accounts. These contain AMPAccessForTrustedAMGRole and cloudwatchPrometheusDataSourceRole roles 
      * with trust relationship to the monitoring (AMG) account.
      */
     accounts: string[]
@@ -60,7 +60,7 @@ export class AmgIamSetupStack extends NestedStack {
                 actions: [
                     "sts:AssumeRole"
                 ],
-                resources: [`arn:aws:iam::${props.accounts[i]}:role/ampPrometheusDataSourceRole`,
+                resources: [`arn:aws:iam::${props.accounts[i]}:role/AMPAccessForTrustedAMGRole`,
                     `arn:aws:iam::${props.accounts[i]}:role/cloudwatchDataSourceRole`
                 ],
             }));

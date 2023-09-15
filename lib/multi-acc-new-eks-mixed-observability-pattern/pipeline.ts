@@ -82,8 +82,8 @@ export class PipelineMultiEnvMonitoring {
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
         //Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP
-        const CrossAccTrustRoleStackProps: CrossAccTrustRoleStackProps = {
-            roleName: "ampPrometheusDataSourceRole",
+        const AMGTrustRoleStackProps: CrossAccTrustRoleStackProps = {
+            roleName: "AMPAccessForTrustedAMGRole",
             trustArn: amgWorkspaceIAMRoleARN!,
             actions: [
                 "aps:ListWorkspaces",
@@ -113,16 +113,25 @@ export class PipelineMultiEnvMonitoring {
             ],            
         }
 
+        //Cross Account Trust Role for PROD1 account to trust MON account to get AMP workspace URL
+        //Props for cross-account trust role in PROD1 account to trust MON account, inorder share PROD1's AMP workspace URL
+        const trustedMONAccArn = `arn:aws:iam::${context.monitoringEnv.account}:role/crossAccAMPInfoForTrustedMonAccRole`;
+        const ShareAMPInfoTrustRoleStackProps: CrossAccTrustRoleStackProps = {
+            roleName: "AMPInfoForTrustedMonAccRole",
+            trustArn: trustedMONAccArn!,
+            actions: [
+                "aps:ListWorkspaces",
+                "aps:DescribeWorkspace",
+                "ssm:GetParameter"
+            ],            
+        }        
+
 
         //creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
-
-
-
-        //Cross Account Trust Role for PROD1 account to trust MON account to get AMP workspace URL
 
         // Argo configuration per environment
         // CHANGE ME FINALLY
@@ -193,10 +202,14 @@ export class PipelineMultiEnvMonitoring {
                             .clone(context.prodEnv1.region, context.prodEnv1.account)
                             .version('auto')
                             .addOns(new blueprints.NestedStackAddOn({
-                                // builder: AmpIamSetupStack.builder("ampPrometheusDataSourceRole", amgWorkspaceIAMRoleARN!),
-                                builder: CrossAccTrustRoleStack.builder(CrossAccTrustRoleStackProps),
-                                id: "amp-iam-nested-stack"
+                                // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
+                                builder: CrossAccTrustRoleStack.builder(AMGTrustRoleStackProps),
+                                id: "amp-ds-trustrole-nested-stack"
                             }))
+                            .addOns(new blueprints.NestedStackAddOn({
+                                builder: CrossAccTrustRoleStack.builder(ShareAMPInfoTrustRoleStackProps),
+                                id: "amp-info-trustrole-nested-stack"
+                            }))                           
                             .addOns(
                                 prodArgoAddonConfig,
                             )
@@ -271,7 +284,7 @@ function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: stri
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
-    const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/ampPrometheusDataSourceRole`
+    const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/AMPAccessForTrustedAMGRole`
     const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/cloudwatchDataSourceRole`
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
