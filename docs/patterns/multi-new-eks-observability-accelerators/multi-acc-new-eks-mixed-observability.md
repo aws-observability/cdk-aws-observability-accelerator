@@ -237,7 +237,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
 
 ```bash { promptEnv=false }
 read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
-eval bash `git rev-parse --show-toplevel`/scripts/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
 # curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
 aws secretsmanager create-secret --profile monitoring-account --region ${COA_MON_REGION} \
     --name "github-ssh-key" \
@@ -384,13 +384,13 @@ eval "$(aws cloudformation describe-stacks --profile monitoring-account --region
 2. Let us deploy ContainerInsights in `prod2Env` account.
 
 ```bash { promptEnv=false }
-prod2StackName=$(aws cloudformation list-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
-    --stack-status-filter CREATE_COMPLETE  \
-    --query "StackSummaries[?ParentId==null && StackName=='coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint'].StackName" \
-    --output text)
+# prod2StackName=$(aws cloudformation list-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
+#     --stack-status-filter CREATE_COMPLETE  \
+#     --query "StackSummaries[?ParentId==null && StackName=='coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint'].StackName" \
+#     --output text)
 
 prod2NGRole=$(aws cloudformation describe-stack-resources --profile prod2-account --region ${COA_PROD2_REGION} \
-    --stack-name ${prod2StackName} \
+    --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
     --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
     --output text)
 
@@ -437,6 +437,21 @@ do
         loop_counter=$[$loop_counter+1];
 done
 ```
+
+### Clean up
+
+1. Run this command to destroy this pattern. This will delete pipeline.
+
+    ```bash
+    AWS_PROFILE='pipeline-account'
+    make pattern multi-acc-new-eks-mixed-observability destroy multi-account-central-pipeline
+    ```
+
+2. Next, run this script to clean up stack resources from respective accounts.
+
+    ```bash
+    eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
+    ```
 
 ### Traces and Service Map screenshots from X-Ray Console
 
