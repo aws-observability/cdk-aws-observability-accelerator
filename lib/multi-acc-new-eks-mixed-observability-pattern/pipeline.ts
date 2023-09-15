@@ -122,7 +122,8 @@ export class PipelineMultiEnvMonitoring {
             actions: [
                 "aps:ListWorkspaces",
                 "aps:DescribeWorkspace",
-                "ssm:GetParameter"
+                "ssm:GetParameter",
+                "xray:GetGroup"
             ],            
         }        
 
