@@ -130,19 +130,6 @@ export class PipelineMultiEnvMonitoring {
             resources: ["*"]    
         }        
 
-        const SampleStackProps: CreateIAMRoleStackProps = {
-            env: {account: context.monitoringEnv.account as string},
-            roleName: "AMPInfoForTrustedMonAccRole",
-            trustArn: "arn:aws:iam::535548867000:role/Admin",
-            actions: [
-                "aps:ListWorkspaces",
-                "aps:DescribeWorkspace",
-                "ssm:GetParameter",
-                "xray:GetGroup"
-            ],
-            resources: ["*"]    
-        }    
-
         //creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
@@ -264,6 +251,19 @@ export class PipelineMultiEnvMonitoring {
             //     },
             //   };      
 
+            const SampleStackProps: CreateIAMRoleStackProps = {
+                env: {account: context.monitoringEnv.account as string},
+                roleName: "AMPInfoForTrustedMonAccRole",
+                trustArn: "arn:aws:iam::535548867000:role/Admin",
+                actions: [
+                    "aps:ListWorkspaces",
+                    "aps:DescribeWorkspace",
+                    "ssm:GetParameter",
+                    "xray:GetGroup"
+                ],
+                resources: ["*"]    
+            }    
+                        
             const newStage: blueprints.StackStage = {
                 id: "newStage",
                 stackBuilder: CreateIAMRoleStack.builder(SampleStackProps),                
