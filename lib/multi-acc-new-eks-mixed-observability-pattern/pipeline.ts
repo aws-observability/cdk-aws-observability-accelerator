@@ -132,7 +132,7 @@ export class PipelineMultiEnvMonitoring {
 
         const SampleStackProps: CreateIAMRoleStackProps = {
             roleName: "AMPInfoForTrustedMonAccRole",
-            trustArn: trustedMONAccArn!,
+            trustArn: `arn:aws:iam::${context.pipelineEnv.account}:role/Admin`,
             actions: [
                 "aps:ListWorkspaces",
                 "aps:DescribeWorkspace",
@@ -256,15 +256,29 @@ export class PipelineMultiEnvMonitoring {
                     )
             };
 
+            // const StageProps = {
+            //     env: {
+            //       account: 'DEV_ACCOUNT',
+            //       region: 'eu-west-1',
+            //     },
+            //   };      
+
             const newStage: blueprints.StackStage = {
                 id: "newStage",
-                stackBuilder: CreateIAMRoleStack.builder(SampleStackProps)
-            };     
+                stackBuilder: CreateIAMRoleStack.builder(SampleStackProps),                
+                // stageProps: {
+                //     pre: []
+                //   }
+            };
+            // newStage.stageProps = {manualApprovals: true};
 
-            pipeline.stage(newStage);
-            pipeline.stage(monStage);
+            pipeline.stage(newStage)
 
-            // pipeline.wave({
+
+            // pipeline.stage(newStage);
+            // pipeline.stage(monStage);
+
+            // ipeline.wave({
             //     id: "multi-acc-stage-01",
             //     stages: [
             //         {
