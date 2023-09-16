@@ -11,6 +11,7 @@ import * as cdk from 'aws-cdk-lib';
 * resources[] - array of resources in permission policy
 */
 export interface CreateIAMRoleStackProps extends StackProps {
+    env: {account: string},
     roleName: string, 
     trustArn: string, 
     actions: string[],
@@ -32,6 +33,7 @@ export class CreateIAMRoleStack extends Stack {
         super(scope, id, props);
 
         const role = new iam.Role(this, 'coa-iam-role', {
+
             roleName: props.roleName,
             assumedBy: new iam.ArnPrincipal(props.trustArn),
             // assumedBy: new iam.AccountPrincipal(this.account),            

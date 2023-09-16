@@ -131,8 +131,9 @@ export class PipelineMultiEnvMonitoring {
         }        
 
         const SampleStackProps: CreateIAMRoleStackProps = {
+            env: {account: context.monitoringEnv.account as string},
             roleName: "AMPInfoForTrustedMonAccRole",
-            trustArn: `arn:aws:iam::${context.pipelineEnv.account}:role/Admin`,
+            trustArn: "arn:aws:iam::535548867000:role/Admin",
             actions: [
                 "aps:ListWorkspaces",
                 "aps:DescribeWorkspace",
