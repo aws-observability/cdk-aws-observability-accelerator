@@ -1,4 +1,4 @@
-import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -10,7 +10,7 @@ import * as cdk from 'aws-cdk-lib';
 * actions[] - array of actions allowed in permission policy
 * resources[] - array of resources in permission policy
 */
-export interface CreateIAMRoleStackProps extends NestedStackProps {
+export interface CreateIAMRoleStackProps extends StackProps {
     roleName: string, 
     trustArn: string, 
     actions: string[],
@@ -18,9 +18,9 @@ export interface CreateIAMRoleStackProps extends NestedStackProps {
 }
 
 // Stack that creates IAM role with trust relationship to other account
-export class CreateIAMRoleStack extends NestedStack {
+export class CreateIAMRoleStack extends Stack {
 
-    public static builder(props: CreateIAMRoleStackProps): blueprints.NestedStackBuilder {
+    public static builder(props: CreateIAMRoleStackProps): blueprints.StackBuilder {
         return {
             build(scope: Construct, id: string) {
                 return new CreateIAMRoleStack(scope, id, props);

@@ -7,10 +7,11 @@ import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
 import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
-import { CreateIAMRoleStack, CreateIAMRoleStackProps } from './CreateIAMRole';
+import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './CreateIAMRoleNestedStack';
 import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 import { getSSMSecureString } from './getSSMSecureString';
+import { CreateIAMRoleStack, CreateIAMRoleStackProps } from './CreateIAMRoleStack';
 
 const logger = blueprints.utils.logger;
 
@@ -82,7 +83,7 @@ export class PipelineMultiEnvMonitoring {
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
         //Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP
-        const AMGTrustRoleStackProps: CreateIAMRoleStackProps = {
+        const AMGTrustRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: "AMPAccessForTrustedAMGRole",
             trustArn: amgWorkspaceIAMRoleARN!,
             actions: [
@@ -117,7 +118,7 @@ export class PipelineMultiEnvMonitoring {
         //Cross Account Trust Role for PROD1 account to trust MON account to get AMP workspace URL
         //Props for cross-account trust role in PROD1 account to trust MON account, inorder share PROD1's AMP workspace URL
         const trustedMONAccArn = `arn:aws:iam::${context.monitoringEnv.account}:role/crossAccAMPInfoFromPROD1Role`;
-        const ShareAMPInfoTrustRoleStackProps: CreateIAMRoleStackProps = {
+        const ShareAMPInfoTrustRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: "AMPInfoForTrustedMonAccRole",
             trustArn: trustedMONAccArn!,
             actions: [
@@ -129,6 +130,17 @@ export class PipelineMultiEnvMonitoring {
             resources: ["*"]    
         }        
 
+        const SampleStackProps: CreateIAMRoleStackProps = {
+            roleName: "AMPInfoForTrustedMonAccRole",
+            trustArn: trustedMONAccArn!,
+            actions: [
+                "aps:ListWorkspaces",
+                "aps:DescribeWorkspace",
+                "ssm:GetParameter",
+                "xray:GetGroup"
+            ],
+            resources: ["*"]    
+        }    
 
         //creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
@@ -218,11 +230,11 @@ export class PipelineMultiEnvMonitoring {
                     .version('auto')
                     .addOns(new blueprints.NestedStackAddOn({
                         // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
-                        builder: CreateIAMRoleStack.builder(AMGTrustRoleStackProps),
+                        builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
                         id: "amp-ds-trustrole-nested-stack"
                     }))
                     .addOns(new blueprints.NestedStackAddOn({
-                        builder: CreateIAMRoleStack.builder(ShareAMPInfoTrustRoleStackProps),
+                        builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
                         id: "amp-info-trustrole-nested-stack"
                     }))                           
                     .addOns(
@@ -231,19 +243,25 @@ export class PipelineMultiEnvMonitoring {
             };
 
             const cwStage: blueprints.StackStage = {
-                    id: PROD2_ENV_ID,
-                    stackBuilder: blueprintCloudWatch
-                        .name(PROD2_ENV_ID)
-                        .clone(context.prodEnv2.region, context.prodEnv2.account)
-                        .addOns(new blueprints.NestedStackAddOn({
-                            builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
-                            id: "cloudwatch-iam-nested-stack"
-                        }))
-                        .addOns(
-                            prodArgoAddonConfig,
-                        )
+                id: PROD2_ENV_ID,
+                stackBuilder: blueprintCloudWatch
+                    .name(PROD2_ENV_ID)
+                    .clone(context.prodEnv2.region, context.prodEnv2.account)
+                    .addOns(new blueprints.NestedStackAddOn({
+                        builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
+                        id: "cloudwatch-iam-nested-stack"
+                    }))
+                    .addOns(
+                        prodArgoAddonConfig,
+                    )
             };
 
+            const newStage: blueprints.StackStage = {
+                id: "newStage",
+                stackBuilder: CreateIAMRoleStack.builder(SampleStackProps)
+            };     
+
+            pipeline.stage(newStage);
             pipeline.stage(monStage);
 
             // pipeline.wave({
@@ -257,11 +275,11 @@ export class PipelineMultiEnvMonitoring {
             //                 .version('auto')
             //                 .addOns(new blueprints.NestedStackAddOn({
             //                     // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
-            //                     builder: CreateIAMRoleStack.builder(AMGTrustRoleStackProps),
+            //                     builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
             //                     id: "amp-ds-trustrole-nested-stack"
             //                 }))
             //                 .addOns(new blueprints.NestedStackAddOn({
-            //                     builder: CreateIAMRoleStack.builder(ShareAMPInfoTrustRoleStackProps),
+            //                     builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
             //                     id: "amp-info-trustrole-nested-stack"
             //                 }))                           
             //                 .addOns(
@@ -288,9 +306,6 @@ export class PipelineMultiEnvMonitoring {
                 env: context.pipelineEnv
             });
 
-
-
-
             // pipeline.wave({
             //     id: "multi-acc-stages",
             //     stages: [
@@ -302,11 +317,11 @@ export class PipelineMultiEnvMonitoring {
             //                 .version('auto')
             //                 .addOns(new blueprints.NestedStackAddOn({
             //                     // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
-            //                     builder: CreateIAMRoleStack.builder(AMGTrustRoleStackProps),
+            //                     builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
             //                     id: "amp-ds-trustrole-nested-stack"
             //                 }))
             //                 .addOns(new blueprints.NestedStackAddOn({
-            //                     builder: CreateIAMRoleStack.builder(ShareAMPInfoTrustRoleStackProps),
+            //                     builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
             //                     id: "amp-info-trustrole-nested-stack"
             //                 }))                           
             //                 .addOns(
