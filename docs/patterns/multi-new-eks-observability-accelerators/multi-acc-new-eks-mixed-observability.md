@@ -181,6 +181,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
     "amg": {
         "workspaceName": "'${COA_AMG_WORKSPACE_NAME}'",
         "workspaceURL": "'${COA_AMG_WORKSPACE_URL}'",
+        "workspaceID": "'${COA_AMG_WORKSPACE_ID}'",
         "workspaceIAMRoleARN": "'${COA_AMG_WORKSPACE_ROLE_ARN}'"
     }
 }'   
