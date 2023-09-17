@@ -33,7 +33,6 @@ export class CreateIAMRoleStack extends Stack {
         super(scope, id, props);
 
         const role = new iam.Role(this, 'coa-iam-role', {
-
             roleName: props.roleName,
             assumedBy: new iam.ArnPrincipal(props.trustArn),
             // assumedBy: new iam.AccountPrincipal(this.account),            
