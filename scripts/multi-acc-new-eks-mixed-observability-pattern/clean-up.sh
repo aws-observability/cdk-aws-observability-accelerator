@@ -86,3 +86,12 @@ done
 #     --key-name "grafana-operator-key"
 #     --workspace-id $COA_AMG_WORKSPACE_ID
 
+aws iam delete-role-policy --profile monitoring-account \
+  --policy-name "AssumePROD1RolePolicy" \
+  --role-name "crossAccAMPInfoFromPROD1Role"
+
+aws iam delete-role --profile monitoring-account \
+  --role-name "crossAccAMPInfoFromPROD1Role"
+
+
+

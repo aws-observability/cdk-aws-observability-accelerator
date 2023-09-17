@@ -209,6 +209,41 @@ aws ssm put-parameter --profile monitoring-account --region ${COA_MON_REGION} \
     --value ${COA_AMG_API_KEY}
 ```
 
+6. Create IAM role `crossAccAMPInfoFromPROD1Role` in `monitoringEnv` account that will be trusted by `AMPInfoForTrustedMonAccRole` role in `prod1Env` account to share Amazon Managed Prometheus Workspace URL.
+
+```bash
+aws iam create-role --profile monitoring-account \
+  --role-name "crossAccAMPInfoFromPROD1Role" \
+  --description "IAM role created by CDK Observability Accelerator to get AMP workspace URL from PROD1 Account" \
+  --assume-role-policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "cloudformation.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}'
+
+aws iam put-role-policy --profile monitoring-account \
+  --role-name "crossAccAMPInfoFromPROD1Role" \
+  --policy-name "AssumePROD1RolePolicy" \
+  --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": ["sts:AssumeRole"],
+            "Resource": "'arn:aws:iam::${COA_PROD1_ACCOUNT_ID}:role/AMPInfoForTrustedMonAccRole'"
+        }
+    ]
+}'
+
+```
+
 ### CodePipeline GitHub Source Configuration
 
 1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
@@ -442,16 +477,16 @@ done
 
 1. Run this command to destroy this pattern. This will delete pipeline.
 
-    ```bash
-    AWS_PROFILE='pipeline-account'
-    make pattern multi-acc-new-eks-mixed-observability destroy multi-account-central-pipeline
-    ```
+```bash
+AWS_PROFILE='pipeline-account'
+make pattern multi-acc-new-eks-mixed-observability destroy multi-account-central-pipeline
+```
 
 2. Next, run this script to clean up stack resources from respective accounts.
 
-    ```bash
-    eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
-    ```
+```bash
+eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
+```
 
 ### Traces and Service Map screenshots from X-Ray Console
 
