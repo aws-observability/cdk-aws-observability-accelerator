@@ -257,7 +257,7 @@ export class PipelineMultiEnvMonitoring {
                 resources: ["*"]    
             }    
 
-            CreateIAMRoleStack.builder(SampleStackProps);
+            CreateIAMRoleStack.builder(SampleStackProps).build(scope, 'id');
 
             
             // const newStage: blueprints.StackStage = {
