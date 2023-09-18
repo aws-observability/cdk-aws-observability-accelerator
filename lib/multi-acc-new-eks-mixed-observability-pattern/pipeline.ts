@@ -11,8 +11,18 @@ import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './Creat
 // import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 import { getSSMSecureString } from './getSSMSecureString';
+import { getAMPInfo } from './getAMPInfo';
+import { env } from 'process';
 
 const logger = blueprints.utils.logger;
+
+let ampAccount: string;
+let ampRegion: string;
+let cwAccount: string;
+let cwRegion: string;
+let monAccount: string;
+let monRegion: string;
+
 
 type repoTypeValues = 'public' | 'private';
 
@@ -71,6 +81,13 @@ export class PipelineMultiEnvMonitoring {
 
         // environments IDs consts
         const context = await populateAccountWithContextDefaults(this.pipelineRegion);
+
+        ampAccount = context.prodEnv1.account as string;
+        ampRegion = context.prodEnv1.region as string;
+        cwAccount = context.prodEnv2.account as string;
+        cwRegion = context.prodEnv2.region as string;
+        monAccount = context.monitoringEnv.account as string;
+        monRegion = context.monitoringEnv.region as string;
 
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
@@ -144,8 +161,6 @@ export class PipelineMultiEnvMonitoring {
 
         // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
         const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-            context.prodEnv1.account, context.prodEnv1.region, 
-            context.prodEnv2.account, context.prodEnv2.region,
             'https://github.com/iamprakkie/aws-observability-accelerator.git',
             'artifacts/sample-apps/grafana-operator-app',
             'artifacts',
@@ -341,13 +356,25 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
 
-function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: string | undefined, cwAccount: string | undefined, cwRegion: string | undefined, repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
+// async function getAMPEndpointURL(awsProfile: string, assumeRoleArn: string, ampAlias: string): Promise<String> {
+//     const ampEndpointURL = await getAMPInfo(awsProfile,assumeRoleArn,ampAlias);
+//     logger.debug(`Retrieved ampEndpointURL ${ampEndpointURL}`);
+//     return ampEndpointURL;
+// }
+
+function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
 
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
     const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/AMPAccessForTrustedAMGRole`
     const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/cloudwatchDataSourceRole`
+
+    // Get AMP Endpoint URL
+    // const trustedMONAccArn = `arn:aws:iam::${monAccount}:role/crossAccAMPInfoFromPROD1Role`;
+    const assumeRoleArn = `arn:aws:iam::${ampAccount}:role/AMPInfoForTrustedMonAccRole`;
+    const ampEndpointURL = getAMPInfo("monitoring-account",assumeRoleArn,"observability-amp-Workspace");
+    logger.debug("ampEndpointURL:: ",ampEndpointURL);
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
@@ -377,7 +404,7 @@ function createGOArgoAddonConfig(ampAccount: string | undefined, ampRegion: stri
         AMP_AWS_REGION: ampRegion,
         CW_ASSUME_ROLE_ARN: cwAssumeRoleArn,
         CW_AWS_REGION: cwRegion,        
-        AMP_ENDPOINT_URL: 'UPDATE_ME_WITH_AMP_ENDPOINT_URL',
+        AMP_ENDPOINT_URL: ampEndpointURL,
         AMG_ENDPOINT_URL: amgWorkspaceUrl,
         GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
         GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
