@@ -11,7 +11,6 @@ import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './Creat
 // import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 import { getSSMSecureString } from './getSSMSecureString';
-import { getAMPInfo } from './getAMPInfo';
 import { env } from 'process';
 
 const logger = blueprints.utils.logger;
@@ -356,11 +355,6 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
 
-// async function getAMPEndpointURL(awsProfile: string, assumeRoleArn: string, ampAlias: string): Promise<String> {
-//     const ampEndpointURL = await getAMPInfo(awsProfile,assumeRoleArn,ampAlias);
-//     logger.debug(`Retrieved ampEndpointURL ${ampEndpointURL}`);
-//     return ampEndpointURL;
-// }
 
 function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
 
@@ -371,10 +365,7 @@ function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string,
     const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/cloudwatchDataSourceRole`
 
     // Get AMP Endpoint URL
-    // const trustedMONAccArn = `arn:aws:iam::${monAccount}:role/crossAccAMPInfoFromPROD1Role`;
-    const assumeRoleArn = `arn:aws:iam::${ampAccount}:role/AMPInfoForTrustedMonAccRole`;
-    const ampEndpointURL = getAMPInfo("monitoring-account",assumeRoleArn,"observability-amp-Workspace");
-    logger.debug("ampEndpointURL:: ",ampEndpointURL);
+    const ampEndpointURL = "UPDATE_ME_WITH_AMP_ENDPOINT_URL";
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
 
