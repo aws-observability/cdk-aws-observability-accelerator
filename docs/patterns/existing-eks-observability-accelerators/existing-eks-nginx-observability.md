@@ -108,19 +108,20 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
         "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
         "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
-        "GRAFANA_JAVA_JMX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/java/default.json"
+        "GRAFANA_NGINX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/nginx/nginx.json"
       },
       "kustomizations": [
         {
           "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
         },
         {
-          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/java"
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/nginx"
         }
       ]
     },
     "nginx.pattern.enabled": true
   }
+```
 
 8. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
 
@@ -185,7 +186,7 @@ To setup your alert receiver, with Amazon SNS, follow [this documentation](https
 
 ## Verify the resources
 
-Please see [Single New Nginx Observability Accelerator]().
+Please see [Single New Nginx Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md).
 
 ## Teardown
 

@@ -2,7 +2,6 @@
 import { ImportClusterProvider, utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
-import { NginxPrometheusAddon } from './nginxprometheusaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
@@ -71,17 +70,6 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             );
         }
 
-        Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
-        const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
-            new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.FluxCDAddOn({ "repositories": [fluxRepository] }),
-            new GrafanaOperatorSecretAddon(),
-        ];
-
         if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
@@ -93,8 +81,18 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
             );
-            addOns.push(new NginxPrometheusAddon());
         }
+
+        Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
+        const addOns: Array<blueprints.ClusterAddOn> = [
+            new blueprints.addons.CloudWatchLogsAddon({
+                logGroupPrefix: `/aws/eks/${stackId}`,
+                logRetentionDays: 30
+            }),
+            new blueprints.addons.XrayAdotAddOn(),
+            new blueprints.addons.FluxCDAddOn({ "repositories": [fluxRepository] }),
+            new GrafanaOperatorSecretAddon(),
+        ];
 
         ObservabilityBuilder.builder()
             .account(account)

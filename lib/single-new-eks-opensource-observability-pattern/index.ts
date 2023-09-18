@@ -52,6 +52,19 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -60,7 +73,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
-            new GrafanaOperatorSecretAddon(),
+            new GrafanaOperatorSecretAddon()
         ];
 
         ObservabilityBuilder.builder()
