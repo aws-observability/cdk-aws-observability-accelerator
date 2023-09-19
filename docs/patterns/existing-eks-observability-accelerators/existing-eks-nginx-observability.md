@@ -133,7 +133,7 @@ make pattern existing-eks-nginx-observability deploy
 
 In this section we will deploy sample application and extract metrics using AWS OpenTelemetry collector.
 
-1. Add NGINX ingress controller add-on into [lib/single-new-eks-opensource-observability-pattern/index.ts](../../../lib/single-new-eks-opensource-observability-pattern/index.ts) in add-on array.
+1. Add NGINX ingress controller add-on into [lib/existing-eks-opensource-observability-pattern/index.ts](../../../lib/existing-eks-opensource-observability-pattern/index.ts) in add-on array.
 ```
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -168,7 +168,7 @@ In this section we will deploy sample application and extract metrics using AWS 
 
 2. Deploy pattern again 
 ```
-make pattern single-new-eks-opensource-observability deploy
+make pattern existing-eks-opensource-observability deploy
 ```
 
 3. Verify if the application is running
@@ -219,7 +219,7 @@ Please see [Single New Nginx Observability Accelerator](../single-new-eks-observ
 You can teardown the whole CDK stack with the following command:
 
 ```bash
-make pattern existing-eks-nginx-observability destroy
+make pattern existing-eks-opensource-observability destroy
 ```
 
 If you setup your cluster with Single New EKS Cluster Observability Accelerator, you also need to run:
