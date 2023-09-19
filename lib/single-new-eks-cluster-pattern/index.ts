@@ -11,8 +11,7 @@ export default class SingleNewEksPattern {
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.ClusterAutoScalerAddOn(),
-            new blueprints.addons.AwsLoadBalancerControllerAddOn()
+            new blueprints.addons.ClusterAutoScalerAddOn()
         ];
 
         ObservabilityBuilder.builder()
