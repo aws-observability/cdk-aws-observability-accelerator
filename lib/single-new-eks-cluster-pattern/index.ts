@@ -1,5 +1,4 @@
 import { Construct } from 'constructs';
-import * as eks from "aws-cdk-lib/aws-eks";
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
