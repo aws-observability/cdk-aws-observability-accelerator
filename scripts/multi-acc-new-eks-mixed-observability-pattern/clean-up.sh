@@ -34,8 +34,6 @@ for profile in "${!profiles[@]}"; do
     log 'G-H' "WORKING ON ${env[0]}.."
 
     if [ "$profile" != "pipeline" ]; then
-        log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."
-        
         stackName="coa-eks-${profile}-${!env[2]}-coa-eks-${profile}-${!env[2]}-blueprint"
         [ "$profile" == "mon" ] && stackName="coa-cntrl-${profile}-${!env[2]}-coa-cntrl-${profile}-${!env[2]}-blueprint"
         log 'C' "Stack name: "$stackName
@@ -50,17 +48,23 @@ for profile in "${!profiles[@]}"; do
             --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintClusterName')].OutputValue" \
             --output text)
 
+        kubeContext="arn:aws:eks:${!env[2]}:${!env[1]}:cluster/${ClusterName}"  
+
+        log 'O' "Initiating clean up of argocd apps in ${profile} account.."
+        argocd --kube-context ${kubeContext} app delete argocd/bootstrap-apps
+
+        log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."
+        
         aws cloudformation delete-stack --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName}
 
-        kubeContext="arn:aws:eks:${!env[2]}:${!env[1]}:cluster/${ClusterName}"  
         log 'O' "Removing kubecontext ${kubeContext}.."
         kubectl config delete-context ${kubeContext}
     fi
 
     log 'O' "Cleaning CDK bootstrap for ${env[0]}.."
-    # cdk bootstrap --destroy --profile ${env[0]}
-    # cdk boostrap --clean --profile ${env[0]}
+    cdk bootstrap --destroy --profile ${env[0]}
+    cdk boostrap --clean --profile ${env[0]}
 done
 
 # aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/cdk-context"
@@ -86,12 +90,12 @@ done
 #     --key-name "grafana-operator-key"
 #     --workspace-id $COA_AMG_WORKSPACE_ID
 
-aws iam delete-role-policy --profile monitoring-account \
-  --policy-name "AssumePROD1RolePolicy" \
-  --role-name "crossAccAMPInfoFromPROD1Role"
+# aws iam delete-role-policy --profile monitoring-account \
+#   --policy-name "AssumePROD1RolePolicy" \
+#   --role-name "crossAccAMPInfoFromPROD1Role"
 
-aws iam delete-role --profile monitoring-account \
-  --role-name "crossAccAMPInfoFromPROD1Role"
+# aws iam delete-role --profile monitoring-account \
+#   --role-name "crossAccAMPInfoFromPROD1Role"
 
 
-
+log 'G' "DONE!"

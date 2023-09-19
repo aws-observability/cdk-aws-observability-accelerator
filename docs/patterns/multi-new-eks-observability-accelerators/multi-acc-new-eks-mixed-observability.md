@@ -36,7 +36,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ---
 
-> ___NOTE:___ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env` and `prod2Env` AWS accounts. Make sure your account limits for EIP are increased to support additional 9 EIPs (1 per subnet).
+> ___NOTE:___ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env`, `prod2Env` and `monitoringEnv` AWS accounts. Make sure your account limits for EIP are increased to support additional 3 EIPs per account.
 
 ---
 
@@ -127,184 +127,13 @@ export AWS_PROFILE='pipeline-account'
 aws sso login --profile $AWS_PROFILE
 ```
 
-8. Export environment variables for further use.
+8. Export required environment variables for further use. If not available already, you will be prompted for name of Amazon Grafana workspace in `monitoringEnv` region of `monitoringEnv` account. And, then its endpoint URL, ID, Role ARN will be captured as environment variables.
 
 ```bash { promptEnv=false }
-export COA_PIPELINE_ACCOUNT_ID=$(aws configure get sso_account_id --profile pipeline-account)
-export COA_PIPELINE_REGION=$(aws configure get region --profile pipeline-account)
-
-export COA_PROD1_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod1-account)
-export COA_PROD1_REGION=$(aws configure get region --profile prod1-account)
-
-export COA_PROD2_ACCOUNT_ID=$(aws configure get sso_account_id --profile prod2-account)
-export COA_PROD2_REGION=$(aws configure get region --profile prod2-account)
-
-export COA_MON_ACCOUNT_ID=$(aws configure get sso_account_id --profile monitoring-account)
-export COA_MON_REGION=$(aws configure get region --profile monitoring-account)
+source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
 ```
 
-### Amazon Grafana Configuration
-
-1. Get details of Amazon Grafana in `monitoringEnv` region of `monitoringEnv` account for further use.
-
-```bash { promptEnv=false }
-read -p "NAME of AMG Workspace in monitoringEnv of monitoringEnv account: " amgname_input
-export COA_AMG_WORKSPACE_NAME=$amgname_input
-```
-
-2. Get Amazon Grafana Workspace URL and IAM Role.
-
-```bash { promptEnv=false }
-export COA_AMG_WORKSPACE_URL="https://$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
-    --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].endpoint" \
-    --output text)"
-
-export COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
-    --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
-    --output text)
-
-export COA_AMG_WORKSPACE_ROLE_ARN=$(aws grafana describe-workspace --profile monitoring-account --region ${COA_MON_REGION} \
-    --workspace-id $COA_AMG_WORKSPACE_ID \
-    --query "workspace.workspaceRoleArn" \
-    --output text)
-```
-
-3. Store info on Amazon Grafana in SSM SecureString Parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
-
-```bash
-aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-    --type "SecureString" \
-    --overwrite \
-    --name "/cdk-accelerator/amg-info" \
-    --description "Info on Amazon Grafana in Monitoring Account" \
-    --value '{
-    "amg": {
-        "workspaceName": "'${COA_AMG_WORKSPACE_NAME}'",
-        "workspaceURL": "'${COA_AMG_WORKSPACE_URL}'",
-        "workspaceID": "'${COA_AMG_WORKSPACE_ID}'",
-        "workspaceIAMRoleARN": "'${COA_AMG_WORKSPACE_ROLE_ARN}'"
-    }
-}'   
-```
-
-4. Create Grafana workspace API key
-
-```bash { promptEnv=false }
-export COA_AMG_API_KEY=$(aws grafana create-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
-    --key-name "grafana-operator-key" \
-    --key-role "ADMIN" \
-    --seconds-to-live 432000 \
-    --workspace-id $COA_AMG_WORKSPACE_ID \
-    --query key \
-    --output text)
-```
-
-5. Store Amazon Grafana workspace API key in SSM SecureString Parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
-
-```bash
-aws ssm put-parameter --profile monitoring-account --region ${COA_MON_REGION} \
-    --type "SecureString" \
-    --overwrite \
-    --name "/cdk-accelerator/grafana-api-key" \
-    --description "Amazon Grafana workspace API key for use by External Secrets Operator" \
-    --value ${COA_AMG_API_KEY}
-```
-
-6. Create IAM role `crossAccAMPInfoFromPROD1Role` in `monitoringEnv` account that will be trusted by `AMPInfoForTrustedMonAccRole` role in `prod1Env` account to share Amazon Managed Prometheus Workspace URL.
-
-```bash
-aws iam create-role --profile monitoring-account \
-  --role-name "crossAccAMPInfoFromPROD1Role" \
-  --description "IAM role created by CDK Observability Accelerator to get AMP workspace URL from PROD1 Account" \
-  --assume-role-policy-document '{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "cloudformation.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
-        }
-    ]
-}'
-
-aws iam put-role-policy --profile monitoring-account \
-  --role-name "crossAccAMPInfoFromPROD1Role" \
-  --policy-name "AssumePROD1RolePolicy" \
-  --policy-document '{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": ["sts:AssumeRole"],
-            "Resource": "'arn:aws:iam::${COA_PROD1_ACCOUNT_ID}:role/AMPInfoForTrustedMonAccRole'"
-        }
-    ]
-}'
-
-```
-
-### CodePipeline GitHub Source Configuration
-
-1. Create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
-
-```bash { promptEnv=true }
-read -p "Pipeline source GitHub Owner Name: " gitowner_input
-export COA_PIPELINE_GIT_OWNER=$gitowner_input
-```
-
-```bash
-aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-    --type "SecureString" \
-    --overwrite \
-    --name "/cdk-accelerator/pipeline-git-info" \
-    --description "CodePipeline source GitHub info" \
-    --value '{
-        "pipelineSource": {
-            "gitOwner": "'${COA_PIPELINE_GIT_OWNER}'",
-            "gitRepoName": "cdk-aws-observability-accelerator",
-            "gitBranch": "main"
-        }
-    }'
-```
-
-2. Create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
-
-```bash { promptEnv=false }
-read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
-eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
-# curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
-aws secretsmanager create-secret --profile monitoring-account --region ${COA_MON_REGION} \
-    --name "github-ssh-key" \
-    --description "SSH private key for ArgoCD authentication to GitHub repository" \
-    --cli-input-json file:///tmp/input-json-for-git-ssh-key.json
-rm /tmp/input-json-for-git-ssh-key.json
-```
-
-3. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
-
-- **repo** - to read the repository
-- __admin:repo_hook__ - to use webhooks
-
-```bash { promptEnv=false }
-read -p "GitHub Personal Access Token: " gitpat_input
-export COA_GIT_PAT=$gitpat_input
-unset gitpat_input
-```
-
-```bash
-aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-    --name "github-token" \
-    --description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
-    --secret-string "${COA_GIT_PAT}"
-
-unset $COA_GIT_PAT
-```
-
-### Other Configurations
-
-1. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this Observability Accelerator pattern.
+9. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this Observability Accelerator pattern.
 
 ```bash
 aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
@@ -333,6 +162,52 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
             }
         }
     }'
+```
+
+### Amazon Grafana Configuration
+
+1. Run `scripts/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh` script to 
+
+    1. create SSM SecureString parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
+
+    1. create Grafana workspace API key.
+
+    1. create SSM SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
+
+```bash
+eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh
+```
+
+### CodePipeline GitHub Source Configuration
+
+1. Run `scripts/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to 
+    
+    1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
+
+    1. create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
+
+```bash { promptEnv=true }
+eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh
+```
+
+2. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
+
+- **repo** - to read the repository
+- __admin:repo_hook__ - to use webhooks
+
+```bash { promptEnv=false }
+read -p "GitHub Personal Access Token: " gitpat_input
+export COA_GIT_PAT=$gitpat_input
+unset gitpat_input
+```
+
+```bash
+aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --name "github-token" \
+    --description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
+    --secret-string "${COA_GIT_PAT}"
+
+unset $COA_GIT_PAT
 ```
 
 ## Deployment
@@ -393,38 +268,71 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-
 8. The deployment also creates
 
    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account,
+
    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and
+   
    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana
 
 ## Post Deployment
 
-1. Once all steps of `multi-acc-stages` in `multi-acc-central-pipeline` are complete, let us update kubeconfig with configurations of newly created EKS clusters.
+1. Once all steps of `multi-acc-stages` in `multi-acc-central-pipeline` are complete, run script to 
 
-```bash { promptEnv=false }
-eval "$(aws cloudformation describe-stacks --profile prod1-account --region ${COA_PROD1_REGION} \
-    --stack-name "coa-eks-prod1-${COA_PROD1_REGION}-coa-eks-prod1-${COA_PROD1_REGION}-blueprint" \
-    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
-    --output text)"
+    1. create entries in kubeconfig with contexts of newly created EKS clusters.
+    
+    1. export cluster specific and kubecontext environment vairables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
 
-eval "$(aws cloudformation describe-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
-    --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
-    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
-    --output text)"
+    1. get Amazon Prometheus Endpoint URL from `prod1Env` account and export to environment variable `COA_AMP_ENDPOINT_URL`.
 
-eval "$(aws cloudformation describe-stacks --profile monitoring-account --region ${COA_MON_REGION} \
-    --stack-name "coa-cntrl-mon-${COA_MON_REGION}-coa-cntrl-mon-${COA_MON_REGION}-blueprint" \
-    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintConfigCommand')].OutputValue" \
-    --output text)"
+```bash
+source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
 ```
 
-2. Let us deploy ContainerInsights in `prod2Env` account.
+5. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `prod1Env` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
 
 ```bash { promptEnv=false }
-# prod2StackName=$(aws cloudformation list-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
-#     --stack-status-filter CREATE_COMPLETE  \
-#     --query "StackSummaries[?ParentId==null && StackName=='coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint'].StackName" \
-#     --output text)
+export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
+export ARGO_PASSWORD=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+echo "ARGO PASSWORD:: "$ARGO_PASSWORD
+kubectl --context ${COA_MON_KUBE_CONTEXT} port-forward $ARGO_SERVER -n argocd 8080:443 &
 
+argocd --kube-context ${COA_MON_KUBE_CONTEXT} login localhost:8080 --insecure --username admin --password $ARGO_PASSWORD
+# curl localhost:8080
+
+argocd --kube-context ${COA_MON_KUBE_CONTEXT} app set argocd/bootstrap-apps --helm-set AMP_ENDPOINT_URL=$COA_AMP_ENDPOINT_URL
+argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/bootstrap-apps
+argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/grafana-operator-app
+
+echo "confirm update here.. you should see AMP endpoint URL and no error message"
+kubectl --context ${COA_MON_KUBE_CONTEXT} get -n grafana-operator grafanadatasources grafanadatasource-amp -o jsonpath='{.spec.datasource.url}{"\n"}{.status}{"\n"}'
+
+```
+
+7. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete datasource and Grafana Operator syncs up with latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
+
+```bash { promptEnv=false }
+export COA_AMG_WORKSPACE_URL=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --name "/cdk-accelerator/amg-info" \
+    --with-decryption \
+    --query Parameter.Value --output text | jq -r ".[] | .workspaceURL")
+
+export COA_AMG_API_KEY=$(aws ssm get-parameter --profile monitoring-account --region ${COA_MON_REGION} \
+    --name "/cdk-accelerator/grafana-api-key" \
+    --with-decryption \
+    --query Parameter.Value --output text)
+
+export COA_AMP_DS_ID=$(curl -s -H "Authorization: Bearer ${COA_AMG_API_KEY}" ${COA_AMG_WORKSPACE_URL}/api/datasources \
+    | jq -r ".[] |  select(.name==\"grafana-operator-amp-datasource\") | .id") 
+
+echo "Datasource Name:: grafana-operator-amp-datasource"
+echo "Datasource ID:: "$COA_AMP_DS_ID
+
+curl -X DELETE -H "Authorization: Bearer ${COA_AMG_API_KEY}" ${COA_AMG_WORKSPACE_URL}/api/datasources/${COA_AMP_DS_ID}
+
+```
+
+2. Then, deploy ContainerInsights in `prod2Env` account.
+
+```bash
 prod2NGRole=$(aws cloudformation describe-stack-resources --profile prod2-account --region ${COA_PROD2_REGION} \
     --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
     --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
@@ -437,42 +345,52 @@ aws iam attach-role-policy --profile prod2-account --region ${COA_PROD2_REGION} 
 aws iam list-attached-role-policies --profile prod2-account --region ${COA_PROD2_REGION} \
     --role-name $prod2NGRole | grep CloudWatchAgentServerPolicy || echo 'Policy not found'
 
-ClusterName=$(aws cloudformation describe-stacks --profile prod2-account --region ${COA_PROD2_REGION} \
-    --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
-    --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintClusterName')].OutputValue" \
-    --output text)
-kubeContext="arn:aws:eks:${COA_PROD2_REGION}:${COA_PROD2_ACCOUNT_ID}:cluster/${ClusterName}"  
 FluentBitHttpPort='2020'
 FluentBitReadFromHead='Off'
 [[ ${FluentBitReadFromHead} = 'On' ]] && FluentBitReadFromTail='Off'|| FluentBitReadFromTail='On'
 [[ -z ${FluentBitHttpPort} ]] && FluentBitHttpServer='Off' || FluentBitHttpServer='On'
-curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml | sed 's/{{cluster_name}}/'${ClusterName}'/;s/{{region_name}}/'${COA_PROD2_REGION}'/;s/{{http_server_toggle}}/"'${FluentBitHttpServer}'"/;s/{{http_server_port}}/"'${FluentBitHttpPort}'"/;s/{{read_from_head}}/"'${FluentBitReadFromHead}'"/;s/{{read_from_tail}}/"'${FluentBitReadFromTail}'"/' | kubectl --context $kubeContext apply -f - 
+curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml | sed 's/{{cluster_name}}/'${COA_PROD2_CLUSTER_NAME}'/;s/{{region_name}}/'${COA_PROD2_REGION}'/;s/{{http_server_toggle}}/"'${FluentBitHttpServer}'"/;s/{{http_server_port}}/"'${FluentBitHttpPort}'"/;s/{{read_from_head}}/"'${FluentBitReadFromHead}'"/;s/{{read_from_tail}}/"'${FluentBitReadFromTail}'"/' | kubectl --context ${COA_PROD2_KUBE_CONTEXT} apply -f - 
 ```
 
-2. Get AMP Endpoint URL from `prod1Env`
-3. Update argocd vars in `monitoringEnv`
-4. Cleanup steps
+### Validating Grafana Dashboards
 
-   <NEED STEPS TO FIX GF DS>
-
-![Metrics from AMP](./images/AMG%20-%20Metrics%20from%20AMP.png)
-
-![Metrics from CloudWatch](./images/AMG%20-%20Metrics%20from%20CloudWatch.png)
-
-### Validating Custom Metrics and Traces from ho11y App
-
-1. Run the below command in both clusters to generate traces to X-Ray and Amazon Managed Grafana Console out the sample `ho11y` app :
+1. Run the below command in `prod1Env` cluster to generate test traffic to sample application and let us visualize traces to X-Ray and Amazon Managed Grafana Console out the sample `ho11y` app :
 
 ```bash { promptEnv=false }
-frontend_pod=`kubectl get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
+frontend_pod=`kubectl --context ${COA_PROD1_KUBE_CONTEXT} get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
 loop_counter=0
 while [ $loop_counter -le 5000 ] ;
 do
-        kubectl exec -n geordie -it $frontend_pod -- curl downstream0.geordie.svc.cluster.local;
+        kubectl exec --context ${COA_PROD1_KUBE_CONTEXT} -n geordie -it $frontend_pod -- curl downstream0.geordie.svc.cluster.local;
         echo ;
         loop_counter=$[$loop_counter+1];
 done
 ```
+
+1. Let it run for a few minutes and then, let us look in **Amazon Grafana Dashboards > Observability Accelerator Dashboards > Kubernetes / Compute Resources / Namespace (Workloads)**
+
+![AmazonManagedPrometheusDashboard](../images/multi-acc-new-eks-mixed-observability-pattern-amg-amp1.png)
+
+1. Run the below command in `prod2Env` cluster to generate test traffic to sample application.
+
+```bash { promptEnv=false }
+frontend_pod=`kubectl --context ${COA_PROD2_KUBE_CONTEXT} get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
+loop_counter=0
+while [ $loop_counter -le 5000 ] ;
+do
+        kubectl exec --context ${COA_PROD2_KUBE_CONTEXT} -n geordie -it $frontend_pod -- curl downstream0.geordie.svc.cluster.local;
+        echo ;
+        loop_counter=$[$loop_counter+1];
+done
+```
+
+1. Let it run for a few minutes and look in **Amazon Grafana Administration > Datasources > grafana-operator-cloudwatch-datasource > Explore**. Set values as highlighted in the snapshot and 'Run query'.
+
+![AmazonManagedPrometheusDashboard](../images/multi-acc-new-eks-mixed-observability-pattern-amg-cw1.png)
+
+1. Then, let us look at X-Ray traces in **Amazon Grafana Administration > Datasources > grafana-operator-xray-datasource > Explore**. Set **Query Type = Service Map** and 'Run query'.
+
+![AmazonManagedPrometheusDashboard](../images/multi-acc-new-eks-mixed-observability-pattern-amg-xray.png)
 
 ### Clean up
 
@@ -488,18 +406,4 @@ make pattern multi-acc-new-eks-mixed-observability destroy multi-account-central
 ```bash
 eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
 ```
-
-### Traces and Service Map screenshots from X-Ray Console
-
-![Traces of ho11y App on X-Ray Console](./images/XRAY%20-%20Traces.png)
-
-![Service Map of ho11y App on X-Ray Console](./images/XRAY%20-%20Service%20Map.png)
-
-### Custom Metrics from ho11y App on Amazon Managed Grafana Console using AMP as data source
-
-![Exploring Metrics from ho11y with AMP as Data source in AMG Console](./images/Explore%20AMG.png)
-
-### Custom Metrics from ho11y App on Amazon Managed Grafana Console using CloudWatch as data source
-
-![Exploring Metrics from ho11y with CloudWatch as Data source in AMG Console](./images/Explore%20AMG.png)
 

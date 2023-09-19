@@ -1,5 +1,6 @@
 #!/bin/bash
 set -aue
+
 PEM_FILE="${1}"
 URL_TEMPLATE="git@github" # all of GitHub
 
