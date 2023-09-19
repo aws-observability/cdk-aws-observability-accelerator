@@ -9,7 +9,7 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 
 export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
-        
+
         const stackId = `${id}-observability-accelerator`;
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
         const kubectlRoleName = utils.valueFromContext(scope, "existing.kubectl.rolename", undefined);
@@ -19,7 +19,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        const ampWorkspaceArn = ampWorkspace.attrArn;        
+        const ampWorkspaceArn = ampWorkspace.attrArn;
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
         const sdkCluster = await blueprints.describeCluster(clusterName, region); // get cluster information using EKS APIs
         const vpcId = sdkCluster.resourcesVpcConfig?.vpcId;
@@ -70,6 +70,19 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -77,7 +90,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
                 logRetentionDays: 30
             }),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+            new blueprints.addons.FluxCDAddOn({ "repositories": [fluxRepository] }),
             new GrafanaOperatorSecretAddon(),
         ];
 
