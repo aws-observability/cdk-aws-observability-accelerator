@@ -20,7 +20,6 @@ Ensure that you have installed the following tools on your machine:
 2. [kubectl](https://Kubernetes.io/docs/tasks/tools/)
 3. [cdk](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install)
 4. [npm](https://docs.npmjs.com/cli/v8/commands/npm-install)
-5. [helm](https://helm.sh/docs/intro/install/)
 
 You will also need:
 
@@ -130,25 +129,51 @@ make build
 make pattern existing-eks-nginx-observability deploy
 ```
 
-## Deploy an example application to visualize metrics
+## Deploy an example Nginx application
+
 In this section we will deploy sample application and extract metrics using AWS OpenTelemetry collector.
-1. Add the helm incubator repo:
+
+1. Add NGINX ingress controller add-on into [lib/single-new-eks-opensource-observability-pattern/index.ts](../../../lib/single-new-eks-opensource-observability-pattern/index.ts) in add-on array.
 ```
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        const addOns: Array<blueprints.ClusterAddOn> = [
+            new blueprints.addons.CloudWatchLogsAddon({
+                logGroupPrefix: `/aws/eks/${stackId}`,
+                logRetentionDays: 30
+            }),
+            new blueprints.addons.XrayAdotAddOn(),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+            new GrafanaOperatorSecretAddon(),
+            new blueprints.addons.NginxAddOn({
+                name: "ingress-nginx",
+                chart: "ingress-nginx",
+                repository: "https://kubernetes.github.io/ingress-nginx",
+                version: "4.7.2",
+                namespace: "nginx-ingress-sample",
+                values: {
+                    controller: { 
+                        metrics: {
+                            enabled: true,
+                            service: {
+                                annotations: {
+                                    "prometheus.io/port": "10254",
+                                    "prometheus.io/scrape": "true"
+                                }
+                            }
+                        }
+                    }
+                }
+            }),
+        ];
 ```
 
-2. Enter the following command to create a new namespace:
+2. Deploy pattern again 
 ```
-kubectl create namespace nginx-ingress-sample
+make pattern single-new-eks-opensource-observability deploy
 ```
 
-3. Enter the following commands to install NGINX:
+3. Verify if the application is running
 ```
-helm install my-nginx ingress-nginx/ingress-nginx \
---namespace nginx-ingress-sample \
---set controller.metrics.enabled=true \
---set-string controller.metrics.service.annotations."prometheus\.io/port"="10254" \
---set-string controller.metrics.service.annotations."prometheus\.io/scrape"="true"
+kubectl get pods -n nginx-ingress-sample
 ```
 
 4. Set an EXTERNAL-IP variable to the value of the EXTERNAL-IP column in the row of the NGINX ingress controller.
@@ -165,9 +190,10 @@ sed "s/{{namespace}}/$SAMPLE_TRAFFIC_NAMESPACE/g" |
 kubectl apply -f -
 ```
 
-6. Verify if the application is running
+## Verify the resources
+
 ```
-kubectl get pods -n nginx-ingress-sample
+kubectl get pod -n nginx-sample-traffic 
 ```
 
 ## Visualization
@@ -177,7 +203,7 @@ kubectl get pods -n nginx-ingress-sample
 2. Grafana dashboards
 - Go to the Dashboards panel of your Grafana workspace. You should see a list of dashboards under the `Observability Accelerator Dashboards`.
 
-![Dashboard](../images/nginx-dashboard.png)
+![Dashboard](../images/nginx-dashboard.png) 
 
 3. Amazon Managed Service for Prometheus rules and alerts
 - Open the Amazon Managed Service for Prometheus console and view the details of your workspace. Under the Rules management tab, you should find new rules deployed.
