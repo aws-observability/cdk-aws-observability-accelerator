@@ -50,28 +50,56 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
   }
 ```
 
+!! warning This scenario might need larger worker node for the pod. 
+
+
 Once completed the rest of the _Deploying_ steps, you can move on with the deployment of the Nginx workload.
 
 ## Deploy an example Nginx application
 
 In this section we will deploy sample application and extract metrics using AWS OpenTelemetry collector.
-1. Add the helm incubator repo:
+
+1. Add NGINX ingress controller add-on into [lib/single-new-eks-opensource-observability-pattern/index.ts](../../../lib/single-new-eks-opensource-observability-pattern/index.ts) in add-on array.
 ```
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        const addOns: Array<blueprints.ClusterAddOn> = [
+            new blueprints.addons.CloudWatchLogsAddon({
+                logGroupPrefix: `/aws/eks/${stackId}`,
+                logRetentionDays: 30
+            }),
+            new blueprints.addons.XrayAdotAddOn(),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+            new GrafanaOperatorSecretAddon(),
+            new blueprints.addons.NginxAddOn({
+                name: "ingress-nginx",
+                chart: "ingress-nginx",
+                repository: "https://kubernetes.github.io/ingress-nginx",
+                version: "4.7.2",
+                namespace: "nginx-ingress-sample",
+                values: {
+                    controller: { 
+                        metrics: {
+                            enabled: true,
+                            service: {
+                                annotations: {
+                                    "prometheus.io/port": "10254",
+                                    "prometheus.io/scrape": "true"
+                                }
+                            }
+                        }
+                    }
+                }
+            }),
+        ];
 ```
 
-2. Enter the following command to create a new namespace:
+2. Deploy pattern again 
 ```
-kubectl create namespace nginx-ingress-sample
+make pattern single-new-eks-opensource-observability deploy
 ```
 
-3. Enter the following commands to install NGINX:
+3. Verify if the application is running
 ```
-helm install my-nginx ingress-nginx/ingress-nginx \
---namespace nginx-ingress-sample \
---set controller.metrics.enabled=true \
---set-string controller.metrics.service.annotations."prometheus\.io/port"="10254" \
---set-string controller.metrics.service.annotations."prometheus\.io/scrape"="true"
+kubectl get pods -n nginx-ingress-sample
 ```
 
 4. Set an EXTERNAL-IP variable to the value of the EXTERNAL-IP column in the row of the NGINX ingress controller.
@@ -85,18 +113,13 @@ SAMPLE_TRAFFIC_NAMESPACE=nginx-sample-traffic
 curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/master/k8s-deployment-manifest-templates/deployment-mode/service/cwagent-prometheus/sample_traffic/nginx-traffic/nginx-traffic-sample.yaml |
 sed "s/{{external_ip}}/$EXTERNAL_IP/g" |
 sed "s/{{namespace}}/$SAMPLE_TRAFFIC_NAMESPACE/g" |
-kubectl apply -f -
-```
-
-6. Verify if the application is running
-```
-kubectl get pods -n nginx-ingress-sample
+kubectl apply -f - 
 ```
 
 ## Verify the resources
 
-```bash
-kubectl get pods -n nginx-ingress-sample
+```
+kubectl get pod -n nginx-sample-traffic 
 ```
 
 ## Visualization
