@@ -18,7 +18,7 @@ export default class SingleNewEksPattern {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
-            .version(eks.KubernetesVersion.V1_26)
+            .version('auto')
             .addOns(...addOns)
             .build(scope, stackId);
     }
