@@ -1,4 +1,5 @@
 import { Construct } from 'constructs';
+import * as eks from "aws-cdk-lib/aws-eks";
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 
@@ -10,13 +11,14 @@ export default class SingleNewEksPattern {
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.ClusterAutoScalerAddOn()
+            new blueprints.addons.ClusterAutoScalerAddOn(),
+            new blueprints.addons.AwsLoadBalancerControllerAddOn()
         ];
 
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
-            .version('auto')
+            .version(eks.KubernetesVersion.V1_26)
             .addOns(...addOns)
             .build(scope, stackId);
     }
