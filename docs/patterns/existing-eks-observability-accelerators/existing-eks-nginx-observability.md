@@ -126,7 +126,7 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
 
 ```bash
 make build
-make pattern existing-eks-nginx-observability deploy
+make pattern existing-eks-opensource-observability deploy
 ```
 
 ## Deploy an example Nginx application
