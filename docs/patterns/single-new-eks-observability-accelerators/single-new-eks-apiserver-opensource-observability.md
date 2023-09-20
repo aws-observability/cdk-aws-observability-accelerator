@@ -56,7 +56,7 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
 
 Login to your Grafana workspace and navigate to the Dashboards panel. You should see three new dashboard named `Kubernetes/Kube-apiserver (basic), Kubernetes/Kube-apiserver (advanced), Kubernetes/Kube-apiserver (troubleshooting)`, under `Observability Accelerator Dashboards`:
 
-![Dashboard](../images/all-dashboards-java.png)
+![Dashboard](../images/all-dashboards-apiserver.png)
 
 Open the `Kubernetes/Kube-apiserver (basic)` dashboard and you should be able to view its visualization as shown below:
 
