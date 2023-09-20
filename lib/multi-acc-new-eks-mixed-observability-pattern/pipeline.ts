@@ -179,6 +179,86 @@ export class PipelineMultiEnvMonitoring {
         const gitRepositoryName = pipelineSrcInfo.gitRepoName;
         const gitBranch = pipelineSrcInfo.gitBranch;
 
+        // const pipeline = blueprints.CodePipelineStack.builder()
+        //     .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
+        //     .name("multi-acc-central-pipeline")
+        //     .owner(gitOwner)
+        //     .codeBuildPolicies([ 
+        //         new iam.PolicyStatement({
+        //             resources: ["*"],
+        //             actions: [    
+        //                 "sts:AssumeRole",
+        //                 "secretsmanager:GetSecretValue",
+        //                 "secretsmanager:DescribeSecret",
+        //                 "cloudformation:*",
+        //                 "ssm:GetParameter",
+        //                 "ssm:PutParameter",
+        //                 "ssm:DescribeParameter"
+        //             ]
+        //         })
+        //     ])
+        //     .repository({
+        //         repoUrl: gitRepositoryName,
+        //         credentialsSecretName: 'github-token',
+        //         // targetRevision: 'main',
+        //         // UPDATE ME FINALLY
+        //         targetRevision: gitBranch, 
+        //     })
+        //     .enableCrossAccountKeys()
+        //     .wave({
+        //     id: "multi-acc-stages",
+        //     stages: [
+        //         {
+        //             id: PROD1_ENV_ID,
+        //             stackBuilder: blueprintAmp
+        //                 .name(PROD1_ENV_ID)                        
+        //                 .clone(context.prodEnv1.region, context.prodEnv1.account)
+        //                 .version('auto')
+        //                 .addOns(new blueprints.NestedStackAddOn({
+        //                     // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
+        //                     builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
+        //                     id: "amp-ds-trustrole-nested-stack"
+        //                 }))
+        //                 .addOns(new blueprints.NestedStackAddOn({
+        //                     builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
+        //                     id: "amp-info-trustrole-nested-stack"
+        //                 }))                           
+        //                 .addOns(
+        //                     prodArgoAddonConfig,
+        //                 )                        
+        //         },
+        //         {
+        //             id: PROD2_ENV_ID,
+        //             stackBuilder: blueprintCloudWatch
+        //                 .name(PROD2_ENV_ID)
+        //                 .clone(context.prodEnv2.region, context.prodEnv2.account)
+        //                 .addOns(new blueprints.NestedStackAddOn({
+        //                     builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
+        //                     id: "cloudwatch-iam-nested-stack"
+        //                 }))
+        //                 .addOns(
+        //                     prodArgoAddonConfig,
+        //                 )                        
+        //         },
+        //         {
+        //             id: MON_ENV_ID,
+        //             stackBuilder: blueprintAmg
+        //                 .name(MON_ENV_ID)
+        //                 .clone(context.monitoringEnv.region, context.monitoringEnv.account)
+        //                 .addOns(new blueprints.NestedStackAddOn({
+        //                     builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
+        //                     id: "amg-iam-nested-stack"
+        //                 }))
+        //                 .addOns(
+        //                     grafanaOperatorArgoAddonConfig,
+        //                 )
+        //         },       
+        //     ],
+        // })
+        // .build(scope, "multi-account-central-pipeline", {
+        //     env: context.pipelineEnv
+        // });
+
         const pipeline = blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-acc-central-pipeline")
@@ -204,120 +284,67 @@ export class PipelineMultiEnvMonitoring {
                 // UPDATE ME FINALLY
                 targetRevision: gitBranch, 
             })
-            .enableCrossAccountKeys()
-            .wave({
-            id: "multi-acc-stages",
-            stages: [
-                {
-                    id: PROD1_ENV_ID,
-                    stackBuilder: blueprintAmp
-                        .name(PROD1_ENV_ID)                        
-                        .clone(context.prodEnv1.region, context.prodEnv1.account)
-                        .version('auto')
-                        .addOns(new blueprints.NestedStackAddOn({
-                            // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
-                            builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
-                            id: "amp-ds-trustrole-nested-stack"
-                        }))
-                        .addOns(new blueprints.NestedStackAddOn({
-                            builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
-                            id: "amp-info-trustrole-nested-stack"
-                        }))                           
-                        .addOns(
-                            prodArgoAddonConfig,
-                        )                        
-                },
-                {
-                    id: PROD2_ENV_ID,
-                    stackBuilder: blueprintCloudWatch
-                        .name(PROD2_ENV_ID)
-                        .clone(context.prodEnv2.region, context.prodEnv2.account)
-                        .addOns(new blueprints.NestedStackAddOn({
-                            builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
-                            id: "cloudwatch-iam-nested-stack"
-                        }))
-                        .addOns(
-                            prodArgoAddonConfig,
-                        )                        
-                },
-                {
-                    id: MON_ENV_ID,
-                    stackBuilder: blueprintAmg
-                        .name(MON_ENV_ID)
-                        .clone(context.monitoringEnv.region, context.monitoringEnv.account)
-                        .addOns(new blueprints.NestedStackAddOn({
-                            builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
-                            id: "amg-iam-nested-stack"
-                        }))
-                        .addOns(
-                            grafanaOperatorArgoAddonConfig,
-                        )
-                },       
-            ],
-        })
-        .build(scope, "multi-account-central-pipeline", {
-            env: context.pipelineEnv
+            .enableCrossAccountKeys();
+
+        const monStage: blueprints.StackStage = {
+            id: MON_ENV_ID,
+            stackBuilder: blueprintAmg
+                .name(MON_ENV_ID)
+                .clone(context.monitoringEnv.region, context.monitoringEnv.account)
+                .addOns(new blueprints.NestedStackAddOn({
+                    builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
+                    id: "amg-iam-nested-stack"
+                }))
+                .addOns(
+                    grafanaOperatorArgoAddonConfig,
+                )
+        };           
+
+        const ampStage: blueprints.StackStage = {
+            id: PROD1_ENV_ID,
+            stackBuilder: blueprintAmp
+                .name(PROD1_ENV_ID)                        
+                .clone(context.prodEnv1.region, context.prodEnv1.account)
+                .version('auto')
+                .addOns(new blueprints.NestedStackAddOn({
+                    // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
+                    builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
+                    id: "amp-ds-trustrole-nested-stack"
+                }))
+                .addOns(new blueprints.NestedStackAddOn({
+                    builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
+                    id: "amp-info-trustrole-nested-stack"
+                }))                           
+                .addOns(
+                    prodArgoAddonConfig,
+                )
+        };
+
+        const cwStage: blueprints.StackStage = {
+            id: PROD2_ENV_ID,
+            stackBuilder: blueprintCloudWatch
+                .name(PROD2_ENV_ID)
+                .clone(context.prodEnv2.region, context.prodEnv2.account)
+                .addOns(new blueprints.NestedStackAddOn({
+                    builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
+                    id: "cloudwatch-iam-nested-stack"
+                }))
+                .addOns(
+                    prodArgoAddonConfig,
+                )
+        };
+
+        pipeline.wave({
+            id: "multi-acc-stage-01",
+            stages: [ampStage, cwStage]
         });
 
-        // const monStage: blueprints.StackStage = {
-        //     id: MON_ENV_ID,
-        //     stackBuilder: blueprintAmg
-        //         .name(MON_ENV_ID)
-        //         .clone(context.monitoringEnv.region, context.monitoringEnv.account)
-        //         .addOns(new blueprints.NestedStackAddOn({
-        //             builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
-        //             id: "amg-iam-nested-stack"
-        //         }))
-        //         .addOns(
-        //             grafanaOperatorArgoAddonConfig,
-        //         )
-        // };           
+        // adding monitoring env setup as separate stage
+        pipeline.stage(monStage);
 
-        // const ampStage: blueprints.StackStage = {
-        //     id: PROD1_ENV_ID,
-        //     stackBuilder: blueprintAmp
-        //         .name(PROD1_ENV_ID)                        
-        //         .clone(context.prodEnv1.region, context.prodEnv1.account)
-        //         .version('auto')
-        //         .addOns(new blueprints.NestedStackAddOn({
-        //             // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
-        //             builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
-        //             id: "amp-ds-trustrole-nested-stack"
-        //         }))
-        //         .addOns(new blueprints.NestedStackAddOn({
-        //             builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
-        //             id: "amp-info-trustrole-nested-stack"
-        //         }))                           
-        //         .addOns(
-        //             prodArgoAddonConfig,
-        //         )
-        // };
-
-        // const cwStage: blueprints.StackStage = {
-        //     id: PROD2_ENV_ID,
-        //     stackBuilder: blueprintCloudWatch
-        //         .name(PROD2_ENV_ID)
-        //         .clone(context.prodEnv2.region, context.prodEnv2.account)
-        //         .addOns(new blueprints.NestedStackAddOn({
-        //             builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
-        //             id: "cloudwatch-iam-nested-stack"
-        //         }))
-        //         .addOns(
-        //             prodArgoAddonConfig,
-        //         )
-        // };
-
-        // pipeline.wave({
-        //     id: "multi-acc-stage-01",
-        //     stages: [ampStage, cwStage]
-        // });
-
-        // // adding monitoring env setup as separate stage
-        // pipeline.stage(monStage);
-// 
-        // pipeline.build(scope, "multi-account-central-pipeline", {
-        //     env: context.pipelineEnv
-        // });
+        pipeline.build(scope, "multi-account-central-pipeline", {
+            env: context.pipelineEnv
+        });
 
     }
 }
