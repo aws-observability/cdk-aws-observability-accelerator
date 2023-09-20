@@ -93,7 +93,7 @@ for profile in "${!profiles[@]}"; do
         then
             aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
                 --bucket ${BUCKET_TO_DELETE} \
-                --delete "$(aws s3api list-object-versions --region ${!env[2]} \
+                --delete "$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
                 --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
         fi
 
@@ -104,7 +104,7 @@ for profile in "${!profiles[@]}"; do
         then
             aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
                 --bucket ${BUCKET_TO_DELETE} \
-                --delete "$(aws s3api list-object-versions --region ${!env[2]} \
+                --delete "$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
                 --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')"
         fi
 
