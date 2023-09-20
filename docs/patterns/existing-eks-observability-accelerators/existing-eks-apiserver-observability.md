@@ -2,7 +2,7 @@
 
 ## Objective 
 
-This pattern aims to add Observability on top of an existing EKS cluster and NGINX workloads, with open source managed AWS services.
+This pattern aims to add Observability on top of an existing EKS cluster and adds API server monitoring, with open source managed AWS services.
 
 ## Prerequisites:
 
@@ -99,7 +99,6 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
         "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
         "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
-        "GRAFANA_NGINX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/nginx/nginx.json",
         "GRAFANA_WORKLOADS_API_BASIC_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-basic.json",
         "GRAFANA_WORKLOADS_API_ADVANCED_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-advanced.json",
         "GRAFANA_WORKLOADS_API_TROUBLESHOOTING_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-troubleshooting.json"
