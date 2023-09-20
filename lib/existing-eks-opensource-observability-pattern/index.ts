@@ -59,13 +59,13 @@ export default class ExistingEksOpenSourceobservabilityPattern {
 
         const jsonString = fs.readFileSync(__dirname + '/../../cdk.json', 'utf-8');
         const jsonStringnew = JSON.parse(jsonString);
-        let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml')
+        let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
             "{{ if enableAPIserverJob }}",
             "{{ end }}",
             jsonStringnew.context["apiserver.pattern.enabled"]
-            );
+        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
