@@ -169,9 +169,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
 1. Run `scripts/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh` script to
 
    1. create SSM SecureString parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
-   
    2. create Grafana workspace API key.
-   
    3. create SSM SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
 
 ```bash
@@ -183,7 +181,6 @@ eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observ
 1. Run `scripts/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
 
    1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
-   
    2. create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
 ```bash { promptEnv=true }
@@ -213,7 +210,6 @@ unset $COA_GIT_PAT
 ## Deployment
 
 1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
-
 2. Install the AWS CDK Toolkit globally on host machine.
 
 ```bash
@@ -266,13 +262,10 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-
 ```
 
 6. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region. Check status of pipeline that deploys multiple Amazon EKS clusters to different environments.
-
 7. The deployment also creates
 
    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account,
-
    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and
-   
    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana
 
 ## Post Deployment
@@ -396,8 +389,12 @@ done
 
 1. Run this command to destroy this pattern. This will delete pipeline.
 
-```bash
+```bash { promptEnv=false }
+source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
 AWS_PROFILE='pipeline-account'
+export AWS_REGION=${COA_PIPELINE_REGION}
+cd `git rev-parse --show-toplevel`
+
 make pattern multi-acc-new-eks-mixed-observability destroy multi-account-central-pipeline
 ```
 

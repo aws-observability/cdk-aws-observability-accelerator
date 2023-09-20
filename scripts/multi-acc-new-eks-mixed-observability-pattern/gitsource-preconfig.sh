@@ -42,7 +42,7 @@ if [ $existingParam -eq 0 ]; then
         "pipelineSource": {
             "gitOwner": "'${gitOwner}'",
             "gitRepoName": "'${gitRepoName}'",
-            "gitBranch": "'${gitBranch}'
+            "gitBranch": "'${gitBranch}'"
         }
     }'
 else

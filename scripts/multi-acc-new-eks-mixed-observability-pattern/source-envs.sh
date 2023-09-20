@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e # exit when any command fails
-
 SCRIPT_PATH=$(git rev-parse --show-toplevel)/scripts/multi-acc-new-eks-mixed-observability-pattern
 
 source ${SCRIPT_PATH}/format-display.sh # format display

@@ -1,19 +1,27 @@
 #!/bin/bash
 
-#set -e # exit when any command fails
+# set -e # exit when any command fails
 
-SCRIPT_PATH=$(pwd)/$(dirname $0)
+NC='\033[0m'       # Text Reset
+R='\033[0;31m'          # Red
+G='\033[0;32m'        # Green
+Y='\033[0;33m'       # Yellow
+echo -e "${R}"
+
+read -p "This script will clean up all resources deployed as part of this pattern. Are you sure you want to proceed [y/N]? " -n 2
+echo -e "\n"
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    echo -e "${Y}proceeding with clean up steps.${NC}"
+    echo -e "\n"
+else
+    exit 1
+fi
+
+SCRIPT_PATH=$(git rev-parse --show-toplevel)/scripts/multi-acc-new-eks-mixed-observability-pattern
 
 source ${SCRIPT_PATH}/format-display.sh # format display
-source ${SCRIPT_PATH}/source-envs.sh # sets required environment variables
-
-# if [[ $# -lt 1 ]]; then
-#     log 'R' "Usage: clean-up.sh <ARG 1>"
-#     exit 1
-# fi
-
-# clean up apps from all envs
-
+source ${SCRIPT_PATH}/post-deployment-source-envs.sh # sets required environment variables
 
 pipeline=(pipeline-account COA_PIPELINE_ACCOUNT_ID COA_PIPELINE_REGION)
 prod1=(prod1-account COA_PROD1_ACCOUNT_ID COA_PROD1_REGION)
@@ -41,61 +49,95 @@ for profile in "${!profiles[@]}"; do
         nGRole=$(aws cloudformation describe-stack-resources --profile ${env[0]} --region ${!env[2]} \
         --stack-name ${stackName} \
         --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
-        --output text)
+        --output text)        
 
         ClusterName=$(aws cloudformation describe-stacks --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName} \
             --query "Stacks[0].Outputs[?contains(OutputKey,'blueprintClusterName')].OutputValue" \
             --output text)
 
-        kubeContext="arn:aws:eks:${!env[2]}:${!env[1]}:cluster/${ClusterName}"  
+        kubeContext="arn:aws:eks:${!env[2]}:${!env[1]}:cluster/${ClusterName}"
 
         log 'O' "Initiating clean up of argocd apps in ${profile} account.."
-        argocd --kube-context ${kubeContext} app delete argocd/bootstrap-apps
 
-        log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."
-        
+        kubectl delete applications.argoproj.io bootstrap-apps -n argocd
+
+        appNames=($(kubectl --context ${kubeContext} get applications.argoproj.io -n argocd -o custom-columns=":metadata.name" --no-headers))
+
+        for appName in "${appNames[@]}"; do
+            kubectl --context ${kubeContext} delete applications.argoproj.io "$appName" -n argocd
+        done
+
+        log 'O' "deleting nodegroup IAM Role for ${env[0]}.."
+        aws iam delete-role --profile ${env[0]} \
+            --role-name ${nGRole}
+
+        log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."        
         aws cloudformation delete-stack --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName}
 
         log 'O' "Removing kubecontext ${kubeContext}.."
-        kubectl config delete-context ${kubeContext}
+        kubectl config delete-context ${kubeContext}        
     fi
 
-    log 'O' "Cleaning CDK bootstrap for ${env[0]}.."
-    cdk bootstrap --destroy --profile ${env[0]}
-    cdk boostrap --clean --profile ${env[0]}
+    log 'O' "cleaning CDK bootstrap for ${env[0]}.."
+
+    BUCKET_TO_DELETE=$(aws s3 --profile ${env[0]} ls | grep cdk-.*"${!env[2]}" | cut -d' ' -f3)
+    if [[ ! -z $BUCKET_TO_DELETE ]]
+    then
+        OBJECT_COUNT=$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
+            --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
+            --output text | grep -v ^None | wc -l)
+
+        if [[ $OBJECT_COUNT > 0 ]]
+        then
+            aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
+                --bucket ${BUCKET_TO_DELETE} \
+                --delete "$(aws s3api list-object-versions --region ${!env[2]} \
+                --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
+        fi
+
+        DELETE_MARKER_COUNT=$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
+            --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}' \
+            --output text  | grep -v ^None | wc -l)
+        if [[ $DELETE_MARKER_COUNT > 0 ]]
+        then
+            aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
+                --bucket ${BUCKET_TO_DELETE} \
+                --delete "$(aws s3api list-object-versions --region ${!env[2]} \
+                --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')"
+        fi
+
+        aws s3 --profile ${env[0]} rb --region ${!env[2]} s3://${BUCKET_TO_DELETE} --force
+    fi
+
+    aws cloudformation --profile ${env[0]} delete-stack --region ${!env[2]} --stack-name CDKToolkit
+
 done
 
-# aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/cdk-context"
+log 'O' "deleting Amazon Grafana API key, Secrets and SSM SecureString Parameters.."
 
-# aws secretsmanager delete-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} --secret-id "github-token" --force-delete-without-recovery
-# aws secretsmanager delete-secret --profile monitoring-account --region ${COA_MON_REGION} --secret-id "github-ssh-key" --force-delete-without-recovery
+aws secretsmanager delete-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} --secret-id "github-token" --force-delete-without-recovery
+aws secretsmanager delete-secret --profile monitoring-account --region ${COA_MON_REGION} --secret-id "github-ssh-key" --force-delete-without-recovery
 
-# aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/pipeline-git-info"
+aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/pipeline-git-info"
 
-# aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/grafana-api-key" 
+aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/grafana-api-key" 
 
-# aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/amg-info"
+COA_AMG_WORKSPACE_NAME=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
+    --name "/cdk-accelerator/amg-info" --with-decryption \
+    --query "Parameter.Value" --output text | jq .amg.workspaceName | sed 's/"//g')
 
-# COA_AMG_WORKSPACE_NAME=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-#     --name "/cdk-accelerator/amg-info" --with-decryption \
-#     --query "Parameter.Value" --output text | jq .amg.workspaceName | sed 's/"//g')
+COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
+    --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
+    --output text)
 
-# COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account --region ${COA_MON_REGION} \
-#     --query "workspaces[?name=='${COA_AMG_WORKSPACE_NAME}'].id" \
-#     --output text)
+aws grafana delete-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
+    --key-name "grafana-operator-key"
+    --workspace-id $COA_AMG_WORKSPACE_ID
 
-# aws grafana delete-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
-#     --key-name "grafana-operator-key"
-#     --workspace-id $COA_AMG_WORKSPACE_ID
+aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/amg-info"
 
-# aws iam delete-role-policy --profile monitoring-account \
-#   --policy-name "AssumePROD1RolePolicy" \
-#   --role-name "crossAccAMPInfoFromPROD1Role"
-
-# aws iam delete-role --profile monitoring-account \
-#   --role-name "crossAccAMPInfoFromPROD1Role"
-
+aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/cdk-context"
 
 log 'G' "DONE!"
