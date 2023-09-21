@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
-import { utils } from '@aws-quickstart/eks-blueprints';
 import * as team from './teams/multi-account-monitoring'; // for teams implementation
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 

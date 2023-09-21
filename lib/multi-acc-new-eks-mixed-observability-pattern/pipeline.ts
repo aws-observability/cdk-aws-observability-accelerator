@@ -8,10 +8,8 @@ import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
 import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
 import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './CreateIAMRoleNestedStack';
-// import { AmpIamSetupStack } from './amp-iam-setup';
 import { CloudWatchIamSetupStack } from './cloudwatch-iam-setup';
 import { getSSMSecureString } from './getSSMSecureString';
-import { env } from 'process';
 
 const logger = blueprints.utils.logger;
 
@@ -21,7 +19,6 @@ let cwAccount: string;
 let cwRegion: string;
 let monAccount: string;
 let monRegion: string;
-
 
 type repoTypeValues = 'public' | 'private';
 
@@ -130,19 +127,6 @@ export class PipelineMultiEnvMonitoring {
             resources: ["*"]
         };
 
-        //Props for cross-account trust role in PROD1 account to trust MON account, inorder share PROD1's AMP workspace URL
-        const trustedMONAccArn = `arn:aws:iam::${context.monitoringEnv.account}:role/crossAccAMPInfoFromPROD1Role`;
-        const ShareAMPInfoTrustRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: "AMPInfoForTrustedMonAccRole",
-            trustArn: trustedMONAccArn!,
-            actions: [
-                "aps:ListWorkspaces",
-                "aps:DescribeWorkspace",
-                "ssm:GetParameter"
-            ],
-            resources: ["*"]    
-        };    
-
         // creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
@@ -167,13 +151,11 @@ export class PipelineMultiEnvMonitoring {
         );
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
-            // roleName: "amgWorkspaceIamRole",
             roleArn: amgWorkspaceIAMRoleARN,
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
         };
 
         // get CodePipeline Source Github info
-        // const gitOwner = 'aws-samples'; 
         const pipelineSrcInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/pipeline-git-info',this.pipelineRegion))['pipelineSource'];
         const gitOwner = pipelineSrcInfo.gitOwner;
         const gitRepositoryName = pipelineSrcInfo.gitRepoName;
@@ -200,8 +182,6 @@ export class PipelineMultiEnvMonitoring {
         //     .repository({
         //         repoUrl: gitRepositoryName,
         //         credentialsSecretName: 'github-token',
-        //         // targetRevision: 'main',
-        //         // UPDATE ME FINALLY
         //         targetRevision: gitBranch, 
         //     })
         //     .enableCrossAccountKeys()
@@ -255,7 +235,7 @@ export class PipelineMultiEnvMonitoring {
         //         },       
         //     ],
         // })
-        // .build(scope, "multi-account-central-pipeline", {
+        // .build(scope, "multi-account-COA-pipeline", {
         //     env: context.pipelineEnv
         // });
 
@@ -280,8 +260,6 @@ export class PipelineMultiEnvMonitoring {
             .repository({
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',
-                // targetRevision: 'main',
-                // UPDATE ME FINALLY
                 targetRevision: gitBranch, 
             })
             .enableCrossAccountKeys();
@@ -295,9 +273,7 @@ export class PipelineMultiEnvMonitoring {
                     builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
                     id: "amg-iam-nested-stack"
                 }))
-                .addOns(
-                    grafanaOperatorArgoAddonConfig,
-                )
+                .addOns(grafanaOperatorArgoAddonConfig)
         };           
 
         const ampStage: blueprints.StackStage = {
@@ -307,17 +283,10 @@ export class PipelineMultiEnvMonitoring {
                 .clone(context.prodEnv1.region, context.prodEnv1.account)
                 .version('auto')
                 .addOns(new blueprints.NestedStackAddOn({
-                    // builder: AmpIamSetupStack.builder("AMPAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
                     builder: CreateIAMRoleNestedStack.builder(AMGTrustRoleStackProps),
                     id: "amp-ds-trustrole-nested-stack"
-                }))
-                .addOns(new blueprints.NestedStackAddOn({
-                    builder: CreateIAMRoleNestedStack.builder(ShareAMPInfoTrustRoleStackProps),
-                    id: "amp-info-trustrole-nested-stack"
                 }))                           
-                .addOns(
-                    prodArgoAddonConfig,
-                )
+                .addOns(prodArgoAddonConfig)
         };
 
         const cwStage: blueprints.StackStage = {
@@ -329,9 +298,7 @@ export class PipelineMultiEnvMonitoring {
                     builder: CloudWatchIamSetupStack.builder("cloudwatchDataSourceRole", amgWorkspaceIAMRoleARN!),
                     id: "cloudwatch-iam-nested-stack"
                 }))
-                .addOns(
-                    prodArgoAddonConfig,
-                )
+                .addOns(prodArgoAddonConfig)
         };
 
         pipeline.wave({
@@ -342,7 +309,7 @@ export class PipelineMultiEnvMonitoring {
         // adding monitoring env setup as separate stage
         pipeline.stage(monStage);
 
-        pipeline.build(scope, "multi-account-central-pipeline", {
+        pipeline.build(scope, "multi-account-COA-pipeline", {
             env: context.pipelineEnv
         });
 
@@ -388,7 +355,6 @@ function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string,
     const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/AMPAccessForTrustedAMGRole`;
     const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/cloudwatchDataSourceRole`;
 
-    // Get AMP Endpoint URL
     const ampEndpointURL = "UPDATE_ME_WITH_AMP_ENDPOINT_URL";
 
     let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;

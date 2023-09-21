@@ -259,7 +259,7 @@ export AWS_REGION=${COA_PIPELINE_REGION}
 cd `git rev-parse --show-toplevel`
 
 make build
-make pattern multi-acc-new-eks-mixed-observability deploy multi-account-central-pipeline
+make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipeline
 ```
 
 6. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region. Check status of pipeline that deploys multiple Amazon EKS clusters to different environments.
@@ -396,7 +396,7 @@ AWS_PROFILE='pipeline-account'
 export AWS_REGION=${COA_PIPELINE_REGION}
 cd `git rev-parse --show-toplevel`
 
-make pattern multi-acc-new-eks-mixed-observability destroy multi-account-central-pipeline
+make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pipeline
 ```
 
 2. Next, run this script to clean up stack resources from respective accounts.
