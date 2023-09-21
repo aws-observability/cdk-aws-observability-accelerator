@@ -393,11 +393,11 @@ done
 1. Run this command to destroy this pattern. This will delete pipeline.
 
 ```bash { promptEnv=false }
-source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
-AWS_PROFILE='pipeline-account'
-export AWS_REGION=${COA_PIPELINE_REGION}
+export AWS_PROFILE='pipeline-account'
+aws sso login --profile $AWS_PROFILE
 cd `git rev-parse --show-toplevel`
 
+source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
 make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pipeline
 ```
 

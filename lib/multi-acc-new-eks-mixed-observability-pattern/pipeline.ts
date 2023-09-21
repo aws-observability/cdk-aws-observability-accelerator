@@ -126,7 +126,7 @@ export class PipelineMultiEnvMonitoring {
             resources: ["*"]
         };
 
-        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP
+        // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
         const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: "CWAccessForTrustedAMGRole",
             trustArn: amgWorkspaceIAMRoleARN!,

@@ -49,7 +49,7 @@ for profile in "${!profiles[@]}"; do
         nGRole=$(aws cloudformation describe-stack-resources --profile ${env[0]} --region ${!env[2]} \
         --stack-name ${stackName} \
         --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
-        --output text)        
+        --output text)   
 
         ClusterName=$(aws cloudformation describe-stacks --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName} \
@@ -68,9 +68,9 @@ for profile in "${!profiles[@]}"; do
             kubectl --context ${kubeContext} delete applications.argoproj.io "$appName" -n argocd
         done
 
-        log 'O' "deleting nodegroup IAM Role for ${env[0]}.."
-        aws iam delete-role --profile ${env[0]} \
-            --role-name ${nGRole}
+        # log 'O' "deleting nodegroup IAM Role for ${env[0]}.."
+        # aws iam delete-role --profile ${env[0]} \
+        #     --role-name ${nGRole}
 
         log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."        
         aws cloudformation delete-stack --profile ${env[0]} --region ${!env[2]} \
@@ -136,7 +136,7 @@ COA_AMG_WORKSPACE_ID=$(aws grafana list-workspaces --profile monitoring-account 
     --output text)
 
 aws grafana delete-workspace-api-key --profile monitoring-account --region ${COA_MON_REGION} \
-    --key-name "grafana-operator-key"
+    --key-name "grafana-operator-key" \
     --workspace-id $COA_AMG_WORKSPACE_ID
 
 aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/amg-info"
