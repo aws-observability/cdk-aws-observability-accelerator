@@ -28,13 +28,15 @@ nav:
     - Existing Cluster: 
       - AWS Native : patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability.md
       - OSS : patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
-      - OSS nginx Mon : patterns/existing-eks-observability-accelerators/existing-eks-nginx-observability.md
+      - OSS Nginx Mon : patterns/existing-eks-observability-accelerators/existing-eks-nginx-observability.md
+      - OSS Apiserver Mon : patterns/existing-eks-observability-accelerators/existing-eks-apiserver-observability.md
       - Mixed : patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
     - New Cluster: 
       - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
       - OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
       - OSS Java Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md
-      - OSS nginx Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md
+      - OSS Nginx Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md
+      - OSS Apiserver Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability.md
       - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
       - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
     - Logs: logs.md  

@@ -4,6 +4,7 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
+import * as fs from 'fs';
 
 export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -38,9 +39,21 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             }
         };
 
+        const jsonString = fs.readFileSync(__dirname + '/../../cdk.json', 'utf-8');
+        const jsonStringnew = JSON.parse(jsonString);
+        let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ if enableAPIserverJob }}",
+            "{{ end }}",
+            jsonStringnew.context["apiserver.pattern.enabled"]
+        );
+        console.log(doc);
+        fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     javaScrapeSampleLimit: 1000,
                     javaPrometheusMetricsEndpoint: "/metrics"
@@ -52,9 +65,16 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
+            ampAddOnProps.enableAPIServerJob = true,
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
+            );
+        }
+
         if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     javaScrapeSampleLimit: 1000,
                     javaPrometheusMetricsEndpoint: "/metrics"
