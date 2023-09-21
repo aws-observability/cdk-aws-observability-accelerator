@@ -139,7 +139,7 @@ aws grafana delete-workspace-api-key --profile monitoring-account --region ${COA
     --key-name "grafana-operator-key" \
     --workspace-id $COA_AMG_WORKSPACE_ID
 
-aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/amg-info"
+aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/amg-info"
 
 aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/cdk-context"
 
