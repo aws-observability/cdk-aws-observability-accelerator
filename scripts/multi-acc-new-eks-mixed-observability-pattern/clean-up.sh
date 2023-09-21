@@ -46,10 +46,10 @@ for profile in "${!profiles[@]}"; do
         [ "$profile" == "mon" ] && stackName="coa-cntrl-${profile}-${!env[2]}-coa-cntrl-${profile}-${!env[2]}-blueprint"
         log 'C' "Stack name: "$stackName
 
-        nGRole=$(aws cloudformation describe-stack-resources --profile ${env[0]} --region ${!env[2]} \
-        --stack-name ${stackName} \
-        --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
-        --output text)   
+        # nGRole=$(aws cloudformation describe-stack-resources --profile ${env[0]} --region ${!env[2]} \
+        # --stack-name ${stackName} \
+        # --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
+        # --output text)   
 
         ClusterName=$(aws cloudformation describe-stacks --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName} \
