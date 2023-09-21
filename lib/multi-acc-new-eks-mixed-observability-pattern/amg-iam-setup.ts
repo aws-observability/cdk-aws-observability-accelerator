@@ -61,7 +61,7 @@ export class AmgIamSetupStack extends NestedStack {
                     "sts:AssumeRole"
                 ],
                 resources: [`arn:aws:iam::${props.accounts[i]}:role/AMPAccessForTrustedAMGRole`,
-                    `arn:aws:iam::${props.accounts[i]}:role/cloudwatchDataSourceRole`
+                    `arn:aws:iam::${props.accounts[i]}:role/CWAccessForTrustedAMGRole`
                 ],
             }));
         }

@@ -60,7 +60,7 @@ read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
     fi 
 
     eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitPemFile > /tmp/input-json-for-git-ssh-key.json
-    # curl -sSL https://raw.githubusercontent.com/iamprakkie/cdk-aws-observability-accelerator/multi-account-COA/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+    # curl -sSL https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/main/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
     log 'O' "creating Secret github-ssh-key in ${COA_MON_REGION} region of monitoring-account (${COA_MON_ACCOUNT_ID}).."
     aws secretsmanager create-secret --profile monitoring-account --region ${COA_MON_REGION} \
         --name "github-ssh-key" \

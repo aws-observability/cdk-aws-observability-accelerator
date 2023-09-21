@@ -4,7 +4,7 @@
 
 The following figure illustrates the architecture of the pattern we will be deploying for Multi Account Mixed Observability Accelerator using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
 
-![Architecture](../images/multi-acc-mixed-observability.png)
+![Architecture](../images/multi-acc-new-eks-mixed-observability-pattern-architecture-dark-v1.jpg)
 
 ## Objective
 
@@ -271,7 +271,7 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
 
 ## Post Deployment
 
-1. Once all steps of `multi-acc-stages` in `multi-acc-central-pipeline` are complete, run script to
+1. Once all steps of `multi-acc-stages` in `multi-account-COA-pipeline` are complete, run script to
 
    1. create entries in kubeconfig with contexts of newly created EKS clusters.
    2. export cluster specific and kubecontext environment vairables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
@@ -361,9 +361,11 @@ do
 done
 ```
 
-2. Let it run for a few minutes and then, let us look in **Amazon Grafana Dashboards > Observability Accelerator Dashboards > Kubernetes / Compute Resources / Namespace (Workloads)**
+2. Let it run for a few minutes and look in **Amazon Grafana Dashboards > Observability Accelerator Dashboards > Kubernetes / Compute Resources / Namespace (Workloads)**
 
 ![AmazonManagedPrometheusDashboard](../images/multi-acc-new-eks-mixed-observability-pattern-amg-amp1.png)
+
+Please also have a look at other Dashboards created using Grafana Operator under folder **Observability Accelerator Dashboards**.
 
 3. Run the below command in `prod2Env` cluster to generate test traffic to sample application.
 

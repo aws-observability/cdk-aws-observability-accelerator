@@ -40,7 +40,7 @@ export class CreateIAMRoleNestedStack extends NestedStack {
 
         role.addToPolicy(new iam.PolicyStatement({
             actions: props.actions,
-            resources: ["*"],
+            resources: props.resources,
         }));
 
         new cdk.CfnOutput(this, `COAIAMRole-${props.roleName}`, { value: role ? role.roleArn : "none" });

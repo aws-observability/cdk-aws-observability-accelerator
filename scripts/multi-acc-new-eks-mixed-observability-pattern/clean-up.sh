@@ -77,41 +77,44 @@ for profile in "${!profiles[@]}"; do
             --stack-name ${stackName}
 
         log 'O' "Removing kubecontext ${kubeContext}.."
-        kubectl config delete-context ${kubeContext}        
+
+        kubectl config unset clusters.${kubeContext}
+        kubectl config unset users.${kubeContext}
+        kubectl config delete-context ${kubeContext}     
     fi
 
-    log 'O' "cleaning CDK bootstrap for ${env[0]}.."
+    # log 'O' "cleaning CDK bootstrap for ${env[0]}.."
 
-    BUCKET_TO_DELETE=$(aws s3 --profile ${env[0]} ls | grep cdk-.*"${!env[2]}" | cut -d' ' -f3)
-    if [[ ! -z $BUCKET_TO_DELETE ]]
-    then
-        OBJECT_COUNT=$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
-            --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
-            --output text | grep -v ^None | wc -l)
+    # BUCKET_TO_DELETE=$(aws s3 --profile ${env[0]} ls | grep cdk-.*"${!env[2]}" | cut -d' ' -f3)
+    # if [[ ! -z $BUCKET_TO_DELETE ]]
+    # then
+    #     OBJECT_COUNT=$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
+    #         --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
+    #         --output text | grep -v ^None | wc -l)
 
-        if [[ $OBJECT_COUNT > 0 ]]
-        then
-            aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
-                --bucket ${BUCKET_TO_DELETE} \
-                --delete "$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
-                --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
-        fi
+    #     if [[ $OBJECT_COUNT > 0 ]]
+    #     then
+    #         aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
+    #             --bucket ${BUCKET_TO_DELETE} \
+    #             --delete "$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
+    #             --bucket ${BUCKET_TO_DELETE} --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
+    #     fi
 
-        DELETE_MARKER_COUNT=$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
-            --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}' \
-            --output text  | grep -v ^None | wc -l)
-        if [[ $DELETE_MARKER_COUNT > 0 ]]
-        then
-            aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
-                --bucket ${BUCKET_TO_DELETE} \
-                --delete "$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
-                --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')"
-        fi
+    #     DELETE_MARKER_COUNT=$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
+    #         --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}' \
+    #         --output text  | grep -v ^None | wc -l)
+    #     if [[ $DELETE_MARKER_COUNT > 0 ]]
+    #     then
+    #         aws s3api --profile ${env[0]} delete-objects --region ${!env[2]} \
+    #             --bucket ${BUCKET_TO_DELETE} \
+    #             --delete "$(aws s3api --profile ${env[0]} list-object-versions --region ${!env[2]} \
+    #             --bucket ${BUCKET_TO_DELETE} --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')"
+    #     fi
 
-        aws s3 --profile ${env[0]} rb --region ${!env[2]} s3://${BUCKET_TO_DELETE} --force
-    fi
+    #     aws s3 --profile ${env[0]} rb --region ${!env[2]} s3://${BUCKET_TO_DELETE} --force
+    # fi
 
-    aws cloudformation --profile ${env[0]} delete-stack --region ${!env[2]} --stack-name CDKToolkit
+    # aws cloudformation --profile ${env[0]} delete-stack --region ${!env[2]} --stack-name CDKToolkit
 
 done
 
