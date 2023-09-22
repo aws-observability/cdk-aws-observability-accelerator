@@ -21,6 +21,8 @@ let monRegion: string;
 
 type repoTypeValues = 'public' | 'private';
 
+let ampAssumeRoleName: string;
+let cwAssumeRoleName: string;
 let amgWorkspaceUrl: string;
 let clusterDashUrl: string;
 let kubeletDashUrl: string;
@@ -94,8 +96,9 @@ export class PipelineMultiEnvMonitoring {
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
         // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP
+        ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
         const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: "AMPAccessForTrustedAMGRole",
+            roleName: ampAssumeRoleName!,
             trustArn: amgWorkspaceIAMRoleARN!,
             actions: [
                 "aps:ListWorkspaces",
@@ -127,8 +130,9 @@ export class PipelineMultiEnvMonitoring {
         };
 
         // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
+        cwAssumeRoleName = "CWAccessForTrustedAMGRole";
         const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: "CWAccessForTrustedAMGRole",
+            roleName: cwAssumeRoleName,
             trustArn: amgWorkspaceIAMRoleARN!,
             actions: [
                 "cloudwatch:DescribeAlarmsForMetric",
@@ -329,8 +333,8 @@ function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string,
     branch = branch! || 'main';
     repoType = repoType! || 'public';
 
-    const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/AMPAccessForTrustedAMGRole`;
-    const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/cloudwatchDataSourceRole`;
+    const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/${ampAssumeRoleName}`;
+    const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/${cwAssumeRoleName}`;
 
     const ampEndpointURL = "UPDATE_ME_WITH_AMP_ENDPOINT_URL";
 

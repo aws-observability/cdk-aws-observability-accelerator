@@ -74,6 +74,7 @@ for profile in "${!profiles[@]}"; do
 
         log 'O' "Removing kubecontext ${kubeContext}.."
 
+        kubectl config unset contexts.${kubeContext}
         kubectl config unset clusters.${kubeContext}
         kubectl config unset users.${kubeContext}
         kubectl config delete-context ${kubeContext}     
@@ -81,9 +82,9 @@ for profile in "${!profiles[@]}"; do
         log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."        
         aws cloudformation delete-stack --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName}
-    else
-        aws cloudformation delete-stack --profile ${env[0]} --region ${!env[2]} \
-            --name "multi-account-COA-pipeline-support-${!env[2]}"
+    # else
+    #     aws cloudformation delete-stack --profile ${env[0]} --region ${!env[2]} \
+    #         --name "multi-account-COA-pipeline-support-${!env[2]}"
     fi
 
     # log 'O' "cleaning CDK bootstrap for ${env[0]}.."
