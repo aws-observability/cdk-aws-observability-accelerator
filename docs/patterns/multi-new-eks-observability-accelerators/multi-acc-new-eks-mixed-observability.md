@@ -222,6 +222,7 @@ npm install -g aws-cdk
 ```bash
 cd `git rev-parse --show-toplevel`
 npm i
+make build
 ```
 
 4. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
@@ -258,7 +259,6 @@ export AWS_PROFILE='pipeline-account'
 export AWS_REGION=${COA_PIPELINE_REGION}
 cd `git rev-parse --show-toplevel`
 
-make build
 make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipeline
 ```
 
