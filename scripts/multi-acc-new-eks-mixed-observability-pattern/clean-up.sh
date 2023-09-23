@@ -76,7 +76,7 @@ for profile in "${!profiles[@]}"; do
         # aws iam delete-role --profile ${env[0]} \
         #     --role-name ${nGRole}
 
-        log 'O' "Removing kubecontext ${kubeContext}.."
+        log 'O' "Removing kubeconfig entries of ${kubeContext}.."
         read -p "Press any key to continue.."
 
         kubectl config unset contexts.${kubeContext}
@@ -84,6 +84,8 @@ for profile in "${!profiles[@]}"; do
         kubectl config unset users.${kubeContext}
         # kubectl config delete-context ${kubeContext}
         kubectl config unset current-context
+
+        sed -i -e 's/clusters: null/clusters: []/g' -e 's/contexts: null/contexts: []/g' -e 's/users: null/users: []/g' ~/.kube/config
 
         log 'O' "Initiating deletion of cloudformation stack in ${profile} account.."
         read -p "Press any key to continue.."

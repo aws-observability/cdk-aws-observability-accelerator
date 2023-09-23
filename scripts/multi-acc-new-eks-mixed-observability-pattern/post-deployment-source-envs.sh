@@ -5,7 +5,7 @@ SCRIPT_PATH=$(git rev-parse --show-toplevel)/scripts/multi-acc-new-eks-mixed-obs
 source ${SCRIPT_PATH}/format-display.sh # format display
 source ${SCRIPT_PATH}/source-envs.sh # sets required environment variables
 
-log 'O' "creating kubeconfig entries.."
+log 'O' "creating/updating kubeconfig entries.."
 
 AWS_PROFILE=prod1-account
 eval "$(aws cloudformation describe-stacks --profile prod1-account --region ${COA_PROD1_REGION} \

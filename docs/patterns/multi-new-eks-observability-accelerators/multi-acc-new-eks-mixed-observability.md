@@ -1,10 +1,10 @@
-# Multi Account Mixed Observability Observability Accelerator
+# Multi-Account Multi-Region Mixed Observability (3M) Accelerator
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Multi Account Mixed Observability Accelerator using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
+The following figure illustrates the architecture of the pattern we will be deploying for Multi-Account Multi-Region Mixed Observability (3M) Accelerator using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
 
-![Architecture](../images/multi-acc-new-eks-mixed-observability-pattern-architecture-dark-v1.jpg)
+![Architecture](../images/multi-acc-new-eks-mixed-observability-pattern-architecture-dark-v2.gif)
 
 ## Objective
 
@@ -37,13 +37,19 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ---
 
-> ___NOTE:___ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env`, `prod2Env` and `monitoringEnv` AWS accounts. Make sure your account limits for EIP are increased to support additional 3 EIPs per account.
+> _**NOTE:**_ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env`, `prod2Env` and `monitoringEnv` AWS accounts. Make sure your account limits for EIP are increased to support additional 3 EIPs per account.
 
 ---
 
 ### Clone Repository
 
-NOTE:
+---
+
+
+> _**Pro Tip:**_ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try! 
+
+
+---
 
 Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository, if not done already.
 
@@ -143,7 +149,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
     --type "SecureString" \
     --overwrite \
     --name "/cdk-accelerator/cdk-context" \
-    --description "AWS account details of different environments used by Multi account mixed CDK Observability Accelerator pattern" \
+    --description "AWS account details of different environments used by Multi-Account Multi-Region Mixed Observability (3M) Accelerator pattern" \
     --value '{
         "context": {
             "pipelineEnv": {
@@ -254,7 +260,7 @@ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile monitoring-account \
     aws://${COA_MON_ACCOUNT_ID}/${COA_MON_REGION}
 ```
 
-5. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account.
+5. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account. This step may require approximately **15-20 minutes** to finish.
 
 ```bash { promptEnv=false }
 export AWS_PROFILE='pipeline-account'
@@ -264,12 +270,13 @@ cd `git rev-parse --show-toplevel`
 make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipeline
 ```
 
-6. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region. Check status of pipeline that deploys multiple Amazon EKS clusters to different environments.
-7. The deployment also creates
+6. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region. Check status of pipeline that deploys multiple Amazon EKS clusters through CloudFromation stacks in respective accounts. This deployment also creates
 
    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `prod1Env` account,
    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and
    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana
+
+   This step may require approximately **15-20 minutes** to finish.
 
 ## Post Deployment
 
@@ -285,11 +292,16 @@ source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observabi
 
 2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `prod1Env` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
 
+> _**NOTE:**_ If you get `connection refused ` or `rpc error`, just try rerun commands of this step. This happens due to delay with port-forwarding setup.
+
 ```bash { promptEnv=false }
 export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
 export ARGO_PASSWORD=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo "ARGO PASSWORD:: "$ARGO_PASSWORD
-kubectl --context ${COA_MON_KUBE_CONTEXT} port-forward $ARGO_SERVER -n argocd 8080:443 &
+kubectl --context ${COA_MON_KUBE_CONTEXT} port-forward $ARGO_SERVER -n argocd 8080:443 > /dev/null 2>&1 &
+argocdPid=$!
+echo pid: $argocdPid
+sleep 5s
 
 argocd --kube-context ${COA_MON_KUBE_CONTEXT} login localhost:8080 --insecure --username admin --password $ARGO_PASSWORD
 # curl localhost:8080
@@ -298,8 +310,10 @@ argocd --kube-context ${COA_MON_KUBE_CONTEXT} app set argocd/bootstrap-apps --he
 argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/bootstrap-apps
 argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/grafana-operator-app
 
-echo "confirm update here.. you should see AMP endpoint URL and no error message"
+echo -e '\033[0;33m' "\nConfirm update here.. You should see AMP endpoint URL and no error message." '\033[0m'
 kubectl --context ${COA_MON_KUBE_CONTEXT} get -n grafana-operator grafanadatasources grafanadatasource-amp -o jsonpath='{.spec.datasource.url}{"\n"}{.status}{"\n"}'
+
+kill -9 $argocdPid
 
 ```
 
@@ -403,11 +417,13 @@ source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observabi
 make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pipeline
 ```
 
-2. Next, run this script to clean up stack resources from respective accounts.
+2. Next, run this script to clean up resources created in respective accounts. This script deletes argocd apps, unsets kubeconfig entries, initiates deletion of CloudFormation stacks, secrets, SSM parameters and Amazon Grafana Workspace API key from respective accounts.
 
 ```bash
 eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
 ```
 
-3. Delete Dashboards and Data sources in Amazon Grafana.
+3. In certain scenarios, CloudFormation stack deletion might encounter issues when attempting to delete a nodegroup IAM role. In such situations, it's recommended to first delete the relevant IAM role and then proceed with deleting the CloudFormation stack.
+
+4. Delete Dashboards and Data sources in Amazon Grafana.
 
