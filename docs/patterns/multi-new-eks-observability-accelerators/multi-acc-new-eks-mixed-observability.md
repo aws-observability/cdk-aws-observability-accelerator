@@ -43,6 +43,8 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ### Clone Repository
 
+NOTE:
+
 Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository, if not done already.
 
 ```bash { promptEnv=false }
