@@ -1,8 +1,8 @@
-# Multi-Account Multi-Region Mixed Observability (3M) Accelerator
+# Multi-Account Multi-Region Mixed Observability (M3) Accelerator
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Multi-Account Multi-Region Mixed Observability (3M) Accelerator using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
+The following figure illustrates the architecture of the pattern we will be deploying for Multi-Account Multi-Region Mixed Observability (M3) Accelerator using both AWS native tooling such as: CloudWatch ContainerInsights, CloudWatch logs and Open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus (AMP), Amazon Managed Grafana :
 
 ![Architecture](../images/multi-acc-new-eks-mixed-observability-pattern-architecture-dark-v2.gif)
 
@@ -37,26 +37,25 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ---
 
-> _**NOTE:**_ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env`, `prod2Env` and `monitoringEnv` AWS accounts. Make sure your account limits for EIP are increased to support additional 3 EIPs per account.
+> ___NOTE:___ This pattern consumes multiple Elastic IP addresses, because 3 VPCs with 3 subnets are created in `prod1Env`, `prod2Env` and `monitoringEnv` AWS accounts. Make sure your account limits for EIP are increased to support additional 3 EIPs per account.
 
 ---
 
 ### Clone Repository
 
----
-
-
-> _**Pro Tip:**_ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try! 
-
-
----
-
 Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository, if not done already.
 
-```bash { promptEnv=false }
+```bash
 git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
 cd cdk-aws-observability-accelerator
 ```
+
+---
+
+
+> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try!
+
+---
 
 ### SSO Profile Setup
 
@@ -149,7 +148,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
     --type "SecureString" \
     --overwrite \
     --name "/cdk-accelerator/cdk-context" \
-    --description "AWS account details of different environments used by Multi-Account Multi-Region Mixed Observability (3M) Accelerator pattern" \
+    --description "AWS account details of different environments used by Multi-Account Multi-Region Mixed Observability (M3) Accelerator pattern" \
     --value '{
         "context": {
             "pipelineEnv": {
@@ -292,7 +291,7 @@ source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observabi
 
 2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `prod1Env` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
 
-> _**NOTE:**_ If you get `connection refused ` or `rpc error`, just try rerun commands of this step. This happens due to delay with port-forwarding setup.
+> ___NOTE:___ If you get `connection refused ` or `rpc error`, just try rerun commands of this step. This happens due to delay with port-forwarding setup.
 
 ```bash { promptEnv=false }
 export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
@@ -424,6 +423,5 @@ eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observ
 ```
 
 3. In certain scenarios, CloudFormation stack deletion might encounter issues when attempting to delete a nodegroup IAM role. In such situations, it's recommended to first delete the relevant IAM role and then proceed with deleting the CloudFormation stack.
-
 4. Delete Dashboards and Data sources in Amazon Grafana.
 
