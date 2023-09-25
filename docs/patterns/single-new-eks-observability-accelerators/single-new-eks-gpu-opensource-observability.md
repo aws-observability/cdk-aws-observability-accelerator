@@ -6,8 +6,6 @@ This pattern shows you how to monitor the performance of the GPUs units, used in
 
 Prometheus and Grafana are open source tools used to collect and visualise metrics respectively.
 
-## Architecture
-
 ## Objective
 
 This pattern deploys an Amazon EKS cluster with a node group that includes instance types featuring NVIDIA GPUs.
@@ -15,9 +13,9 @@ This pattern deploys an Amazon EKS cluster with a node group that includes insta
 The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized Linux AMI with GPU support](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the GPU AMI includes the NVIDIA drivers.
 
 The [NVIDIA Data Center GPU Manager](https://docs.nvidia.com/data-center-gpu-manager-dcgm/index.html) (DCGM) is a suite of tools for managing and monitoring NVIDIA datacenter GPUs in cluster environments. It includes health monitoring, diagnostics, system alerts and governance policies.
-GPU metrics are exposed to Prometheus by the [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), that uses the Go bindings to collect GPU telemetry data from DCGM and then exposes the metrics for Prometheus to pull from using an http endpoint (`/metrics`).
+GPU metrics are exposed to Prometheus by the [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), that uses the Go bindings to collect GPU telemetry data from DCGM and then exposes the metrics for Prometheus to pull from, using an http endpoint (`/metrics`).
 
-The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/gpu-operator/). The [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) exposes GPU telemetry for Prometheus by using the NVIDIA DCGM Exporter.
+The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/gpu-operator/). The [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) uses the NVIDIA DCGM Exporter to expose GPU telemetry to Prometheus.
 
 Data is visualised in Grafana by the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard).
 
