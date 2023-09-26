@@ -62,6 +62,7 @@ export default class SingleNewEksGpuOpenSourceObservabilityPattern {
             new GrafanaOperatorSecretAddon(),
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.GpuOperatorAddon({
+                version: "v23.6.1",
                 values: {
                     driver: {
                         enabled: false // the GPU driver is already embedded into the AL2_X86_64_GPU AMI image 

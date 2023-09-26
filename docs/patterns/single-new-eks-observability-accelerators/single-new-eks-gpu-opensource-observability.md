@@ -188,6 +188,12 @@ spec:
 EOF
 ```
 
+Then request the logs from the Pod:
+
+```bash
+kubectl logs nvidia-smi
+```
+
 Output:
 
 ![GPU_List](../images/gpu/gpu_nvidia_smi.png)
