@@ -22,7 +22,7 @@ if [ $existingParam -eq 0 ]; then
             "workspaceID": "'${COA_AMG_WORKSPACE_ID}'",
             "workspaceIAMRoleARN": "'${COA_AMG_WORKSPACE_ROLE_ARN}'"
         }
-    }'    
+    }'
 else
     log 'B' "SSM SecureString parameter /cdk-accelerator/amg-info exists in ${COA_PIPELINE_REGION} region of pipeline-account (${COA_PIPELINE_ACCOUNT_ID})."
 fi
@@ -45,7 +45,7 @@ if [ $existingParam -eq 0 ]; then
     --overwrite \
     --name "/cdk-accelerator/grafana-api-key" \
     --description "Amazon Grafana workspace API key for use by External Secrets Operator" \
-    --value ${COA_AMG_API_KEY}    
+    --value ${COA_AMG_API_KEY}
 else
     log 'B' "SSM SecureString parameter /cdk-accelerator/grafana-api-key exists in ${COA_MON_REGION} region of monitoring-account (${COA_MON_ACCOUNT_ID})."
 fi

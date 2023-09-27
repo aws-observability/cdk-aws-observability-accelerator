@@ -1,4 +1,4 @@
-import 'source-map-support/register'; // to get better stack traces and debugging 
+import 'source-map-support/register'; // to get better stack traces and debugging
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as eks from "aws-cdk-lib/aws-eks";
 import { Construct } from 'constructs';
@@ -38,7 +38,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
                 },
             ],
         });
-        
+
         const externalSecret = new eks.KubernetesManifest(clusterInfo.cluster.stack, "ExternalSecret", {
             cluster: cluster,
             manifest: [

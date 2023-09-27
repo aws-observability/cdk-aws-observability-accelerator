@@ -15,7 +15,7 @@ if [ $existingParam -eq 0 ]; then
         exit 1
     else
         gitOwner=$gitowner_input
-    fi 
+    fi
 
     read -p "CodePipeline source GitHub Repo Name (default is cdk-aws-observability-accelerator): " gitRepoName_input
     if [ -z "$gitRepoName_input" ]; then
@@ -29,8 +29,8 @@ if [ $existingParam -eq 0 ]; then
         gitBranch="main"
     else
         gitBranch=$gitBranch_input
-    fi    
-    
+    fi
+
 
     log 'O' "creating SSM SecureString parameter /cdk-accelerator/pipeline-git-info in ${COA_PIPELINE_REGION} region of pipeline-account (${COA_PIPELINE_ACCOUNT_ID}).."
     aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
@@ -57,7 +57,7 @@ read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
         exit 1
     else
         gitPemFile=$gitpemfile_input
-    fi 
+    fi
 
     eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitPemFile > /tmp/input-json-for-git-ssh-key.json
     # curl -sSL https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/main/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json

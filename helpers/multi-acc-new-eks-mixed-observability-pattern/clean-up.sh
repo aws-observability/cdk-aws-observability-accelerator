@@ -40,7 +40,7 @@ for profile in "${!profiles[@]}"; do
     # ${env[0]} is AWS PROFILE; ${!env[1]} is AWS ACCOUNT ID; ${!env[2]} is AWS REGION
 
     log 'G-H' "WORKING ON ${env[0]}.."
-    log 'B' "Account ID: ${!env[1]}" 
+    log 'B' "Account ID: ${!env[1]}"
     log 'B' "Region: ${!env[2]}"
 
     if [ "$profile" != "pipeline" ]; then
@@ -51,7 +51,7 @@ for profile in "${!profiles[@]}"; do
         # nGRole=$(aws cloudformation describe-stack-resources --profile ${env[0]} --region ${!env[2]} \
         # --stack-name ${stackName} \
         # --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
-        # --output text)   
+        # --output text)
 
         ClusterName=$(aws cloudformation describe-stacks --profile ${env[0]} --region ${!env[2]} \
             --stack-name ${stackName} \
@@ -151,7 +151,7 @@ COA_AMG_WORKSPACE_NAME=$(aws ssm get-parameter --profile pipeline-account --regi
 aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/amg-info"
 aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/cdk-context"
 
-aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/grafana-api-key" 
+aws ssm delete-parameter --profile monitoring-account --region ${COA_MON_REGION} --name "/cdk-accelerator/grafana-api-key"
 
 log 'O' "Deleting Amazon Grafana API key.."
 read -p "Press any key to continue.."

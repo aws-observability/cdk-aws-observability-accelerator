@@ -19,15 +19,15 @@ export default class AmpMonitoringConstruct {
     }
 
     create(scope: Construct, contextAccount?: string, contextRegion?: string ) {
-    
+
         const account = contextAccount! || process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = contextRegion! || process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
-        
+
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
         const ampWorkspaceArn = ampWorkspace.attrArn;
-        
+
         const ampAddOnProps: blueprints.AmpAddOnProps = {
             ampPrometheusEndpoint: ampEndpoint,
             ampRules: {
@@ -56,14 +56,14 @@ export default class AmpMonitoringConstruct {
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
-            new blueprints.addons.SecretsStoreAddOn(),      
+            new blueprints.addons.SecretsStoreAddOn(),
             /* already part of enableOpenSourcePatternAddOns
             new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.PrometheusNodeExporterAddOn(), // part of enableOpenSourcePatternAddOns
             new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
-            */               
+            */
         ];
 
         return ObservabilityBuilder.builder()
@@ -74,6 +74,6 @@ export default class AmpMonitoringConstruct {
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .teams(new team.TeamGeordi, new team.CorePlatformTeam);
-    }    
+    }
 
 }
