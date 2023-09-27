@@ -155,7 +155,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
                 "account": "'$COA_PIPELINE_ACCOUNT_ID'",
                 "region": "'$COA_PIPELINE_REGION'"
 
-            },            
+            },
             "prodEnv1": {
                 "account": "'$COA_PROD1_ACCOUNT_ID'",
                 "region": "'$COA_PROD1_REGION'"
@@ -235,7 +235,7 @@ make build
 4. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
 
 ```bash { promptEnv=false }
-# bootstrap pipelineEnv account WITHOUT explicit trust 
+# bootstrap pipelineEnv account WITHOUT explicit trust
 env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile pipeline-account \
     --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
     aws://${COA_PIPELINE_ACCOUNT_ID}/${COA_PIPELINE_REGION}
@@ -330,7 +330,7 @@ export COA_AMG_API_KEY=$(aws ssm get-parameter --profile monitoring-account --re
     --query Parameter.Value --output text)
 
 export COA_AMP_DS_ID=$(curl -s -H "Authorization: Bearer ${COA_AMG_API_KEY}" ${COA_AMG_WORKSPACE_URL}/api/datasources \
-    | jq -r ".[] |  select(.name==\"grafana-operator-amp-datasource\") | .id") 
+    | jq -r ".[] |  select(.name==\"grafana-operator-amp-datasource\") | .id")
 
 echo "Datasource Name:: grafana-operator-amp-datasource"
 echo "Datasource ID:: "$COA_AMP_DS_ID
@@ -358,7 +358,7 @@ FluentBitHttpPort='2020'
 FluentBitReadFromHead='Off'
 [[ ${FluentBitReadFromHead} = 'On' ]] && FluentBitReadFromTail='Off'|| FluentBitReadFromTail='On'
 [[ -z ${FluentBitHttpPort} ]] && FluentBitHttpServer='Off' || FluentBitHttpServer='On'
-curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml | sed 's/{{cluster_name}}/'${COA_PROD2_CLUSTER_NAME}'/;s/{{region_name}}/'${COA_PROD2_REGION}'/;s/{{http_server_toggle}}/"'${FluentBitHttpServer}'"/;s/{{http_server_port}}/"'${FluentBitHttpPort}'"/;s/{{read_from_head}}/"'${FluentBitReadFromHead}'"/;s/{{read_from_tail}}/"'${FluentBitReadFromTail}'"/' | kubectl --context ${COA_PROD2_KUBE_CONTEXT} apply -f - 
+curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml | sed 's/{{cluster_name}}/'${COA_PROD2_CLUSTER_NAME}'/;s/{{region_name}}/'${COA_PROD2_REGION}'/;s/{{http_server_toggle}}/"'${FluentBitHttpServer}'"/;s/{{http_server_port}}/"'${FluentBitHttpPort}'"/;s/{{read_from_head}}/"'${FluentBitReadFromHead}'"/;s/{{read_from_tail}}/"'${FluentBitReadFromTail}'"/' | kubectl --context ${COA_PROD2_KUBE_CONTEXT} apply -f -
 ```
 
 ### Validating Grafana Dashboards

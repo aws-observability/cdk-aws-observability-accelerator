@@ -44,7 +44,10 @@ export class CreateIAMRoleNestedStack extends NestedStack {
             description: 'IAM Role created as part of CDK Observability Accelerator',
         });
 
-        role.addToPolicy(iam.PolicyStatement.fromJson(props.statement));
+        props.statement.forEach((statement) => {
+            role.addToPolicy(iam.PolicyStatement.fromJson(statement))
+        });
+        // role.addToPolicy(iam.PolicyStatement.fromJson(props.statement));
 
         // role.addToPolicy(new iam.PolicyStatement({
         //     actions: props.actions,

@@ -232,25 +232,26 @@ export class PipelineMultiEnvMonitoring {
         const gitRepositoryName = pipelineSrcInfo.gitRepoName;
         const gitBranch = pipelineSrcInfo.gitBranch;
 
+        // const codeBuiildPoilcies = getCodeBuildPolicyDocument().forEach((statement) => {iam.PolicyStatement.fromJson(statement)}) as unknown;
         const pipeline = blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-COA-pipeline")
             .owner(gitOwner)
             .codeBuildPolicies([iam.PolicyStatement.fromJson(getCodeBuildPolicyDocument())])
-            // .codeBuildPolicies([
-            //     new iam.PolicyStatement({
-            //         resources: ["*"],
-            //         actions: [
-            //             "sts:AssumeRole",
-            //             "secretsmanager:GetSecretValue",
-            //             "secretsmanager:DescribeSecret",
-            //             "cloudformation:*",
-            //             "ssm:GetParameter",
-            //             "ssm:PutParameter",
-            //             "ssm:DescribeParameter"
-            //         ]
-            //     })
-            // ])
+            .codeBuildPolicies([
+                new iam.PolicyStatement({
+                    resources: ["*"],
+                    actions: [
+                        "sts:AssumeRole",
+                        "secretsmanager:GetSecretValue",
+                        "secretsmanager:DescribeSecret",
+                        "cloudformation:*",
+                        "ssm:GetParameter",
+                        "ssm:PutParameter",
+                        "ssm:DescribeParameter"
+                    ]
+                })
+            ])
             .repository({
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',
