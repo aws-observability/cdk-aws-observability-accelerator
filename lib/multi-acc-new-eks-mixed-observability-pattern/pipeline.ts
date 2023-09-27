@@ -237,7 +237,6 @@ export class PipelineMultiEnvMonitoring {
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-COA-pipeline")
             .owner(gitOwner)
-            .codeBuildPolicies([iam.PolicyStatement.fromJson(getCodeBuildPolicyDocument())])
             .codeBuildPolicies([
                 new iam.PolicyStatement({
                     resources: ["*"],
