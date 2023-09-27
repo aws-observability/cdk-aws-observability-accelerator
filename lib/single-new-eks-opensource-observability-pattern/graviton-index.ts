@@ -6,6 +6,7 @@ import * as amp from 'aws-cdk-lib/aws-aps';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
+import * as fs from 'fs';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -37,9 +38,21 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             }
         };
 
+        const jsonString = fs.readFileSync(__dirname + '/../../cdk.json', 'utf-8');
+        const jsonStringnew = JSON.parse(jsonString);
+        let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ if enableAPIserverJob }}",
+            "{{ end }}",
+            jsonStringnew.context["apiserver.pattern.enabled"]
+        );
+        console.log(doc);
+        fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     javaScrapeSampleLimit: 1000,
                     javaPrometheusMetricsEndpoint: "/metrics"
@@ -48,6 +61,13 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/java/alerting-rules.yml',
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
+            );
+        }
+
+        if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
+            ampAddOnProps.enableAPIServerJob = true,
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
             );
         }
 

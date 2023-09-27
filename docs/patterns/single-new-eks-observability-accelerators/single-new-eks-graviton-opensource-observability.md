@@ -159,6 +159,48 @@ If you need Java observability you can instead use:
   }
 ```
 
+If you want to deploy API Server dashboards along with Java observability you can instead use:
+
+```typescript
+  "context": {
+    "fluxRepository": {
+      "name": "grafana-dashboards",
+      "namespace": "grafana-operator",
+      "repository": {
+        "repoUrl": "https://github.com/aws-observability/aws-observability-accelerator",
+        "name": "grafana-dashboards",
+        "targetRevision": "main",
+        "path": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+      },
+      "values": {
+        "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
+        "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
+        "GRAFANA_NSWRKLDS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
+        "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
+        "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
+        "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
+        "GRAFANA_JAVA_JMX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/java/default.json",
+        "GRAFANA_APISERVER_BASIC_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-basic.json",
+        "GRAFANA_APISERVER_ADVANCED_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-advanced.json",
+        "GRAFANA_APISERVER_TROUBLESHOOTING_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-troubleshooting.json"
+      },
+      "kustomizations": [
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+        },
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/java"
+        }
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/apiserver"
+        }
+      ]
+    },
+    "java.pattern.enabled": true,
+    "apiserver.pattern.enabled": true,
+  }
+```
+
 8. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
 
 ```bash
