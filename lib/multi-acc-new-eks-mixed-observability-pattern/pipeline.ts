@@ -7,6 +7,9 @@ import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
 import GrafanaOperatorConstruct from "./grafana-operator-index";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
+import { getAMPAccessPolicyDocument } from './amp-access-policy';
+import { getCWAccessPolicyDocument } from './cw-access-policy';
+import { getCodeBuildPolicyDocument } from './codebuild-policy';
 import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './create-iam-role';
 import { getSSMSecureString } from './get-ssm-securestring';
 
@@ -100,78 +103,88 @@ export class PipelineMultiEnvMonitoring {
         const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: ampAssumeRoleName!,
             trustArn: amgWorkspaceIAMRoleARN!,
-            actions: [
-                "aps:ListWorkspaces",
-                "aps:DescribeWorkspace",
-                "aps:QueryMetrics",
-                "aps:GetLabels",
-                "aps:GetSeries",
-                "aps:GetMetricMetadata",
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-                "xray:GetSamplingStatisticSummaries",
-                "xray:BatchGetTraces",
-                "xray:GetServiceGraph",
-                "xray:GetTraceGraph",
-                "xray:GetTraceSummaries",
-                "xray:GetGroups",
-                "xray:GetGroup",
-                "xray:ListTagsForResource",
-                "xray:GetTimeSeriesServiceStatistics",
-                "xray:GetInsightSummaries",
-                "xray:GetInsight",
-                "xray:GetInsightEvents",
-                "xray:GetInsightImpactGraph",
-                "ssm:GetParameter"
-            ],
-            resources: ["*"]
+            statement: getAMPAccessPolicyDocument()
         };
+        // const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+        //     roleName: ampAssumeRoleName!,
+        //     trustArn: amgWorkspaceIAMRoleARN!,
+        //     actions: [
+        //         "aps:ListWorkspaces",
+        //         "aps:DescribeWorkspace",
+        //         "aps:QueryMetrics",
+        //         "aps:GetLabels",
+        //         "aps:GetSeries",
+        //         "aps:GetMetricMetadata",
+        //         "xray:PutTraceSegments",
+        //         "xray:PutTelemetryRecords",
+        //         "xray:GetSamplingRules",
+        //         "xray:GetSamplingTargets",
+        //         "xray:GetSamplingStatisticSummaries",
+        //         "xray:BatchGetTraces",
+        //         "xray:GetServiceGraph",
+        //         "xray:GetTraceGraph",
+        //         "xray:GetTraceSummaries",
+        //         "xray:GetGroups",
+        //         "xray:GetGroup",
+        //         "xray:ListTagsForResource",
+        //         "xray:GetTimeSeriesServiceStatistics",
+        //         "xray:GetInsightSummaries",
+        //         "xray:GetInsight",
+        //         "xray:GetInsightEvents",
+        //         "xray:GetInsightImpactGraph",
+        //         "ssm:GetParameter"
+        //     ],
+        //     resources: ["*"]
+        // };
 
         // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
         cwAssumeRoleName = "CWAccessForTrustedAMGRole";
         const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: cwAssumeRoleName,
             trustArn: amgWorkspaceIAMRoleARN!,
-            actions: [
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:GetMetricData",
-                "logs:DescribeLogGroups",
-                "logs:GetLogGroupFields",
-                "logs:StartQuery",
-                "logs:StopQuery",
-                "logs:GetQueryResults",
-                "logs:GetLogEvents",
-                "ec2:DescribeTags",
-                "ec2:DescribeInstances",
-                "ec2:DescribeRegions",
-                "tag:GetResources",
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-                "xray:GetSamplingStatisticSummaries",
-                "xray:BatchGetTraces",
-                "xray:GetServiceGraph",
-                "xray:GetTraceGraph",
-                "xray:GetTraceSummaries",
-                "xray:GetGroups",
-                "xray:GetGroup",
-                "xray:ListTagsForResource",
-                "xray:GetTimeSeriesServiceStatistics",
-                "xray:GetInsightSummaries",
-                "xray:GetInsight",
-                "xray:GetInsightEvents",
-                "xray:GetInsightImpactGraph",
-                "ssm:GetParameter"
-            ],
-            resources: ["*"]
+            statement: getCWAccessPolicyDocument()
         };
+        // const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+        //     roleName: cwAssumeRoleName,
+        //     trustArn: amgWorkspaceIAMRoleARN!,
+        //     actions: [
+        //         "cloudwatch:DescribeAlarmsForMetric",
+        //         "cloudwatch:DescribeAlarmHistory",
+        //         "cloudwatch:DescribeAlarms",
+        //         "cloudwatch:ListMetrics",
+        //         "cloudwatch:GetMetricStatistics",
+        //         "cloudwatch:GetMetricData",
+        //         "logs:DescribeLogGroups",
+        //         "logs:GetLogGroupFields",
+        //         "logs:StartQuery",
+        //         "logs:StopQuery",
+        //         "logs:GetQueryResults",
+        //         "logs:GetLogEvents",
+        //         "ec2:DescribeTags",
+        //         "ec2:DescribeInstances",
+        //         "ec2:DescribeRegions",
+        //         "tag:GetResources",
+        //         "xray:PutTraceSegments",
+        //         "xray:PutTelemetryRecords",
+        //         "xray:GetSamplingRules",
+        //         "xray:GetSamplingTargets",
+        //         "xray:GetSamplingStatisticSummaries",
+        //         "xray:BatchGetTraces",
+        //         "xray:GetServiceGraph",
+        //         "xray:GetTraceGraph",
+        //         "xray:GetTraceSummaries",
+        //         "xray:GetGroups",
+        //         "xray:GetGroup",
+        //         "xray:ListTagsForResource",
+        //         "xray:GetTimeSeriesServiceStatistics",
+        //         "xray:GetInsightSummaries",
+        //         "xray:GetInsight",
+        //         "xray:GetInsightEvents",
+        //         "xray:GetInsightImpactGraph",
+        //         "ssm:GetParameter"
+        //     ],
+        //     resources: ["*"]
+        // };
 
         // creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
@@ -223,20 +236,21 @@ export class PipelineMultiEnvMonitoring {
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-COA-pipeline")
             .owner(gitOwner)
-            .codeBuildPolicies([
-                new iam.PolicyStatement({
-                    resources: ["*"],
-                    actions: [
-                        "sts:AssumeRole",
-                        "secretsmanager:GetSecretValue",
-                        "secretsmanager:DescribeSecret",
-                        "cloudformation:*",
-                        "ssm:GetParameter",
-                        "ssm:PutParameter",
-                        "ssm:DescribeParameter"
-                    ]
-                })
-            ])
+            .codeBuildPolicies([iam.PolicyStatement.fromJson(getCodeBuildPolicyDocument())])
+            // .codeBuildPolicies([
+            //     new iam.PolicyStatement({
+            //         resources: ["*"],
+            //         actions: [
+            //             "sts:AssumeRole",
+            //             "secretsmanager:GetSecretValue",
+            //             "secretsmanager:DescribeSecret",
+            //             "cloudformation:*",
+            //             "ssm:GetParameter",
+            //             "ssm:PutParameter",
+            //             "ssm:DescribeParameter"
+            //         ]
+            //     })
+            // ])
             .repository({
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',

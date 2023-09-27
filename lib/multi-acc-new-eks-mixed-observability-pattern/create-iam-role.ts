@@ -4,17 +4,23 @@ import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 
+
+interface Statement {
+    Effect: string;
+    Action: string | string[];
+    Resource: string | string[];
+}
+
 /* Properties for Cross Account Trust Role:
 * roleName - new role name
 * trustArn - Role ARN principal from trusted account
-* actions[] - array of actions allowed in permission policy
-* resources[] - array of resources in permission policy
+* statement - policy statement as json
 */
 export interface CreateIAMRoleNestedStackProps extends NestedStackProps {
     roleName: string,
     trustArn: string,
-    actions: string[],
-    resources: string[],
+    // actions: string[], resources: string[],
+    statement: Statement[],
 }
 
 // Stack that creates IAM role with trust relationship to other account
@@ -38,10 +44,12 @@ export class CreateIAMRoleNestedStack extends NestedStack {
             description: 'IAM Role created as part of CDK Observability Accelerator',
         });
 
-        role.addToPolicy(new iam.PolicyStatement({
-            actions: props.actions,
-            resources: props.resources,
-        }));
+        role.addToPolicy(iam.PolicyStatement.fromJson(props.statement));
+
+        // role.addToPolicy(new iam.PolicyStatement({
+        //     actions: props.actions,
+        //     resources: props.resources,
+        // }));
 
         new cdk.CfnOutput(this, `COAIAMRole-${props.roleName}`, { value: role ? role.roleArn : "none" });
     }
