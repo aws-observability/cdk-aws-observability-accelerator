@@ -2,7 +2,7 @@ import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
-import { PolicyStatement, Effect, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement, Effect, Role } from 'aws-cdk-lib/aws-iam';
 
 
 /**
