@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_PATH=$(git rev-parse --show-toplevel)/scripts/multi-acc-new-eks-mixed-observability-pattern
+SCRIPT_PATH=$(git rev-parse --show-toplevel)/helpers/multi-acc-new-eks-mixed-observability-pattern
 
 source ${SCRIPT_PATH}/format-display.sh # format display
 source ${SCRIPT_PATH}/source-envs.sh # sets required environment variables

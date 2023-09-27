@@ -2,7 +2,7 @@
 
 set -e # exit when any command fails
 
-SCRIPT_PATH=$(git rev-parse --show-toplevel)/scripts/multi-acc-new-eks-mixed-observability-pattern
+SCRIPT_PATH=$(git rev-parse --show-toplevel)/helpers/multi-acc-new-eks-mixed-observability-pattern
 
 source ${SCRIPT_PATH}/format-display.sh # format display
 # source ${SCRIPT_PATH}/source-envs.sh # sets required environment variables
@@ -59,8 +59,8 @@ read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
         gitPemFile=$gitpemfile_input
     fi
 
-    eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitPemFile > /tmp/input-json-for-git-ssh-key.json
-    # curl -sSL https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/main/scripts/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+    eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitPemFile > /tmp/input-json-for-git-ssh-key.json
+    # curl -sSL https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/main/helpers/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
     log 'O' "creating Secret github-ssh-key in ${COA_MON_REGION} region of monitoring-account (${COA_MON_ACCOUNT_ID}).."
     aws secretsmanager create-secret --profile monitoring-account --region ${COA_MON_REGION} \
         --name "github-ssh-key" \
