@@ -6,7 +6,7 @@ import { PolicyStatement, Effect, Role, ServicePrincipal } from 'aws-cdk-lib/aws
 
 
 /**
- * Defines properties for the AMG IAM setup. 
+ * Defines properties for the AMG IAM setup.
  */
 export interface AmgIamSetupStackProps extends NestedStackProps {
     /**
@@ -15,14 +15,14 @@ export interface AmgIamSetupStackProps extends NestedStackProps {
     roleArn: string,
 
     /**
-     * Monitored accounts. These contain AMPAccessForTrustedAMGRole and cloudwatchPrometheusDataSourceRole roles 
+     * Monitored accounts. These contain AMPAccessForTrustedAMGRole and cloudwatchPrometheusDataSourceRole roles
      * with trust relationship to the monitoring (AMG) account.
      */
     accounts: string[]
-} 
+}
 
 /**
- * Stack provisions IAM in the moniitoring account with turst relationship to the monitored account for metrics. 
+ * Stack provisions IAM in the moniitoring account with turst relationship to the monitored account for metrics.
  */
 export class AmgIamSetupStack extends NestedStack {
 
@@ -39,7 +39,7 @@ export class AmgIamSetupStack extends NestedStack {
         //         StringLike: {'aws:SourceArn': `arn:aws:grafana:${region}:${account}:/workspaces/*`}
         //     }),
         //     description: 'Service Role for Amazon Managed Grafana',
-        // }); 
+        // });
 
         const workspaceRole = Role.fromRoleArn(this, 'ExistingRole', props.roleArn);
 
@@ -51,10 +51,10 @@ export class AmgIamSetupStack extends NestedStack {
             ],
             resources: [`arn:aws:sns:*:${account}:grafana*`]
         });
-  
-        // workspaceRole.addToPolicy(AMGSNSPolicy);  
-        workspaceRole.addToPrincipalPolicy(AMGSNSPolicy);   
-        
+
+        // workspaceRole.addToPolicy(AMGSNSPolicy);
+        workspaceRole.addToPrincipalPolicy(AMGSNSPolicy);
+
         for (let i = 0; i < props.accounts.length; i++) {
             workspaceRole.addToPrincipalPolicy(new PolicyStatement({
                 actions: [

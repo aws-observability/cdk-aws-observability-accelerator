@@ -1,8 +1,8 @@
 import { SSM } from 'aws-sdk';
 
 // function to get SSM Parameterstor Securestring value
-export async function getSSMSecureString(parameterName: string, region: string): Promise<string> {  
-    
+export async function getSSMSecureString(parameterName: string, region: string): Promise<string> {
+
     let secureStringValue: string;
     secureStringValue='';
     const ssm = new SSM({
@@ -14,7 +14,7 @@ export async function getSSMSecureString(parameterName: string, region: string):
         Name: parameterName,
         WithDecryption: true, // Decrypt the SecureString value
     };
-    
+
     // Call the getParameter method to retrieve the SecureString value
     await ssm.getParameter(params, (err, data) => {
         if (err) {

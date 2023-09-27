@@ -4,15 +4,15 @@ import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 
-/* Properties for Cross Account Trust Role: 
+/* Properties for Cross Account Trust Role:
 * roleName - new role name
 * trustArn - Role ARN principal from trusted account
 * actions[] - array of actions allowed in permission policy
 * resources[] - array of resources in permission policy
 */
 export interface CreateIAMRoleNestedStackProps extends NestedStackProps {
-    roleName: string, 
-    trustArn: string, 
+    roleName: string,
+    trustArn: string,
     actions: string[],
     resources: string[],
 }
@@ -34,7 +34,7 @@ export class CreateIAMRoleNestedStack extends NestedStack {
         const role = new iam.Role(this, 'coa-iam-role', {
             roleName: props.roleName,
             assumedBy: new iam.ArnPrincipal(props.trustArn),
-            // assumedBy: new iam.AccountPrincipal(this.account),            
+            // assumedBy: new iam.AccountPrincipal(this.account),
             description: 'IAM Role created as part of CDK Observability Accelerator',
         });
 

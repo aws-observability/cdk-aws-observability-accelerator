@@ -5,10 +5,10 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
-import GrafanaOperatorConstruct from "./GrafanaOperatorConstruct";
+import GrafanaOperatorConstruct from "./grafana-operator-index";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
-import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './CreateIAMRoleNestedStack';
-import { getSSMSecureString } from './getSSMSecureString';
+import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './create-iam-role';
+import { getSSMSecureString } from './get-ssm-securestring';
 
 const logger = blueprints.utils.logger;
 
@@ -33,7 +33,7 @@ let workloadsDashUrl: string;
 
 /**
  * Function relies on a secret called "cdk-context" defined in COA_PIPELINE_REGION region in pipeline account. Its a MANDATORY STEP.
- * @returns 
+ * @returns
  */
 export async function populateAccountWithContextDefaults(region: string): Promise<PipelineMultiEnvMonitoringProps> {
     const cdkContext = JSON.parse(await getSSMSecureString('/cdk-accelerator/cdk-context',region))['context'] as PipelineMultiEnvMonitoringProps;
@@ -43,8 +43,8 @@ export async function populateAccountWithContextDefaults(region: string): Promis
 
 /*
 * prodEnv1: PROD1 account ID and region
-* prodEnv2: PROD2 account ID and region 
-* monitoringEnv: MON account ID and region 
+* prodEnv2: PROD2 account ID and region
+* monitoringEnv: MON account ID and region
  */
 export interface PipelineMultiEnvMonitoringProps {
     prodEnv1: cdk.Environment;
@@ -59,7 +59,7 @@ export interface PipelineMultiEnvMonitoringProps {
 export class PipelineMultiEnvMonitoring {
 
     readonly pipelineRegion = process.env.COA_PIPELINE_REGION! || process.env.CDK_DEFAULT_REGION!;
-    
+
     async buildAsync(scope: Construct) {
 
         // All Grafana Dashboard URLs from `cdk.json` if present
@@ -68,7 +68,7 @@ export class PipelineMultiEnvMonitoring {
         namespaceWorkloadsDashUrl = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
         nodeExporterDashUrl = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
         nodesDashUrl = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-        workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);        
+        workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
 
         // Checks for Git Owner
         if (!this.pipelineRegion) {
@@ -89,7 +89,7 @@ export class PipelineMultiEnvMonitoring {
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
-        
+
         // Get AMG info from SSM SecureString
         const amgInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
         amgWorkspaceUrl = amgInfo.workspaceURL;
@@ -223,10 +223,10 @@ export class PipelineMultiEnvMonitoring {
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-COA-pipeline")
             .owner(gitOwner)
-            .codeBuildPolicies([ 
+            .codeBuildPolicies([
                 new iam.PolicyStatement({
                     resources: ["*"],
-                    actions: [    
+                    actions: [
                         "sts:AssumeRole",
                         "secretsmanager:GetSecretValue",
                         "secretsmanager:DescribeSecret",
@@ -240,7 +240,7 @@ export class PipelineMultiEnvMonitoring {
             .repository({
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',
-                targetRevision: gitBranch, 
+                targetRevision: gitBranch,
             })
             .enableCrossAccountKeys();
 
@@ -254,18 +254,18 @@ export class PipelineMultiEnvMonitoring {
                     id: "amg-iam-nested-stack"
                 }))
                 .addOns(grafanaOperatorArgoAddonConfig)
-        };           
+        };
 
         const ampStage: blueprints.StackStage = {
             id: PROD1_ENV_ID,
             stackBuilder: blueprintAmp
-                .name(PROD1_ENV_ID)                        
+                .name(PROD1_ENV_ID)
                 .clone(context.prodEnv1.region, context.prodEnv1.account)
                 .version('auto')
                 .addOns(new blueprints.NestedStackAddOn({
                     builder: CreateIAMRoleNestedStack.builder(AMPAccessRoleStackProps),
                     id: "amp-ds-trustrole-nested-stack"
-                }))                           
+                }))
                 .addOns(prodArgoAddonConfig)
         };
 
@@ -321,9 +321,9 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
                 targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
-            },                     
-        };      
-    }    
+            },
+        };
+    }
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
 
@@ -357,15 +357,15 @@ function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string,
                 targetRevision: branch,
                 credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
                 credentialsType: 'SSH',
-            },                     
-        };       
+            },
+        };
     }
 
     ArgoCDAddOnProps.bootstrapValues = {
         AMP_ASSUME_ROLE_ARN: ampAssumeRoleArn,
         AMP_AWS_REGION: ampRegion,
         CW_ASSUME_ROLE_ARN: cwAssumeRoleArn,
-        CW_AWS_REGION: cwRegion,        
+        CW_AWS_REGION: cwRegion,
         AMP_ENDPOINT_URL: ampEndpointURL,
         AMG_ENDPOINT_URL: amgWorkspaceUrl,
         GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
@@ -382,7 +382,7 @@ function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string,
     //             type: 'LoadBalancer'
     //         }
     //     }
-    // };       
-    
+    // };
+
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }

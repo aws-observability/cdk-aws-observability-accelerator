@@ -138,7 +138,7 @@ aws sso login --profile $AWS_PROFILE
 8. Export required environment variables for further use. If not available already, you will be prompted for name of Amazon Grafana workspace in `monitoringEnv` region of `monitoringEnv` account. And, then its endpoint URL, ID, Role ARN will be captured as environment variables.
 
 ```bash { promptEnv=false }
-source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
+source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
 ```
 
 9. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this Observability Accelerator pattern.
@@ -174,25 +174,25 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
 
 ### Amazon Grafana Configuration
 
-1. Run `scripts/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh` script to
+1. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh` script to
 
    1. create SSM SecureString parameter `/cdk-accelerator/amg-info` in `pipelineEnv` region of `pipelineEnv` account. This will be used by CDK for Grafana Operator resources configuration.
    2. create Grafana workspace API key.
    3. create SSM SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
 
 ```bash
-eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh
+eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh
 ```
 
 ### CodePipeline GitHub Source Configuration
 
-1. Run `scripts/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
+1. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
 
    1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
    2. create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
 ```bash { promptEnv=true }
-eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh
+eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh
 ```
 
 3. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
@@ -286,7 +286,7 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
    3. get Amazon Prometheus Endpoint URL from `prod1Env` account and export to environment variable `COA_AMP_ENDPOINT_URL`.
 
 ```bash
-source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
+source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
 ```
 
 2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `prod1Env` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
@@ -412,14 +412,14 @@ export AWS_PROFILE='pipeline-account'
 aws sso login --profile $AWS_PROFILE
 cd `git rev-parse --show-toplevel`
 
-source `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
+source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
 make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pipeline
 ```
 
 2. Next, run this script to clean up resources created in respective accounts. This script deletes argocd apps, unsets kubeconfig entries, initiates deletion of CloudFormation stacks, secrets, SSM parameters and Amazon Grafana Workspace API key from respective accounts.
 
 ```bash
-eval bash `git rev-parse --show-toplevel`/scripts/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
+eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
 ```
 
 3. In certain scenarios, CloudFormation stack deletion might encounter issues when attempting to delete a nodegroup IAM role. In such situations, it's recommended to first delete the relevant IAM role and then proceed with deleting the CloudFormation stack.

@@ -18,7 +18,7 @@ export default class CloudWatchMonitoringConstruct {
     }
 
     create(scope: Construct, contextAccount?: string, contextRegion?: string, Id?: string ) {
-    
+
         const account = contextAccount! || process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = contextRegion! || process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
 
@@ -28,26 +28,20 @@ export default class CloudWatchMonitoringConstruct {
             name: 'adot-collector-cloudwatch',
             metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*', 'ho11y*'],
             podLabelRegex: 'frontend|downstream(.*)',
-        });        
+        });
 
-        Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);        
+        Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             cloudWatchAdotAddOn,
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
             new blueprints.addons.SecretsStoreAddOn(),
-            new blueprints.addons.CloudWatchLogsAddon({ 
+            new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${Id}`,
                 logRetentionDays: 30
-            }),     
-            /* already part of enableNativePatternAddOns 
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns         
-            new blueprints.addons.PrometheusNodeExporterAddOn(), // part of enableOpenSourcePatternAddOns
-            */
+            }),
         ];
-  
+
         return ObservabilityBuilder.builder()
             .account(account)
             .region(region)
@@ -55,7 +49,7 @@ export default class CloudWatchMonitoringConstruct {
             .enableMixedPatternAddOns()
             .addOns(...addOns)
             .teams(new team.TeamGeordi, new team.CorePlatformTeam);
-    }  
+    }
 }
 
 
