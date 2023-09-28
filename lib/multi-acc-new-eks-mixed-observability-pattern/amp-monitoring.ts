@@ -57,13 +57,6 @@ export default class AmpMonitoringConstruct {
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
             new blueprints.addons.SecretsStoreAddOn(),
-            /* already part of enableOpenSourcePatternAddOns
-            new blueprints.addons.AwsLoadBalancerControllerAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.CertManagerAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.KubeStateMetricsAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.PrometheusNodeExporterAddOn(), // part of enableOpenSourcePatternAddOns
-            new blueprints.addons.AdotCollectorAddOn(), // part of enableOpenSourcePatternAddOns
-            */
         ];
 
         return ObservabilityBuilder.builder()

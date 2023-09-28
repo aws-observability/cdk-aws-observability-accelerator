@@ -34,10 +34,7 @@ let nodeExporterDashUrl: string;
 let nodesDashUrl: string;
 let workloadsDashUrl: string;
 
-/**
- * Function relies on a secret called "cdk-context" defined in COA_PIPELINE_REGION region in pipeline account. Its a MANDATORY STEP.
- * @returns
- */
+// Function relies on a secret called "cdk-context" defined in COA_PIPELINE_REGION region in pipeline account. Its a MANDATORY STEP.
 export async function populateAccountWithContextDefaults(region: string): Promise<PipelineMultiEnvMonitoringProps> {
     const cdkContext = JSON.parse(await getSSMSecureString('/cdk-accelerator/cdk-context',region))['context'] as PipelineMultiEnvMonitoringProps;
     logger.debug(`Retrieved CDK context ${JSON.stringify(cdkContext)}`);
@@ -93,99 +90,6 @@ export class PipelineMultiEnvMonitoring {
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
         const MON_ENV_ID = `coa-cntrl-mon-${context.monitoringEnv.region}`;
 
-        // Get AMG info from SSM SecureString
-        const amgInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
-        amgWorkspaceUrl = amgInfo.workspaceURL;
-        const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
-
-        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
-        ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
-        const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: ampAssumeRoleName!,
-            trustArn: amgWorkspaceIAMRoleARN!,
-            policyDocument: getAMPAccessPolicyDocument()
-        };
-        // const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-        //     roleName: ampAssumeRoleName!,
-        //     trustArn: amgWorkspaceIAMRoleARN!,
-        //     actions: [
-        //         "aps:ListWorkspaces",
-        //         "aps:DescribeWorkspace",
-        //         "aps:QueryMetrics",
-        //         "aps:GetLabels",
-        //         "aps:GetSeries",
-        //         "aps:GetMetricMetadata",
-        //         "xray:PutTraceSegments",
-        //         "xray:PutTelemetryRecords",
-        //         "xray:GetSamplingRules",
-        //         "xray:GetSamplingTargets",
-        //         "xray:GetSamplingStatisticSummaries",
-        //         "xray:BatchGetTraces",
-        //         "xray:GetServiceGraph",
-        //         "xray:GetTraceGraph",
-        //         "xray:GetTraceSummaries",
-        //         "xray:GetGroups",
-        //         "xray:GetGroup",
-        //         "xray:ListTagsForResource",
-        //         "xray:GetTimeSeriesServiceStatistics",
-        //         "xray:GetInsightSummaries",
-        //         "xray:GetInsight",
-        //         "xray:GetInsightEvents",
-        //         "xray:GetInsightImpactGraph",
-        //         "ssm:GetParameter"
-        //     ],
-        //     resources: ["*"]
-        // };
-
-        // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
-        cwAssumeRoleName = "CWAccessForTrustedAMGRole";
-        const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: cwAssumeRoleName,
-            trustArn: amgWorkspaceIAMRoleARN!,
-            policyDocument: getCWAccessPolicyDocument()
-        };
-        // const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-        //     roleName: cwAssumeRoleName,
-        //     trustArn: amgWorkspaceIAMRoleARN!,
-        //     actions: [
-        //         "cloudwatch:DescribeAlarmsForMetric",
-        //         "cloudwatch:DescribeAlarmHistory",
-        //         "cloudwatch:DescribeAlarms",
-        //         "cloudwatch:ListMetrics",
-        //         "cloudwatch:GetMetricStatistics",
-        //         "cloudwatch:GetMetricData",
-        //         "logs:DescribeLogGroups",
-        //         "logs:GetLogGroupFields",
-        //         "logs:StartQuery",
-        //         "logs:StopQuery",
-        //         "logs:GetQueryResults",
-        //         "logs:GetLogEvents",
-        //         "ec2:DescribeTags",
-        //         "ec2:DescribeInstances",
-        //         "ec2:DescribeRegions",
-        //         "tag:GetResources",
-        //         "xray:PutTraceSegments",
-        //         "xray:PutTelemetryRecords",
-        //         "xray:GetSamplingRules",
-        //         "xray:GetSamplingTargets",
-        //         "xray:GetSamplingStatisticSummaries",
-        //         "xray:BatchGetTraces",
-        //         "xray:GetServiceGraph",
-        //         "xray:GetTraceGraph",
-        //         "xray:GetTraceSummaries",
-        //         "xray:GetGroups",
-        //         "xray:GetGroup",
-        //         "xray:ListTagsForResource",
-        //         "xray:GetTimeSeriesServiceStatistics",
-        //         "xray:GetInsightSummaries",
-        //         "xray:GetInsight",
-        //         "xray:GetInsightEvents",
-        //         "xray:GetInsightImpactGraph",
-        //         "ssm:GetParameter"
-        //     ],
-        //     resources: ["*"]
-        // };
-
         // creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
         const blueprintAmp = ampConstruct.create(scope, context.prodEnv1.account, context.prodEnv1.region);
@@ -221,6 +125,27 @@ export class PipelineMultiEnvMonitoring {
             'private'
         );
 
+        // Get AMG info from SSM SecureString
+        const amgInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
+        amgWorkspaceUrl = amgInfo.workspaceURL;
+        const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
+
+        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
+        ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
+        const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+            roleName: ampAssumeRoleName!,
+            trustArn: amgWorkspaceIAMRoleARN!,
+            policyDocument: getAMPAccessPolicyDocument()
+        };
+
+        // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
+        cwAssumeRoleName = "CWAccessForTrustedAMGRole";
+        const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+            roleName: cwAssumeRoleName,
+            trustArn: amgWorkspaceIAMRoleARN!,
+            policyDocument: getCWAccessPolicyDocument()
+        };
+
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
             roleArn: amgWorkspaceIAMRoleARN,
             accounts: [context.prodEnv1.account!, context.prodEnv2.account!]
@@ -232,25 +157,16 @@ export class PipelineMultiEnvMonitoring {
         const gitRepositoryName = pipelineSrcInfo.gitRepoName;
         const gitBranch = pipelineSrcInfo.gitBranch;
 
-        // const codeBuiildPoilcies = getCodeBuildPolicyDocument().forEach((statement) => {iam.PolicyStatement.fromJson(statement)}) as unknown;
+        let codeBuildPolicies: unknown;
+        getCodeBuildPolicyDocument().forEach((statement) => {
+            codeBuildPolicies = iam.PolicyStatement.fromJson(statement);
+        });
+
         const pipeline = blueprints.CodePipelineStack.builder()
             .application("npx ts-node bin/multi-acc-new-eks-mixed-observability.ts")
             .name("multi-account-COA-pipeline")
             .owner(gitOwner)
-            .codeBuildPolicies([
-                new iam.PolicyStatement({
-                    resources: ["*"],
-                    actions: [
-                        "sts:AssumeRole",
-                        "secretsmanager:GetSecretValue",
-                        "secretsmanager:DescribeSecret",
-                        "cloudformation:*",
-                        "ssm:GetParameter",
-                        "ssm:PutParameter",
-                        "ssm:DescribeParameter"
-                    ]
-                })
-            ])
+            .codeBuildPolicies([codeBuildPolicies as iam.PolicyStatement])
             .repository({
                 repoUrl: gitRepositoryName,
                 credentialsSecretName: 'github-token',
@@ -289,7 +205,6 @@ export class PipelineMultiEnvMonitoring {
                 .name(PROD2_ENV_ID)
                 .clone(context.prodEnv2.region, context.prodEnv2.account)
                 .addOns(new blueprints.NestedStackAddOn({
-                    // builder: CloudWatchIamSetupStack.builder("CWAccessForTrustedAMGRole", amgWorkspaceIAMRoleARN!),
                     builder: CreateIAMRoleNestedStack.builder(CWAccessRoleStackProps),
                     id: "cloudwatch-iam-nested-stack"
                 }))

@@ -52,7 +52,6 @@ cd cdk-aws-observability-accelerator
 
 ---
 
-
 > ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try! `code docs/patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability.md`
 
 ---
@@ -259,7 +258,7 @@ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile monitoring-account \
     aws://${COA_MON_ACCOUNT_ID}/${COA_MON_REGION}
 ```
 
-5. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account. This step may require approximately **15-20 minutes** to finish.
+5. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account. This step may require approximately **20 minutes** to finish.
 
 ```bash { promptEnv=false }
 export AWS_PROFILE='pipeline-account'
@@ -275,7 +274,7 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `prod2Env` account and
    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `prod1Env` and `prod2Env` accounts for retrieving and visualizing metrics in Grafana
 
-   This step may require approximately **15-20 minutes** to finish.
+   This step may require approximately **50 minutes** to finish.
 
 ## Post Deployment
 

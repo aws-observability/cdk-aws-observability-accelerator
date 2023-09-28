@@ -14,13 +14,11 @@ interface Statement {
 /* Properties for Cross Account Trust Role:
 * roleName - new role name
 * trustArn - Role ARN principal from trusted account
-* statement - policy statement as json
+* policyDocument - policy statement of property Statement[]
 */
 export interface CreateIAMRoleNestedStackProps extends NestedStackProps {
     roleName: string,
     trustArn: string,
-    // actions: string[],
-    // resources: string[],
     policyDocument: Statement[],
 }
 
@@ -41,20 +39,12 @@ export class CreateIAMRoleNestedStack extends NestedStack {
         const role = new iam.Role(this, 'coa-iam-role', {
             roleName: props.roleName,
             assumedBy: new iam.ArnPrincipal(props.trustArn),
-            // assumedBy: new iam.AccountPrincipal(this.account),
             description: 'IAM Role created as part of CDK Observability Accelerator',
         });
 
         props.policyDocument.forEach((statement) => {
-            console.log(statement);
             role.addToPolicy(iam.PolicyStatement.fromJson(statement));
         });
-
-
-        // role.addToPolicy(new iam.PolicyStatement({
-        //     actions: props.actions,
-        //     resources: props.resources,
-        // }));
 
         new cdk.CfnOutput(this, `COAIAMRole-${props.roleName}`, { value: role ? role.roleArn : "none" });
     }

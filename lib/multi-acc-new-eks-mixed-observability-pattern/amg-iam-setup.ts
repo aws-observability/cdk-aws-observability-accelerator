@@ -31,16 +31,6 @@ export class AmgIamSetupStack extends NestedStack {
 
         const account = this.account;
 
-        // Create role - commented as we are expecting pre-existing AMG and their role from it.
-        // const workspaceRole = new Role(this, 'amg-iam-role', {
-        //     roleName: props.roleName,
-        //     assumedBy: new ServicePrincipal('grafana.amazonaws.com').withConditions({
-        //         StringEquals: {'aws:SourceAccount': `${account}`},
-        //         StringLike: {'aws:SourceArn': `arn:aws:grafana:${region}:${account}:/workspaces/*`}
-        //     }),
-        //     description: 'Service Role for Amazon Managed Grafana',
-        // });
-
         const workspaceRole = Role.fromRoleArn(this, 'ExistingRole', props.roleArn);
 
         // Inline policy for SNS
@@ -52,7 +42,6 @@ export class AmgIamSetupStack extends NestedStack {
             resources: [`arn:aws:sns:*:${account}:grafana*`]
         });
 
-        // workspaceRole.addToPolicy(AMGSNSPolicy);
         workspaceRole.addToPrincipalPolicy(AMGSNSPolicy);
 
         for (let i = 0; i < props.accounts.length; i++) {
