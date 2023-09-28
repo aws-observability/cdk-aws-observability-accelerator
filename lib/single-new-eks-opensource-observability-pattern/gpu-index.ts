@@ -79,7 +79,6 @@ export default class SingleNewEksGpuOpenSourceObservabilityPattern {
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(
                 new blueprints.GenericClusterProvider({
-                    version: eks.KubernetesVersion.V1_27,
                     tags: {
                         "Name": "blueprints-gpu-eks-cluster",
                         "Type": "generic-gpu-cluster"

@@ -4,7 +4,11 @@ Graphics Processing Units (GPUs) play an integral part in the Machine Learning (
 
 This pattern shows you how to monitor the performance of the GPUs units, used in an Amazon EKS cluster leveraging GPU-based instances.
 
-Prometheus and Grafana are open source tools used to collect and visualise metrics respectively.
+Amazon Managed Service for Prometheus (AMP) and Amazon Managed Grafana (AMG) are open source tools used in this pattern to collect and visualise metrics respectively.
+
+AMP is a Prometheus-compatible service that monitors and provides alerts on containerized applications and infrastructure at scale.
+
+AMG is a managed service for Grafana, a popular open-source analytics platform that enables you to query, visualize, and alert on your metrics, logs, and traces.
 
 ## Objective
 
@@ -13,13 +17,13 @@ This pattern deploys an Amazon EKS cluster with a node group that includes insta
 The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized Linux AMI with GPU support](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the GPU AMI includes the NVIDIA drivers.
 
 The [NVIDIA Data Center GPU Manager](https://docs.nvidia.com/data-center-gpu-manager-dcgm/index.html) (DCGM) is a suite of tools for managing and monitoring NVIDIA datacenter GPUs in cluster environments. It includes health monitoring, diagnostics, system alerts and governance policies.
-GPU metrics are exposed to Prometheus by the [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), that uses the Go bindings to collect GPU telemetry data from DCGM and then exposes the metrics for Prometheus to pull from, using an http endpoint (`/metrics`).
+GPU metrics are exposed to AMP by the [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), that uses the Go bindings to collect GPU telemetry data from DCGM and then exposes the metrics for AMP to pull from, using an http endpoint (`/metrics`).
 
-The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/gpu-operator/). The [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) uses the NVIDIA DCGM Exporter to expose GPU telemetry to Prometheus.
+The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/gpu-operator/). The [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) uses the NVIDIA DCGM Exporter to expose GPU telemetry to AMP.
 
-Data is visualised in Grafana by the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard).
+Data is visualised in AMG by the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard).
 
-The rest of the setup to collect and visualise metrics with Prometheus and Grafana is similar to that used in other open-source based patterns included in this repository.
+The rest of the setup to collect and visualise metrics with AMP and AMG is similar to that used in other open-source based patterns included in this repository.
 
 ## Prerequisites:
 
@@ -44,7 +48,7 @@ git clone https://github.com/aws-observability/cdk-aws-observability-accelerator
 npm install -g aws-cdk
 ```
 
-3. Amazon Managed Grafana workspace: To visualize metrics collected, you need an Amazon Managed Grafana workspace. If you have an existing workspace, create an environment variable as described below. To create a new workspace, visit [our supporting example for Grafana](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
+3. AMG workspace: To visualize metrics collected, you need an AMG workspace. If you have an existing workspace, create an environment variable as described below. To create a new workspace, visit [our supporting example for AMG](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
 
 !!! note
     For the URL `https://g-xyz.grafana-workspace.us-east-1.amazonaws.com`, the workspace ID would be `g-xyz`
@@ -58,7 +62,7 @@ export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.
 !!! warning
     Setting up environment variables `COA_AMG_ENDPOINT_URL` and `AWS_REGION` is mandatory for successful execution of this pattern.
 
-4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
+4. GRAFANA API KEY: AMG provides a control plane API for generating Grafana API keys.
 
 ```bash
 export AMG_API_KEY=$(aws grafana create-workspace-api-key \
@@ -70,7 +74,7 @@ export AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --output text)
 ```
 
-5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
+5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access AMG from Amazon EKS Cluster
 
 ```bash
 aws ssm put-parameter --name "/cdk-accelerator/grafana-api-key" \
@@ -202,7 +206,7 @@ Output:
 
 ### Grafana NVIDIA DCGM Exporter Dashboard
 
-Login to your Grafana workspace and navigate to the Dashboards panel. You should see a dashboard named `NVIDIA DCGM Exporter Dashboard`.
+Login to your AMG workspace and navigate to the Dashboards panel. You should see a dashboard named `NVIDIA DCGM Exporter Dashboard`.
 
 We will now generate some load, to see some metrics in the dashboard. Please run the following command from terminal:
 
@@ -253,63 +257,4 @@ You can teardown the whole CDK stack with the following command:
 
 ```bash
 make pattern single-new-eks-gpu-opensource-observability destroy
-```
-
-## Troubleshooting
-
-### Grafana dashboards missing or Grafana API key expired
-
-In case you don't see the grafana dashboards in your Amazon Managed Grafana console, check on the logs on your grafana operator pod using the below command :
-
-```bash
-kubectl get pods -n grafana-operator
-```
-
-Output:
-
-```console
-NAME                                READY   STATUS    RESTARTS   AGE
-grafana-operator-866d4446bb-nqq5c   1/1     Running   0          3h17m
-```
-
-```bash
-kubectl logs grafana-operator-866d4446bb-nqq5c -n grafana-operator
-```
-
-Output:
-
-```console
-1.6857285045556655e+09	ERROR	error reconciling datasource	{"controller": "grafanadatasource", "controllerGroup": "grafana.integreatly.org", "controllerKind": "GrafanaDatasource", "GrafanaDatasource": {"name":"grafanadatasource-sample-amp","namespace":"grafana-operator"}, "namespace": "grafana-operator", "name": "grafanadatasource-sample-amp", "reconcileID": "72cfd60c-a255-44a1-bfbd-88b0cbc4f90c", "datasource": "grafanadatasource-sample-amp", "grafana": "external-grafana", "error": "status: 401, body: {\"message\":\"Expired API key\"}\n"}
-github.com/grafana-operator/grafana-operator/controllers.(*GrafanaDatasourceReconciler).Reconcile
-```
-
-If you observe, the the above `grafana-api-key error` in the logs, your grafana API key is expired. Please use the operational procedure to update your `grafana-api-key` :
-
-- First, lets create a new Grafana API key.
-
-```bash
-export GO_AMG_API_KEY=$(aws grafana create-workspace-api-key \
-  --key-name "grafana-operator-key-new" \
-  --key-role "ADMIN" \
-  --seconds-to-live 432000 \
-  --workspace-id $COA_AMG_WORKSPACE_ID \
-  --query key \
-  --output text)
-```
-
-- Finally, update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key:
-
-```bash
-export API_KEY_SECRET_NAME="grafana-api-key"
-aws ssm put-parameter --name "/cdk-accelerator/grafana-api-key" \
-    --type "SecureString" \
-    --value $AMG_API_KEY \
-    --region $AWS_REGION \
-    --overwrite
-```
-
-- If the issue persists, you can force the synchronization by deleting the `externalsecret` Kubernetes object.
-
-```bash
-kubectl delete externalsecret/external-secrets-sm -n grafana-operator
 ```
