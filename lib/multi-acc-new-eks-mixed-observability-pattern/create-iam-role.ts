@@ -19,9 +19,9 @@ interface Statement {
 export interface CreateIAMRoleNestedStackProps extends NestedStackProps {
     roleName: string,
     trustArn: string,
-    actions: string[],
-    resources: string[],
-    // statement: Statement[],
+    // actions: string[],
+    // resources: string[],
+    policyDocument: Statement[],
 }
 
 // Stack that creates IAM role with trust relationship to other account
@@ -45,16 +45,16 @@ export class CreateIAMRoleNestedStack extends NestedStack {
             description: 'IAM Role created as part of CDK Observability Accelerator',
         });
 
-        // props.statement.forEach((statement) => {
-        //     role.addToPolicy(iam.PolicyStatement.fromJson(statement));
-        // });
+        props.policyDocument.forEach((statement) => {
+            console.log(statement);
+            role.addToPolicy(iam.PolicyStatement.fromJson(statement));
+        });
 
-        // role.addToPolicy(iam.PolicyStatement.fromJson(props.statement));
 
-        role.addToPolicy(new iam.PolicyStatement({
-            actions: props.actions,
-            resources: props.resources,
-        }));
+        // role.addToPolicy(new iam.PolicyStatement({
+        //     actions: props.actions,
+        //     resources: props.resources,
+        // }));
 
         new cdk.CfnOutput(this, `COAIAMRole-${props.roleName}`, { value: role ? role.roleArn : "none" });
     }

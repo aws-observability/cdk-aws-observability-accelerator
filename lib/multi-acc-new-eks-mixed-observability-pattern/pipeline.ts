@@ -100,91 +100,91 @@ export class PipelineMultiEnvMonitoring {
 
         // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
         ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
-        // const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-        //     roleName: ampAssumeRoleName!,
-        //     trustArn: amgWorkspaceIAMRoleARN!,
-        //     statement: getAMPAccessPolicyDocument()
-        // };
         const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: ampAssumeRoleName!,
             trustArn: amgWorkspaceIAMRoleARN!,
-            actions: [
-                "aps:ListWorkspaces",
-                "aps:DescribeWorkspace",
-                "aps:QueryMetrics",
-                "aps:GetLabels",
-                "aps:GetSeries",
-                "aps:GetMetricMetadata",
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-                "xray:GetSamplingStatisticSummaries",
-                "xray:BatchGetTraces",
-                "xray:GetServiceGraph",
-                "xray:GetTraceGraph",
-                "xray:GetTraceSummaries",
-                "xray:GetGroups",
-                "xray:GetGroup",
-                "xray:ListTagsForResource",
-                "xray:GetTimeSeriesServiceStatistics",
-                "xray:GetInsightSummaries",
-                "xray:GetInsight",
-                "xray:GetInsightEvents",
-                "xray:GetInsightImpactGraph",
-                "ssm:GetParameter"
-            ],
-            resources: ["*"]
+            policyDocument: getAMPAccessPolicyDocument()
         };
+        // const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+        //     roleName: ampAssumeRoleName!,
+        //     trustArn: amgWorkspaceIAMRoleARN!,
+        //     actions: [
+        //         "aps:ListWorkspaces",
+        //         "aps:DescribeWorkspace",
+        //         "aps:QueryMetrics",
+        //         "aps:GetLabels",
+        //         "aps:GetSeries",
+        //         "aps:GetMetricMetadata",
+        //         "xray:PutTraceSegments",
+        //         "xray:PutTelemetryRecords",
+        //         "xray:GetSamplingRules",
+        //         "xray:GetSamplingTargets",
+        //         "xray:GetSamplingStatisticSummaries",
+        //         "xray:BatchGetTraces",
+        //         "xray:GetServiceGraph",
+        //         "xray:GetTraceGraph",
+        //         "xray:GetTraceSummaries",
+        //         "xray:GetGroups",
+        //         "xray:GetGroup",
+        //         "xray:ListTagsForResource",
+        //         "xray:GetTimeSeriesServiceStatistics",
+        //         "xray:GetInsightSummaries",
+        //         "xray:GetInsight",
+        //         "xray:GetInsightEvents",
+        //         "xray:GetInsightImpactGraph",
+        //         "ssm:GetParameter"
+        //     ],
+        //     resources: ["*"]
+        // };
 
         // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
         cwAssumeRoleName = "CWAccessForTrustedAMGRole";
-        // const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-        //     roleName: cwAssumeRoleName,
-        //     trustArn: amgWorkspaceIAMRoleARN!,
-        //     statement: getCWAccessPolicyDocument()
-        // };
         const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: cwAssumeRoleName,
             trustArn: amgWorkspaceIAMRoleARN!,
-            actions: [
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:GetMetricData",
-                "logs:DescribeLogGroups",
-                "logs:GetLogGroupFields",
-                "logs:StartQuery",
-                "logs:StopQuery",
-                "logs:GetQueryResults",
-                "logs:GetLogEvents",
-                "ec2:DescribeTags",
-                "ec2:DescribeInstances",
-                "ec2:DescribeRegions",
-                "tag:GetResources",
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-                "xray:GetSamplingStatisticSummaries",
-                "xray:BatchGetTraces",
-                "xray:GetServiceGraph",
-                "xray:GetTraceGraph",
-                "xray:GetTraceSummaries",
-                "xray:GetGroups",
-                "xray:GetGroup",
-                "xray:ListTagsForResource",
-                "xray:GetTimeSeriesServiceStatistics",
-                "xray:GetInsightSummaries",
-                "xray:GetInsight",
-                "xray:GetInsightEvents",
-                "xray:GetInsightImpactGraph",
-                "ssm:GetParameter"
-            ],
-            resources: ["*"]
+            policyDocument: getCWAccessPolicyDocument()
         };
+        // const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+        //     roleName: cwAssumeRoleName,
+        //     trustArn: amgWorkspaceIAMRoleARN!,
+        //     actions: [
+        //         "cloudwatch:DescribeAlarmsForMetric",
+        //         "cloudwatch:DescribeAlarmHistory",
+        //         "cloudwatch:DescribeAlarms",
+        //         "cloudwatch:ListMetrics",
+        //         "cloudwatch:GetMetricStatistics",
+        //         "cloudwatch:GetMetricData",
+        //         "logs:DescribeLogGroups",
+        //         "logs:GetLogGroupFields",
+        //         "logs:StartQuery",
+        //         "logs:StopQuery",
+        //         "logs:GetQueryResults",
+        //         "logs:GetLogEvents",
+        //         "ec2:DescribeTags",
+        //         "ec2:DescribeInstances",
+        //         "ec2:DescribeRegions",
+        //         "tag:GetResources",
+        //         "xray:PutTraceSegments",
+        //         "xray:PutTelemetryRecords",
+        //         "xray:GetSamplingRules",
+        //         "xray:GetSamplingTargets",
+        //         "xray:GetSamplingStatisticSummaries",
+        //         "xray:BatchGetTraces",
+        //         "xray:GetServiceGraph",
+        //         "xray:GetTraceGraph",
+        //         "xray:GetTraceSummaries",
+        //         "xray:GetGroups",
+        //         "xray:GetGroup",
+        //         "xray:ListTagsForResource",
+        //         "xray:GetTimeSeriesServiceStatistics",
+        //         "xray:GetInsightSummaries",
+        //         "xray:GetInsight",
+        //         "xray:GetInsightEvents",
+        //         "xray:GetInsightImpactGraph",
+        //         "ssm:GetParameter"
+        //     ],
+        //     resources: ["*"]
+        // };
 
         // creating constructs
         const ampConstruct = new AmpMonitoringConstruct();
