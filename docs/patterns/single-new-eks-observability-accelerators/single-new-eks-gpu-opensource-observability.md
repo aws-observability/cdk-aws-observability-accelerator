@@ -4,11 +4,11 @@ Graphics Processing Units (GPUs) play an integral part in the Machine Learning (
 
 This pattern shows you how to monitor the performance of the GPUs units, used in an Amazon EKS cluster leveraging GPU-based instances.
 
-Amazon Managed Service for Prometheus (AMP) and Amazon Managed Grafana (AMG) are open source tools used in this pattern to collect and visualise metrics respectively.
+Amazon Managed Service for Prometheus and Amazon Managed Grafana are open source tools used in this pattern to collect and visualise metrics respectively.
 
-AMP is a Prometheus-compatible service that monitors and provides alerts on containerized applications and infrastructure at scale.
+Amazon Managed Service for Prometheus is a Prometheus-compatible service that monitors and provides alerts on containerized applications and infrastructure at scale.
 
-AMG is a managed service for Grafana, a popular open-source analytics platform that enables you to query, visualize, and alert on your metrics, logs, and traces.
+Amazon Managed Grafana is a managed service for Grafana, a popular open-source analytics platform that enables you to query, visualize, and alert on your metrics, logs, and traces.
 
 ## Objective
 
@@ -17,13 +17,13 @@ This pattern deploys an Amazon EKS cluster with a node group that includes insta
 The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized Linux AMI with GPU support](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the GPU AMI includes the NVIDIA drivers.
 
 The [NVIDIA Data Center GPU Manager](https://docs.nvidia.com/data-center-gpu-manager-dcgm/index.html) (DCGM) is a suite of tools for managing and monitoring NVIDIA datacenter GPUs in cluster environments. It includes health monitoring, diagnostics, system alerts and governance policies.
-GPU metrics are exposed to AMP by the [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), that uses the Go bindings to collect GPU telemetry data from DCGM and then exposes the metrics for AMP to pull from, using an http endpoint (`/metrics`).
+GPU metrics are exposed to Amazon Managed Service for Prometheus by the [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), that uses the Go bindings to collect GPU telemetry data from DCGM and then exposes the metrics for Amazon Managed Service for Prometheus to pull from, using an http endpoint (`/metrics`).
 
-The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/gpu-operator/). The [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) uses the NVIDIA DCGM Exporter to expose GPU telemetry to AMP.
+The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/gpu-operator/). The [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) uses the NVIDIA DCGM Exporter to expose GPU telemetry to Amazon Managed Service for Prometheus.
 
-Data is visualised in AMG by the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard).
+Data is visualised in Amazon Managed Grafana by the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard).
 
-The rest of the setup to collect and visualise metrics with AMP and AMG is similar to that used in other open-source based patterns included in this repository.
+The rest of the setup to collect and visualise metrics with Amazon Managed Service for Prometheus and Amazon Managed Grafana, is similar to that used in other open-source based patterns included in this repository.
 
 ## Prerequisites:
 
@@ -48,7 +48,7 @@ git clone https://github.com/aws-observability/cdk-aws-observability-accelerator
 npm install -g aws-cdk
 ```
 
-3. AMG workspace: To visualize metrics collected, you need an AMG workspace. If you have an existing workspace, create an environment variable as described below. To create a new workspace, visit [our supporting example for AMG](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
+3. Amazon Managed Grafana workspace: To visualize metrics collected, you need an Amazon Managed Grafana workspace. If you have an existing workspace, create an environment variable as described below. To create a new workspace, visit [our supporting example for Amazon Managed Grafana](https://aws-observability.github.io/terraform-aws-observability-accelerator/helpers/managed-grafana/)
 
 !!! note
     For the URL `https://g-xyz.grafana-workspace.us-east-1.amazonaws.com`, the workspace ID would be `g-xyz`
@@ -62,7 +62,7 @@ export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.
 !!! warning
     Setting up environment variables `COA_AMG_ENDPOINT_URL` and `AWS_REGION` is mandatory for successful execution of this pattern.
 
-4. GRAFANA API KEY: AMG provides a control plane API for generating Grafana API keys.
+4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
 
 ```bash
 export AMG_API_KEY=$(aws grafana create-workspace-api-key \
@@ -74,7 +74,7 @@ export AMG_API_KEY=$(aws grafana create-workspace-api-key \
   --output text)
 ```
 
-5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access AMG from Amazon EKS Cluster
+5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
 ```bash
 aws ssm put-parameter --name "/cdk-accelerator/grafana-api-key" \
@@ -206,7 +206,7 @@ Output:
 
 ### Grafana NVIDIA DCGM Exporter Dashboard
 
-Login to your AMG workspace and navigate to the Dashboards panel. You should see a dashboard named `NVIDIA DCGM Exporter Dashboard`.
+Login to your Amazon Managed Grafana workspace and navigate to the Dashboards panel. You should see a dashboard named `NVIDIA DCGM Exporter Dashboard`.
 
 We will now generate some load, to see some metrics in the dashboard. Please run the following command from terminal:
 
