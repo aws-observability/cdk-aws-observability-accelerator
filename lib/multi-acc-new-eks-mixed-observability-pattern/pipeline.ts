@@ -98,7 +98,7 @@ export class PipelineMultiEnvMonitoring {
         amgWorkspaceUrl = amgInfo.workspaceURL;
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
-        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP
+        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
         ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
         // const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
         //     roleName: ampAssumeRoleName!,
