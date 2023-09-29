@@ -96,55 +96,10 @@ export class PipelineMultiEnvMonitoring {
         const blueprintCloudWatch = new CloudWatchMonitoringConstruct().create(scope, context.prodEnv2.account, context.prodEnv2.region, PROD2_ENV_ID);
         const blueprintAmg = new GrafanaOperatorConstruct().create(scope, context.monitoringEnv.account, context.monitoringEnv.region);
 
-        // Argo configuration per environment
-        // CHANGE ME FINALLY
-        // const prodArgoAddonConfig = createArgoAddonConfig(
-        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/sample-apps/envs/prod',
-        //     'main',
-        //     'public'
-        // );
-        const prodArgoAddonConfig = createArgoAddonConfig(
-            'https://github.com/iamprakkie/aws-observability-accelerator.git',
-            'artifacts/sample-apps/envs/prod',
-            'artifacts',
-            'public'
-        );
-
-        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
-        // const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/sample-apps/grafana-operator-app',
-        //     'main',
-        //     'private'
-        // );
-        const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-            'https://github.com/iamprakkie/aws-observability-accelerator.git',
-            'artifacts/sample-apps/grafana-operator-app',
-            'artifacts',
-            'private'
-        );
-
         // Get AMG info from SSM SecureString
         const amgInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
         amgWorkspaceUrl = amgInfo.workspaceURL;
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
-
-        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
-        ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
-        const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: ampAssumeRoleName!,
-            trustArn: amgWorkspaceIAMRoleARN!,
-            policyDocument: getAMPAccessPolicyDocument()
-        };
-
-        // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
-        cwAssumeRoleName = "CWAccessForTrustedAMGRole";
-        const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
-            roleName: cwAssumeRoleName,
-            trustArn: amgWorkspaceIAMRoleARN!,
-            policyDocument: getCWAccessPolicyDocument()
-        };
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
             roleArn: amgWorkspaceIAMRoleARN,
@@ -174,6 +129,21 @@ export class PipelineMultiEnvMonitoring {
             })
             .enableCrossAccountKeys();
 
+        // ArgoCD configuration for monitoringEnv
+        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
+        // const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
+        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
+        //     'artifacts/sample-apps/grafana-operator-app',
+        //     'main',
+        //     'private'
+        // );
+        const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
+            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'artifacts/sample-apps/grafana-operator-app',
+            'artifacts',
+            'private'
+        );
+
         const monStage: blueprints.StackStage = {
             id: MON_ENV_ID,
             stackBuilder: blueprintAmg
@@ -184,6 +154,29 @@ export class PipelineMultiEnvMonitoring {
                     id: "amg-iam-nested-stack"
                 }))
                 .addOns(grafanaOperatorArgoAddonConfig)
+        };
+
+        // Argo configuration for prod1 and prod2
+        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
+        // const prodArgoAddonConfig = createArgoAddonConfig(
+        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
+        //     'artifacts/sample-apps/envs/prod',
+        //     'main',
+        //     'public'
+        // );
+        const prodArgoAddonConfig = createArgoAddonConfig(
+            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'artifacts/sample-apps/envs/prod',
+            'artifacts',
+            'public'
+        );
+
+        // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
+        ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
+        const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+            roleName: ampAssumeRoleName!,
+            trustArn: amgWorkspaceIAMRoleARN!,
+            policyDocument: getAMPAccessPolicyDocument()
         };
 
         const ampStage: blueprints.StackStage = {
@@ -197,6 +190,14 @@ export class PipelineMultiEnvMonitoring {
                     id: "amp-ds-trustrole-nested-stack"
                 }))
                 .addOns(prodArgoAddonConfig)
+        };
+
+        // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
+        cwAssumeRoleName = "CWAccessForTrustedAMGRole";
+        const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
+            roleName: cwAssumeRoleName,
+            trustArn: amgWorkspaceIAMRoleARN!,
+            policyDocument: getCWAccessPolicyDocument()
         };
 
         const cwStage: blueprints.StackStage = {
