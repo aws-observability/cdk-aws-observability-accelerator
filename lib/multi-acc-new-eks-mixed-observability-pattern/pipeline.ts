@@ -129,33 +129,6 @@ export class PipelineMultiEnvMonitoring {
             })
             .enableCrossAccountKeys();
 
-        // ArgoCD configuration for monitoringEnv
-        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
-        // const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/sample-apps/grafana-operator-app',
-        //     'main',
-        //     'private'
-        // );
-        const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-            'https://github.com/iamprakkie/aws-observability-accelerator.git',
-            'artifacts/sample-apps/grafana-operator-app',
-            'artifacts',
-            'private'
-        );
-
-        const monStage: blueprints.StackStage = {
-            id: MON_ENV_ID,
-            stackBuilder: blueprintAmg
-                .name(MON_ENV_ID)
-                .clone(context.monitoringEnv.region, context.monitoringEnv.account)
-                .addOns(new blueprints.NestedStackAddOn({
-                    builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
-                    id: "amg-iam-nested-stack"
-                }))
-                .addOns(grafanaOperatorArgoAddonConfig)
-        };
-
         // Argo configuration for prod1 and prod2
         // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
         // const prodArgoAddonConfig = createArgoAddonConfig(
@@ -216,6 +189,33 @@ export class PipelineMultiEnvMonitoring {
             id: "multi-acc-stage-01",
             stages: [ampStage, cwStage]
         });
+
+        // ArgoCD configuration for monitoringEnv
+        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
+        // const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
+        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
+        //     'artifacts/sample-apps/grafana-operator-app',
+        //     'main',
+        //     'private'
+        // );
+        const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
+            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'artifacts/sample-apps/grafana-operator-app',
+            'artifacts',
+            'private'
+        );
+
+        const monStage: blueprints.StackStage = {
+            id: MON_ENV_ID,
+            stackBuilder: blueprintAmg
+                .name(MON_ENV_ID)
+                .clone(context.monitoringEnv.region, context.monitoringEnv.account)
+                .addOns(new blueprints.NestedStackAddOn({
+                    builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
+                    id: "amg-iam-nested-stack"
+                }))
+                .addOns(grafanaOperatorArgoAddonConfig)
+        };
 
         // adding monitoring env setup as separate stage
         pipeline.stage(monStage);
