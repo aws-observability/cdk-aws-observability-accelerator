@@ -52,7 +52,7 @@ cd cdk-aws-observability-accelerator
 
 ---
 
-> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try. 
+> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try.
 >
 > Here is a sample usage of this document using RUNME:
 
@@ -297,26 +297,29 @@ source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observabi
 > ___NOTE:___ If you get `connection refused ` or `rpc error`, just try rerun commands of this step. This happens due to delay with port-forwarding setup.
 
 ```bash { promptEnv=false }
-export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
-export ARGO_PASSWORD=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-echo "ARGO PASSWORD:: "$ARGO_PASSWORD
-kubectl --context ${COA_MON_KUBE_CONTEXT} port-forward $ARGO_SERVER -n argocd 8080:443 > /dev/null 2>&1 &
-argocdPid=$!
-echo pid: $argocdPid
-sleep 5s
+if [[ `lsof -i:8080 | wc -l` -eq 0 ]]
+then
+    export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
+    export ARGO_PASSWORD=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+    echo "ARGO PASSWORD:: "$ARGO_PASSWORD
+    kubectl --context ${COA_MON_KUBE_CONTEXT} port-forward $ARGO_SERVER -n argocd 8080:443 > /dev/null 2>&1 &
+    argocdPid=$!
+    echo pid: $argocdPid
+    sleep 5s
 
-argocd --kube-context ${COA_MON_KUBE_CONTEXT} login localhost:8080 --insecure --username admin --password $ARGO_PASSWORD
-# curl localhost:8080
+    argocd --kube-context ${COA_MON_KUBE_CONTEXT} login localhost:8080 --insecure --username admin --password $ARGO_PASSWORD
+    # curl localhost:8080
 
-argocd --kube-context ${COA_MON_KUBE_CONTEXT} app set argocd/bootstrap-apps --helm-set AMP_ENDPOINT_URL=$COA_AMP_ENDPOINT_URL
-argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/bootstrap-apps
-argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/grafana-operator-app
+    argocd --kube-context ${COA_MON_KUBE_CONTEXT} app set argocd/bootstrap-apps --helm-set AMP_ENDPOINT_URL=$COA_AMP_ENDPOINT_URL
+    argocd --kube-context ${COA_MON_KUBE_CONTEXT} app sync argocd/bootstrap-apps
 
-echo -e '\033[0;33m' "\nConfirm update here.. You should see AMP endpoint URL and no error message." '\033[0m'
-kubectl --context ${COA_MON_KUBE_CONTEXT} get -n grafana-operator grafanadatasources grafanadatasource-amp -o jsonpath='{.spec.datasource.url}{"\n"}{.status}{"\n"}'
+    echo -e '\033[0;33m' "\nConfirm update here.. You should see AMP endpoint URL and no error message." '\033[0m'
+    kubectl --context ${COA_MON_KUBE_CONTEXT} get -n grafana-operator grafanadatasources grafanadatasource-amp -o jsonpath='{.spec.datasource.url}{"\n"}{.status}{"\n"}'
 
-kill -9 $argocdPid
-
+    kill -9 $argocdPid
+else
+    echo "Port 8080 is already in use by PID `lsof -i:8080 -t`. Please terminate it and rerun this step."
+fi
 ```
 
 3. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete datasource and Grafana Operator syncs up with latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
