@@ -52,7 +52,9 @@ cd cdk-aws-observability-accelerator
 
 ---
 
-> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try! `code docs/patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability.md`
+> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try. 
+>
+> Here is a sample usage of this document using RUNME:
 
 ![runme-sample](../images/multi-acc-new-eks-mixed-observability-pattern-runme-v1.gif)
 
