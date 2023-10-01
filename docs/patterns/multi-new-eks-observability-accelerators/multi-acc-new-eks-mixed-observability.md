@@ -56,7 +56,7 @@ cd cdk-aws-observability-accelerator
 >
 > Here is a sample usage of this document using RUNME:
 
-![runme-sample](../images/multi-acc-new-eks-mixed-observability-pattern-runme-v1.gif)
+![runme-sample](../images/multi-acc-new-eks-mixed-observability-pattern-runme-v2.gif)
 
 ---
 
