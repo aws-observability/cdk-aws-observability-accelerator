@@ -189,9 +189,12 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 
 ### CodePipeline GitHub Source Configuration
 
-1. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
+1. Ensure GitHub source repo is enabled with SSH Key authentication. Refer to [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) for steps.
+
+2. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
 
    1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
+
    2. create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
 ```bash { promptEnv=true }
@@ -204,7 +207,7 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 - __admin:repo_hook__ - to use webhooks
 
 ```bash { promptEnv=false }
-read -p "GitHub Personal Access Token: " gitpat_input
+read -s -p "GitHub Personal Access Token: " gitpat_input
 export COA_GIT_PAT=$gitpat_input
 unset gitpat_input
 ```
