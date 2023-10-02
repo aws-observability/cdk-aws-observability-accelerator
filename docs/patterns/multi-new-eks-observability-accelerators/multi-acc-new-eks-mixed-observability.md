@@ -183,7 +183,7 @@ aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION}
    2. create Grafana workspace API key.
    3. create SSM SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` region of `monitoringEnv` account. This will be used by [External Secrets Operator](https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets).
 
-```bash
+```bash { category=prereq }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/amg-preconfig.sh
 ```
 
@@ -209,7 +209,7 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
     1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account which contains details of CodePipeline source. This parameter contains GitHub owner name where you forked [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator), repository name (`cdk-aws-observability-accelerator`) and branch (`main`).
     2. create AWS Secret Manager secret `github-token` in `pipelineEnv` region of `pipelineEnv` account to hold GitHub Personal Access Token (PAT).
 
-```bash { promptEnv=true }
+```bash { category=prereq promptEnv=true }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh
 ```
 
@@ -218,13 +218,13 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organization/user.
 2. Install the AWS CDK Toolkit globally on host machine.
 
-```bash
+```bash { category=deploy }
 npm install -g aws-cdk
 ```
 
 3. Install project dependencies.
 
-```bash
+```bash { category=deploy }
 cd `git rev-parse --show-toplevel`
 npm i
 make build
@@ -232,7 +232,7 @@ make build
 
 4. Bootstrap all 4 AWS accounts using step mentioned for **different environment for deploying CDK applications** in [Deploying Pipelines](https://aws-quickstart.github.io/cdk-eks-blueprints/pipelines/#deploying-pipelines). If you have bootstrapped earlier, please remove them before proceeding with this step. Remember to set `pipelineEnv` account number in `--trust` flag. You can also refer to commands mentioned below:
 
-```bash { promptEnv=false }
+```bash { category=deploy promptEnv=false }
 # bootstrap pipelineEnv account WITHOUT explicit trust
 env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile pipeline-account \
     --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
@@ -259,7 +259,7 @@ env CDK_NEW_BOOTSTRAP=1 npx cdk bootstrap --profile monitoring-account \
 
 5. Once all pre-requisites are set, you are ready to deploy the pipeline. Run the following command from the root of cloned repository to deploy the pipeline stack in `pipelineEnv` account. This step may require approximately **20 minutes** to finish.
 
-```bash { promptEnv=false }
+```bash { category=deploy promptEnv=false }
 export AWS_PROFILE='pipeline-account'
 export AWS_REGION=${COA_PIPELINE_REGION}
 cd `git rev-parse --show-toplevel`
@@ -283,13 +283,13 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
    2. export cluster specific and kubecontext environment variables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
    3. get Amazon Prometheus Endpoint URL from `ProdEnv1` account and export to environment variable `COA_AMP_ENDPOINT_URL`.
 
-```bash { excludeFromRunAll=true }
+```bash { category=post-deploy excludeFromRunAll=true }
 source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
 ```
 
 2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `ProdEnv1` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=post-deploy excludeFromRunAll=true promptEnv=false }
 if [[ `lsof -i:8080 | wc -l` -eq 0 ]]
 then
     export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
@@ -331,7 +331,7 @@ curl localhost:8081
 
 3. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete Datasource and Grafana Operator syncs up with the latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=post-deploy excludeFromRunAll=true promptEnv=false }
 export COA_AMG_WORKSPACE_URL=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --name "/cdk-accelerator/amg-info" \
     --with-decryption \
@@ -354,7 +354,7 @@ curl -X DELETE -H "Authorization: Bearer ${COA_AMG_API_KEY}" ${COA_AMG_WORKSPACE
 
 4. Then, deploy ContainerInsights in `ProdEnv2` account.
 
-```bash { excludeFromRunAll=true }
+```bash { category=post-deploy excludeFromRunAll=true }
 prod2NGRole=$(aws cloudformation describe-stack-resources --profile prod2-account --region ${COA_PROD2_REGION} \
     --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
     --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
@@ -378,7 +378,7 @@ curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-i
 
 1. Run the below command in `ProdEnv1` cluster to generate test traffic to sample application and let us visualize traces to X-Ray and Amazon Managed Grafana Console out the sample `ho11y` app :
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=validate excludeFromRunAll=true promptEnv=false }
 frontend_pod=`kubectl --context ${COA_PROD1_KUBE_CONTEXT} get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
 loop_counter=0
 while [ $loop_counter -le 5000 ] ;
@@ -397,7 +397,7 @@ Please also have a look at other Dashboards created using Grafana Operator under
 
 3. Run the below command in `ProdEnv2` cluster to generate test traffic to sample application.
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=validate excludeFromRunAll=true promptEnv=false }
 frontend_pod=`kubectl --context ${COA_PROD2_KUBE_CONTEXT} get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
 loop_counter=0
 while [ $loop_counter -le 5000 ] ;
@@ -420,7 +420,7 @@ done
 
 1. Run this command to destroy this pattern. This will delete pipeline.
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=cleanup excludeFromRunAll=true promptEnv=false }
 export AWS_PROFILE='pipeline-account'
 aws sso login --profile $AWS_PROFILE
 cd `git rev-parse --show-toplevel`
@@ -431,7 +431,7 @@ make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pip
 
 2. Next, run this script to clean up resources created in respective accounts. This script deletes argocd apps, unsets kubeconfig entries, initiates deletion of CloudFormation stacks, secrets, SSM parameters and Amazon Grafana Workspace API key from respective accounts.
 
-```bash { excludeFromRunAll=true }
+```bash { category=cleanup excludeFromRunAll=true }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
 ```
 
