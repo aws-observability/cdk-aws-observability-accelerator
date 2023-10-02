@@ -283,13 +283,13 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
    2. export cluster specific and kubecontext environment variables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
    3. get Amazon Prometheus Endpoint URL from `ProdEnv1` account and export to environment variable `COA_AMP_ENDPOINT_URL`.
 
-```bash { excludeFromRunAll=true }
+```bash { category=post-deploy excludeFromRunAll=true }
 source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
 ```
 
 2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `ProdEnv1` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=post-deploy excludeFromRunAll=true promptEnv=false }
 if [[ `lsof -i:8080 | wc -l` -eq 0 ]]
 then
     export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
@@ -331,7 +331,7 @@ curl localhost:8081
 
 3. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete Datasource and Grafana Operator syncs up with the latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
 
-```bash { excludeFromRunAll=true promptEnv=false }
+```bash { category=post-deploy excludeFromRunAll=true promptEnv=false }
 export COA_AMG_WORKSPACE_URL=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --name "/cdk-accelerator/amg-info" \
     --with-decryption \
@@ -354,7 +354,7 @@ curl -X DELETE -H "Authorization: Bearer ${COA_AMG_API_KEY}" ${COA_AMG_WORKSPACE
 
 4. Then, deploy ContainerInsights in `ProdEnv2` account.
 
-```bash { excludeFromRunAll=true }
+```bash { category=post-deploy excludeFromRunAll=true }
 prod2NGRole=$(aws cloudformation describe-stack-resources --profile prod2-account --region ${COA_PROD2_REGION} \
     --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
     --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
