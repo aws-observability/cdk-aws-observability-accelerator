@@ -202,7 +202,7 @@ export class PipelineMultiEnvMonitoring {
             'https://github.com/iamprakkie/aws-observability-accelerator.git',
             'artifacts/sample-apps/grafana-operator-app',
             'artifacts',
-            'private'
+            'public'
         );
 
         const monStage: blueprints.StackStage = {

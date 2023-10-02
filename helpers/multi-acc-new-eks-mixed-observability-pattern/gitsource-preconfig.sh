@@ -49,26 +49,27 @@ else
     log 'B' "SSM SecureString parameter /cdk-accelerator/pipeline-git-info exists in ${COA_PIPELINE_REGION} region of pipeline-account (${COA_PIPELINE_ACCOUNT_ID})."
 fi
 
-existingSecret=$(aws secretsmanager list-secrets --profile monitoring-account --region ${COA_MON_REGION} --query "length(SecretList[?Name=='github-ssh-key'])")
-if [ $existingSecret -eq 0 ]; then
-read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
-    if [ -z "$gitpemfile_input" ]; then
-        log 'R' "Input required."
-        exit 1
-    else
-        gitPemFile=$gitpemfile_input
-    fi
+# Demonstration code for creating a new Secret in the monitoring account for private Git source for Argo CD in monitoring account.
+# existingSecret=$(aws secretsmanager list-secrets --profile monitoring-account --region ${COA_MON_REGION} --query "length(SecretList[?Name=='github-ssh-key'])")
+# if [ $existingSecret -eq 0 ]; then
+# read -p "GitHub SSH PRIVATE key PEM filename along with path: " gitpemfile_input
+#     if [ -z "$gitpemfile_input" ]; then
+#         log 'R' "Input required."
+#         exit 1
+#     else
+#         gitPemFile=$gitpemfile_input
+#     fi
 
-    eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitPemFile > /tmp/input-json-for-git-ssh-key.json
-    # curl -sSL https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/main/helpers/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
-    log 'O' "creating Secret github-ssh-key in ${COA_PIPELINE_REGION} region of monitoring-account (${COA_PIPELINE_ACCOUNT_ID}).."
-    aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-        --name "github-ssh-key" \
-        --description "SSH private key for ArgoCD authentication to GitHub repository" \
-        --cli-input-json file:///tmp/input-json-for-git-ssh-key.json
-    rm /tmp/input-json-for-git-ssh-key.json
-else
-    log 'B' "Secret github-ssh-key exists in ${COA_MON_REGION} region of monitoring-account (${COA_MON_ACCOUNT_ID})."
-fi
+#     eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/create-input-json-for-git-ssh-key.sh $gitPemFile > /tmp/input-json-for-git-ssh-key.json
+#     # curl -sSL https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/main/helpers/create-input-json-for-git-ssh-key.sh | eval bash -s $gitpemfile_input > /tmp/input-json-for-git-ssh-key.json
+#     log 'O' "creating Secret github-ssh-key in ${COA_MON_REGION} region of monitoring-account (${COA_MON_ACCOUNT_ID}).."
+#     aws secretsmanager create-secret --profile monitoring-account --region ${COA_MON_REGION} \
+#         --name "github-ssh-key" \
+#         --description "SSH private key for ArgoCD authentication to GitHub repository" \
+#         --cli-input-json file:///tmp/input-json-for-git-ssh-key.json
+#     rm /tmp/input-json-for-git-ssh-key.json
+# else
+#     log 'B' "Secret github-ssh-key exists in ${COA_MON_REGION} region of monitoring-account (${COA_MON_ACCOUNT_ID})."
+# fi
 
 log 'G' "DONE!"
