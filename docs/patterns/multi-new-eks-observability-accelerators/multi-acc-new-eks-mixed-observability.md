@@ -45,7 +45,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository, if not done already.
 
-```bash
+```bash { category=onetime excludeFromRunAll=true }
 git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
 cd cdk-aws-observability-accelerator
 ```
@@ -66,11 +66,11 @@ cd cdk-aws-observability-accelerator
 2. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
 3. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for `pipelineEnv` account:
 
-```bash
+```bash { category=onetime excludeFromRunAll=true }
 aws configure sso --profile pipeline-account
 ```
 
-```bash
+```bash { excludeFromRunAll=true }
 # sample configuration
 # SSO session name (Recommended): coa-multi-access-sso
 # SSO start URL [None]: https://d-XXXXXXXXXX.awsapps.com/start
@@ -100,11 +100,11 @@ aws configure sso --profile pipeline-account
 
 4. Then, configure profile for `ProdEnv1` AWS account.
 
-```bash
+```bash { category=onetime excludeFromRunAll=true }
 aws configure sso --profile prod1-account
 ```
 
-```bash
+```bash { excludeFromRunAll=true }
 # sample configuration
 # SSO session name (Recommended): coa-multi-access-sso
 # There are 7 AWS accounts available to you.
@@ -121,32 +121,32 @@ aws configure sso --profile prod1-account
 
 5. Then, configure profile for `ProdEnv2` AWS account.
 
-```bash
+```bash { category=onetime excludeFromRunAll=true }
 aws configure sso --profile prod2-account
 ```
 
 6. Then, configure profile for `monitoringEnv` AWS account.
 
-```bash
+```bash { category=onetime excludeFromRunAll=true }
 aws configure sso --profile monitoring-account
 ```
 
 7. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now log in to `pipelineEnv` account. When SSO login expires, you can use this command to re-login.
 
-```bash { promptEnv=false }
+```bash { category=prereq promptEnv=false }
 export AWS_PROFILE='pipeline-account'
 aws sso login --profile $AWS_PROFILE
 ```
 
 8. Export required environment variables for further use. If not available already, you will be prompted for name of Amazon Grafana workspace in `monitoringEnv` region of `monitoringEnv` account. And, then its endpoint URL, ID, Role ARN will be captured as environment variables.
 
-```bash { promptEnv=false }
+```bash { category=prereq promptEnv=false }
 source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/source-envs.sh
 ```
 
 9. Create SSM SecureString Parameter `/cdk-accelerator/cdk-context` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains account ID and region of all four AWS accounts used in this Observability Accelerator pattern.
 
-```bash
+```bash { category=prereq }
 aws ssm put-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --type "SecureString" \
     --overwrite \
@@ -192,42 +192,25 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 1. Following GitHub sources used in this pattern:
 
    1. Apps Git Repo - This repository serves as the source for deploying and managing applications in `prodEnv1` and `prodEnv2` using GitOps by Argo CD. Here, it is configured to [sample-apps from aws-observability-accelerator](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/envs/prod).
-
    2. Source for CodePipeline - This repository serves as the CodePipeline source stage for retrieving and providing source code to downstream pipeline stages, facilitating automated CI/CD processes. Whenever a change is detected in the source code, the pipeline is initiated automatically. This is achieved using GitHub webhooks. We are using CodePipeline to deploy multi-account multi-region clusters.
-
    3. Source for `monitoringEnv` Argo CD - This repository serves as the source for deploying and managing applications in the `monitoringEnv` environment using GitOps by Argo CD. Here, it is configured to [grafana-operator-app from aws-observability-accelerator](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/grafana-operator-app), using which Grafana Datasoures and Dashboards are deployed.
 
-
 ---
->**_NOTE_**: Argo CD source repositories used here for `prodEnv1`, `prodEnv2` and `monitoringEnv` are public. If you need to use private repositories, create secret called `github-ssh-key` in respective accounts and region. This secret should contain your GitHub SSH private key as a JSON structure with fields `sshPrivateKey` and `url` in AWS Secrets Manager. Argo CD add-on will use this secret for authentication with private GitHub repositories. For more details on setting up SSH credentials, please refer to [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/add-ons/argo-cd/#secrets-support).
+
+> ___NOTE___: Argo CD source repositories used here for `prodEnv1`, `prodEnv2` and `monitoringEnv` are public. If you need to use private repositories, create secret called `github-ssh-key` in respective accounts and region. This secret should contain your GitHub SSH private key as a JSON structure with fields `sshPrivateKey` and `url` in AWS Secrets Manager. Argo CD add-on will use this secret for authentication with private GitHub repositories. For more details on setting up SSH credentials, please refer to [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/add-ons/argo-cd/#secrets-support).
+
 ---
 
 2. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your GitHub account.
-
-3. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
+3. Create GitHub Personal Access Token (PAT) for your CodePipeline GitHub source. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
+    - **repo** - to read the repository
+    - __admin:repo_hook__ - to use webhooks
+4. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
+    1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account which contains details of CodePipeline source. This parameter contains GitHub owner name where you forked [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator), repository name (`cdk-aws-observability-accelerator`) and branch (`main`).
+    2. create AWS Secret Manager secret `github-token` in `pipelineEnv` region of `pipelineEnv` account to hold GitHub Personal Access Token (PAT).
 
 ```bash { promptEnv=true }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh
-```
-
-4. Create `github-token` secret in `pipelineEnv` region of `pipelineEnv` account. This secret must be stored as a plain text in AWS Secrets Manager. For more information on how to set it up, please refer [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token). The GitHub Personal Access Token should have these scopes:
-
-- **repo** - to read the repository
-- __admin:repo_hook__ - to use webhooks
-
-```bash { promptEnv=false }
-read -s -p "GitHub Personal Access Token: " gitpat_input
-export COA_GIT_PAT=$gitpat_input
-unset gitpat_input
-```
-
-```bash
-aws secretsmanager create-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} \
-    --name "github-token" \
-    --description "GitHub Personal Access Token for CodePipeline to access GitHub account" \
-    --secret-string "${COA_GIT_PAT}"
-
-unset $COA_GIT_PAT
 ```
 
 ## Deployment
@@ -300,13 +283,13 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
    2. export cluster specific and kubecontext environment variables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
    3. get Amazon Prometheus Endpoint URL from `ProdEnv1` account and export to environment variable `COA_AMP_ENDPOINT_URL`.
 
-```bash
+```bash { excludeFromRunAll=true }
 source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
 ```
 
 2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `ProdEnv1` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
 
-```bash { promptEnv=false }
+```bash { excludeFromRunAll=true promptEnv=false }
 if [[ `lsof -i:8080 | wc -l` -eq 0 ]]
 then
     export ARGO_SERVER=$(kubectl --context ${COA_MON_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
@@ -331,21 +314,24 @@ else
 fi
 ```
 
-
 ---
->**_NOTE_**: You can access Argo CD Admin UI using port-forwading. Here are commands to access `prodEnv1` Argo CD:
-```bash
+
+> ___NOTE___: You can access Argo CD Admin UI using port-forwading. Here are commands to access `prodEnv1` Argo CD:
+
+```bash { excludeFromRunAll=true promptEnv=false }
 export PROD1_ARGO_SERVER=$(kubectl --context ${COA_PROD1_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
 export PROD1_ARGO_PASSWORD=$(kubectl --context ${COA_PROD1_KUBE_CONTEXT} -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo "PROD1 ARGO PASSWORD:: "$PROD1_ARGO_PASSWORD
 kubectl --context ${COA_PROD1_KUBE_CONTEXT} port-forward $PROD1_ARGO_SERVER -n argocd 8081:443 > /dev/null 2>&1 &
+sleep 5
 curl localhost:8081
 ```
+
 ---
 
 3. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete Datasource and Grafana Operator syncs up with the latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
 
-```bash { promptEnv=false }
+```bash { excludeFromRunAll=true promptEnv=false }
 export COA_AMG_WORKSPACE_URL=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
     --name "/cdk-accelerator/amg-info" \
     --with-decryption \
@@ -368,7 +354,7 @@ curl -X DELETE -H "Authorization: Bearer ${COA_AMG_API_KEY}" ${COA_AMG_WORKSPACE
 
 4. Then, deploy ContainerInsights in `ProdEnv2` account.
 
-```bash
+```bash { excludeFromRunAll=true }
 prod2NGRole=$(aws cloudformation describe-stack-resources --profile prod2-account --region ${COA_PROD2_REGION} \
     --stack-name "coa-eks-prod2-${COA_PROD2_REGION}-coa-eks-prod2-${COA_PROD2_REGION}-blueprint" \
     --query "StackResources[?ResourceType=='AWS::IAM::Role' && contains(LogicalResourceId,'NodeGroupRole')].PhysicalResourceId" \
@@ -392,7 +378,7 @@ curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-i
 
 1. Run the below command in `ProdEnv1` cluster to generate test traffic to sample application and let us visualize traces to X-Ray and Amazon Managed Grafana Console out the sample `ho11y` app :
 
-```bash { promptEnv=false }
+```bash { excludeFromRunAll=true promptEnv=false }
 frontend_pod=`kubectl --context ${COA_PROD1_KUBE_CONTEXT} get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
 loop_counter=0
 while [ $loop_counter -le 5000 ] ;
@@ -411,7 +397,7 @@ Please also have a look at other Dashboards created using Grafana Operator under
 
 3. Run the below command in `ProdEnv2` cluster to generate test traffic to sample application.
 
-```bash { promptEnv=false }
+```bash { excludeFromRunAll=true promptEnv=false }
 frontend_pod=`kubectl --context ${COA_PROD2_KUBE_CONTEXT} get pod -n geordie --no-headers -l app=frontend -o jsonpath='{.items[*].metadata.name}'`
 loop_counter=0
 while [ $loop_counter -le 5000 ] ;
@@ -434,7 +420,7 @@ done
 
 1. Run this command to destroy this pattern. This will delete pipeline.
 
-```bash { promptEnv=false }
+```bash { excludeFromRunAll=true promptEnv=false }
 export AWS_PROFILE='pipeline-account'
 aws sso login --profile $AWS_PROFILE
 cd `git rev-parse --show-toplevel`
@@ -445,7 +431,7 @@ make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pip
 
 2. Next, run this script to clean up resources created in respective accounts. This script deletes argocd apps, unsets kubeconfig entries, initiates deletion of CloudFormation stacks, secrets, SSM parameters and Amazon Grafana Workspace API key from respective accounts.
 
-```bash
+```bash { excludeFromRunAll=true }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
 ```
 
