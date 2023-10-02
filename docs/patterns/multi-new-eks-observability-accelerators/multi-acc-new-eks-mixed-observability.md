@@ -8,18 +8,18 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ## Objective
 
-1. Deploying two production grade Amazon EKS cluster across two AWS Accounts ( Prod1, Prod2 account ) in two different regions through a Continuous Deployment infrastructure pipeline triggered upon a commit to the repository that holds the pipeline configuration in an another AWS account (pipeline account).
-2. Deploying ADOT add-on, AMP add-on to Prod 1 Amazon EKS Cluster to remote write metrics to AMP workspace in Prod 1 AWS Account.
+1. Deploying two production grade Amazon EKS cluster across two AWS Accounts (Prod1, Prod2 account) in two different regions through a Continuous Deployment infrastructure pipeline triggered upon a commit to the repository that holds the pipeline configuration in another AWS account (pipeline account).
+2. Deploying ADOT add-on, AMP add-on to Prod 1 Amazon EKS Cluster to remote-write metrics to AMP workspace in Prod 1 AWS Account.
 3. Deploying ADOT add-on, CloudWatch add-on to Prod 2 Amazon EKS Cluster to write metrics to CloudWatch in Prod 2 AWS Account.
-4. Configuring GitOps tooling (ArgoCD addon) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using ArgoCD projects.
+4. Configuring GitOps tooling (ArgoCD add-on) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using ArgoCD projects.
 5. Setting up IAM roles in Prod 1 and Prod 2 Accounts to allow an AMG service role in the Monitoring account (mon-account) to access metrics from AMP workspace in Prod 1 account and CloudWatch namespace in Prod 2 account.
 6. Setting Amazon Managed Grafana to visualize AMP metrics from Amazon EKS cluster in Prod account 1 and CloudWatch metrics on workloads in Amazon EKS cluster in Prod account 2.
 7. Installing Grafana Operator in Monitoring account (mon-account) to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
 8. Installing External Secrets Operator in Monitoring account (mon-account) to retrieve and Sync the Grafana API keys.
 
-### GitOps confguration
+### GitOps configuration
 
-- For GitOps, the blueprint bootstrap the ArgoCD addon and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
+- For GitOps, the blueprint bootstrap the ArgoCD add-on and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
 - You can find the team-geordie configuration for this pattern in the workload repository under the folder [`team-geordie`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/teams/team-geordie).
 - GitOps based management of Amazon Grafana resources (like: Datasources and Dashboards) is achieved using ArgoCD application [`grafana-operator-app`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/sample-apps/grafana-operator-app). Grafana Operator resources are deployed using [`grafana-operator-chart`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/grafana-operator-chart).
 
@@ -52,7 +52,7 @@ cd cdk-aws-observability-accelerator
 
 ---
 
-> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code) . There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try.
+> ___Pro Tip:___ This document is compatible to run as Notebook with [RUNME for VS Code](https://docs.runme.dev/install#runme-for-vs-code). There's no need to manually copy and paste commands. You can effortlessly execute them directly from this markdown file. Feel free to give it a try.
 >
 > Here is a sample usage of this document using RUNME:
 
@@ -62,7 +62,7 @@ cd cdk-aws-observability-accelerator
 
 ### SSO Profile Setup
 
-1. You will be accessing multiple accounts during deployement of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html) are complete before proceeding to next steps.
+1. You will be accessing multiple accounts during deployment of this pattern. It is recommended to configure the AWS CLI to authenticate access with AWS IAM Identity Center (successor to AWS Single Sign-On). Let's configure Token provider with automatic authentication refresh for AWS IAM Identity Center. Ensure [Prerequisites mentioned here](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html) are complete before proceeding to next steps.
 2. Create and use AWS IAM Identity Center login with `AWSAdministratorAccess` Permission set assigned to all AWS accounts required for this pattern (prodEnv1, prodEnv2, pipelineEnv and monitoringEnv).
 3. Configure [AWS profile with sso](https://docs.aws.amazon.com/cli/latest/userguide/sso-configure-profile-token.html#sso-configure-profile-token-auto-sso) for `pipelineEnv` account:
 
@@ -131,7 +131,7 @@ aws configure sso --profile prod2-account
 aws configure sso --profile monitoring-account
 ```
 
-7. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now login to `pipelineEnv` account. When SSO login expires, you can use this command to re-login.
+7. Login to required SSO profile using `aws sso login --profile <profile name>`. Let's now log in to `pipelineEnv` account. When SSO login expires, you can use this command to re-login.
 
 ```bash { promptEnv=false }
 export AWS_PROFILE='pipeline-account'
@@ -189,13 +189,12 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 
 ### CodePipeline GitHub Source Configuration
 
-1. Ensure GitHub source repo is enabled with SSH Key authentication. Refer to [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) for steps.
-
+1. If your GitHub Source repository is a PRIVATE repository, create SSH key authentication for it. Refer to [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) for steps.
 2. Run `helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh` script to
 
    1. create SSM SecureString Parameter `/cdk-accelerator/pipeline-git-info` in `pipelineEnv` region of `pipelineEnv` account. This parameter contains GitHub owner name, repository name (`cdk-aws-observability-accelerator`) and branch (`main`) which will be used as source for CodePipeline. [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository should be available in this GitHub source, ideally through forking.
-
-   2. create secret `github-ssh-key` in `monitoringEnv` region of `monitoringEnv` account. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager. This will be used by ArgoCD addon to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
+   
+   2. create secret `github-ssh-key` in `pipelineEnv` region of `pipelineEnv` account, only for PRIVATE repository. This secret must contain GitHub SSH private key as a JSON structure containing fields `sshPrivateKey` and `url` in AWS Secrets Manager and, it will be used by ArgoCD add-on to authenticate against any GitHub repository (private or public). This secret is expected to be defined in the region where the pipeline will be deployed to. For more information on SSH credentials setup see [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/add-ons/argo-cd/#secrets-support).
 
 ```bash { promptEnv=true }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/gitsource-preconfig.sh
@@ -223,7 +222,7 @@ unset $COA_GIT_PAT
 
 ## Deployment
 
-1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organisation/user.
+1. Fork [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository to your CodePioeline source GitHub organization/user.
 2. Install the AWS CDK Toolkit globally on host machine.
 
 ```bash
@@ -288,7 +287,7 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
 1. Once all steps of `multi-acc-stages` in `multi-account-COA-pipeline` are complete, run script to
 
    1. create entries in kubeconfig with contexts of newly created EKS clusters.
-   2. export cluster specific and kubecontext environment vairables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
+   2. export cluster specific and kubecontext environment variables (like: `COA_PROD1_CLUSTER_NAME` and `COA_PROD1_KUBE_CONTEXT`).
    3. get Amazon Prometheus Endpoint URL from `prod1Env` account and export to environment variable `COA_AMP_ENDPOINT_URL`.
 
 ```bash
@@ -325,7 +324,7 @@ else
 fi
 ```
 
-3. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete datasource and Grafana Operator syncs up with latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
+3. Datasource `grafana-operator-amp-datasource` created by Grafana Operator needs to reflect AMP Endpoint URL. There is a limitation with Grafana Operator (or Grafana) which doesn't sync updated `grafana-datasources` to Grafana. To overcome this issue, we will simply delete Datasource and Grafana Operator syncs up with the latest configuration in 5 minutes. This is achieved using Grafana API and key stored in SecureString parameter `/cdk-accelerator/grafana-api-key` in `monitoringEnv` account.
 
 ```bash { promptEnv=false }
 export COA_AMG_WORKSPACE_URL=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
