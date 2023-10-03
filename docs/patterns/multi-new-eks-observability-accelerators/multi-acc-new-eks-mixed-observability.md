@@ -325,7 +325,7 @@ fi
 export PROD1_ARGO_SERVER=$(kubectl --context ${COA_PROD1_KUBE_CONTEXT} -n argocd get svc -l app.kubernetes.io/name=argocd-server -o name)
 export PROD1_ARGO_PASSWORD=$(kubectl --context ${COA_PROD1_KUBE_CONTEXT} -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo "PROD1 ARGO PASSWORD:: "$PROD1_ARGO_PASSWORD
-kubectl --context ${COA_PROD1_KUBE_CONTEXT} port-forward $PROD1_ARGO_SERVER -n argocd 8081:443 > /dev/null 2>&1 &
+nohup kubectl --context ${COA_PROD1_KUBE_CONTEXT} port-forward $PROD1_ARGO_SERVER -n argocd 8081:443 > /dev/null 2>&1 &
 sleep 5
 curl localhost:8081
 ```
