@@ -39,6 +39,7 @@ nav:
       - OSS Apiserver Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability.md
       - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
       - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+      - OSS GPU: patterns/single-new-eks-observability-accelerators/single-new-eks-gpu-opensource-observability.md
     - Logs: logs.md  
     - Tracing: tracing.md
   - Supporting Examples:
