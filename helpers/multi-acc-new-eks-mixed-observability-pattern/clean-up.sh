@@ -142,7 +142,7 @@ read -p "Press any key to continue.."
 
 aws secretsmanager delete-secret --profile pipeline-account --region ${COA_PIPELINE_REGION} --secret-id "github-token" --force-delete-without-recovery
 
-aws secretsmanager delete-secret --profile monitoring-account --region ${COA_MON_REGION} --secret-id "github-ssh-key" --force-delete-without-recovery
+# aws secretsmanager delete-secret --profile monitoring-account --region ${COA_MON_REGION} --secret-id "github-ssh-key" --force-delete-without-recovery
 
 aws ssm delete-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} --name "/cdk-accelerator/pipeline-git-info"
 COA_AMG_WORKSPACE_NAME=$(aws ssm get-parameter --profile pipeline-account --region ${COA_PIPELINE_REGION} \
