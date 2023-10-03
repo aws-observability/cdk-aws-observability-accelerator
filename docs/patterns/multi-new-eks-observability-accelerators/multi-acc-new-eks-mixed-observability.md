@@ -45,7 +45,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 Clone [`cdk-aws-observability-accelerator`](https://github.com/aws-observability/cdk-aws-observability-accelerator) repository, if not done already.
 
-```bash { category=00-firstime excludeFromRunAll=true }
+```bash { category= excludeFromRunAll=true }
 git clone https://github.com/aws-observability/cdk-aws-observability-accelerator.git
 cd cdk-aws-observability-accelerator
 ```
@@ -270,13 +270,18 @@ cd `git rev-parse --show-toplevel`
 make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipeline
 ```
 
-6. Login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region. Check status of pipeline that deploys multiple Amazon EKS clusters through CloudFromation stacks in respective accounts. This deployment also creates
+6. Check status of pipeline that deploys multiple Amazon EKS clusters through CloudFromation stacks in respective accounts. This deployment also creates
 
    - `ampPrometheusDataSourceRole` with permissions to retrieve metrics from AMP in `ProdEnv1` account,
    - `cloudwatchDataSourceRole` with permissions to retrieve metrics from CloudWatch in `ProdEnv2` account and
    - Updates Amazon Grafana workspace IAM role in `monitoringEnv` account to assume roles in `ProdEnv1` and `ProdEnv2` accounts for retrieving and visualizing metrics in Grafana
 
-   This step may require approximately **50 minutes** to finish.
+   This step may require approximately **50 minutes** to finish. You may login to `pipelineEnv` account and navigate to [AWS CodePipeline console](https://console.aws.amazon.com/codesuite/codepipeline/pipelines) at `pipelineEnv` region to check the status.
+
+```bash { category=02-deploy promptEnv=true }
+# script to check status of codepipeline
+dots=""; while true; do status=$(aws codepipeline list-pipeline-executions --pipeline-name multi-account-COA-pipeline --query 'pipelineExecutionSummaries[0].status' --output text); [ $status == "Succeeded" ] && echo -e "Pipeline execution SUCCEEDED." && break || [ "$status" == "Failed" ] && echo -e "Pipeline execution FAILED." && break ||  printf "\r" && echo -n "Pipeline execution status: $status$dots" && dots+="." && sleep 10; done
+```
 
 ## Post Deployment
 
