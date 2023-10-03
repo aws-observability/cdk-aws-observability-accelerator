@@ -133,13 +133,13 @@ export class PipelineMultiEnvMonitoring {
         // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
         // const prodArgoAddonConfig = createArgoAddonConfig(
         //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/sample-apps/envs/prod',
+        //     'artifacts/argocd-apps/sample-apps/envs/prod',
         //     'main',
         //     'public'
         // );
         const prodArgoAddonConfig = createArgoAddonConfig(
             'https://github.com/iamprakkie/aws-observability-accelerator.git',
-            'artifacts/sample-apps/envs/prod',
+            'artifacts/argocd-apps/sample-apps/envs/prod',
             'artifacts',
             'public'
         );
@@ -194,13 +194,13 @@ export class PipelineMultiEnvMonitoring {
         // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
         // const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
         //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/sample-apps/grafana-operator-app',
+        //     'artifacts/argocd-apps/grafana-operator-app',
         //     'main',
         //     'private'
         // );
         const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
             'https://github.com/iamprakkie/aws-observability-accelerator.git',
-            'artifacts/sample-apps/grafana-operator-app',
+            'artifacts/argocd-apps/grafana-operator-app',
             'artifacts',
             'public'
         );
