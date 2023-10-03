@@ -280,7 +280,7 @@ make pattern multi-acc-new-eks-mixed-observability deploy multi-account-COA-pipe
 
 ```bash { category=02-deploy promptEnv=true }
 # script to check status of codepipeline
-dots=""; while true; do status=$(aws codepipeline list-pipeline-executions --pipeline-name multi-account-COA-pipeline --query 'pipelineExecutionSummaries[0].status' --output text); [ $status == "Succeeded" ] && echo -e "Pipeline execution SUCCEEDED." && break || [ "$status" == "Failed" ] && echo -e "Pipeline execution FAILED." && break ||  printf "\r" && echo -n "Pipeline execution status: $status$dots" && dots+="." && sleep 10; done
+dots=""; while true; do status=$(aws codepipeline --profile pipeline-account list-pipeline-executions --pipeline-name multi-account-COA-pipeline --query 'pipelineExecutionSummaries[0].status' --output text); [ $status == "Succeeded" ] && echo -e "Pipeline execution SUCCEEDED." && break || [ "$status" == "Failed" ] && echo -e "Pipeline execution FAILED." && break ||  printf "\r" && echo -n "Pipeline execution status: $status$dots" && dots+="." && sleep 10; done
 ```
 
 ## Post Deployment
