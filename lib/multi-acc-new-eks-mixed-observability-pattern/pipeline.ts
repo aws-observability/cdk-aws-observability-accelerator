@@ -130,17 +130,10 @@ export class PipelineMultiEnvMonitoring {
             .enableCrossAccountKeys();
 
         // Argo configuration for prod1 and prod2
-        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
-        // const prodArgoAddonConfig = createArgoAddonConfig(
-        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/argocd-apps/sample-apps/envs/prod',
-        //     'main',
-        //     'public'
-        // );
         const prodArgoAddonConfig = createArgoAddonConfig(
-            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'https://github.com/aws-observability/aws-observability-accelerator.git',
             'artifacts/argocd-apps/sample-apps/envs/prod',
-            'artifacts',
+            'main',
             'public'
         );
 
@@ -191,17 +184,10 @@ export class PipelineMultiEnvMonitoring {
         });
 
         // ArgoCD configuration for monitoringEnv
-        // CHANGE ME FINALLY HERE AS WELL AS IN APP'S VALUES.YAML
-        // const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-        //     'https://github.com/aws-observability/aws-observability-accelerator.git',
-        //     'artifacts/argocd-apps/grafana-operator-app',
-        //     'main',
-        //     'private'
-        // );
         const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-            'https://github.com/iamprakkie/aws-observability-accelerator.git',
+            'https://github.com/aws-observability/aws-observability-accelerator.git',
             'artifacts/argocd-apps/grafana-operator-app',
-            'artifacts',
+            'main',
             'public'
         );
 
