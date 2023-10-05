@@ -19,11 +19,20 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ### GitOps configuration
 
-- For GitOps, the blueprint bootstrap the Argo CD add-on and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
+- For GitOps, this pattern bootstraps Argo CD add-on and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
 - You can find the team-geordie configuration for this pattern in the workload repository under the folder [`team-geordie`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/teams/team-geordie).
 - GitOps based management of Amazon Grafana resources (like: Datasources and Dashboards) is achieved using Argo CD application [`grafana-operator-app`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/grafana-operator-app). Grafana Operator resources are deployed using [`grafana-operator-chart`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/grafana-operator-chart).
 
 ## Prerequisites
+
+Ensure following tools are installed in host machine:
+
+1. [aws cli](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
+2. [kubectl](https://Kubernetes.io/docs/tasks/tools/)
+3. [cdk](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install)
+4. [npm](https://docs.npmjs.com/cli/v8/commands/npm-install)
+5. [argocd](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
+6. [jq](https://jqlang.github.io/jq/download/)
 
 ### AWS Accounts
 
