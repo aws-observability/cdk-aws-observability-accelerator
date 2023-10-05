@@ -19,8 +19,8 @@ let ampAccount: string;
 let ampRegion: string;
 let cwAccount: string;
 let cwRegion: string;
-let monAccount: string;
-let monRegion: string;
+// let monAccount: string;
+// let monRegion: string;
 
 type repoTypeValues = 'public' | 'private';
 
@@ -83,8 +83,8 @@ export class PipelineMultiEnvMonitoring {
         ampRegion = context.prodEnv1.region as string;
         cwAccount = context.prodEnv2.account as string;
         cwRegion = context.prodEnv2.region as string;
-        monAccount = context.monitoringEnv.account as string;
-        monRegion = context.monitoringEnv.region as string;
+        // monAccount = context.monitoringEnv.account as string;
+        // monRegion = context.monitoringEnv.region as string;
 
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
