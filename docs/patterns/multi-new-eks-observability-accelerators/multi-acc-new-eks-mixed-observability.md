@@ -11,7 +11,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 1. Deploying two production grade Amazon EKS cluster across two AWS Accounts (Prod1, Prod2 account) in two different regions through a Continuous Deployment infrastructure pipeline triggered upon a commit to the repository that holds the pipeline configuration in another AWS account (pipeline account).
 2. Deploying ADOT add-on, AMP add-on to Prod 1 Amazon EKS Cluster to remote-write metrics to AMP workspace in Prod 1 AWS Account.
 3. Deploying ADOT add-on, CloudWatch add-on to Prod 2 Amazon EKS Cluster to write metrics to CloudWatch in Prod 2 AWS Account.
-4. Configuring GitOps tooling (ArgoCD add-on) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using ArgoCD projects.
+4. Configuring GitOps tooling (Argo CD add-on) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using Argo CD projects.
 5. Setting up IAM roles in Prod 1 and Prod 2 Accounts to allow an AMG service role in the Monitoring account (mon-account) to access metrics from AMP workspace in Prod 1 account and CloudWatch namespace in Prod 2 account.
 6. Setting Amazon Managed Grafana to visualize AMP metrics from Amazon EKS cluster in Prod account 1 and CloudWatch metrics on workloads in Amazon EKS cluster in Prod account 2.
 7. Installing Grafana Operator in Monitoring account (mon-account) to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
@@ -19,9 +19,9 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ### GitOps configuration
 
-- For GitOps, the blueprint bootstrap the ArgoCD add-on and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
+- For GitOps, the blueprint bootstrap the Argo CD add-on and points to [sample applications](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/envs) in [AWS Observability Accelerator](https://github.com/aws-observability/aws-observability-accelerator).
 - You can find the team-geordie configuration for this pattern in the workload repository under the folder [`team-geordie`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/teams/team-geordie).
-- GitOps based management of Amazon Grafana resources (like: Datasources and Dashboards) is achieved using ArgoCD application [`grafana-operator-app`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/grafana-operator-app). Grafana Operator resources are deployed using [`grafana-operator-chart`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/grafana-operator-chart).
+- GitOps based management of Amazon Grafana resources (like: Datasources and Dashboards) is achieved using Argo CD application [`grafana-operator-app`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/grafana-operator-app). Grafana Operator resources are deployed using [`grafana-operator-chart`](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/grafana-operator-chart).
 
 ## Prerequisites
 
@@ -197,7 +197,7 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 
 ---
 
-> ___NOTE___: Argo CD source repositories used here for `prodEnv1`, `prodEnv2` and `monitoringEnv` are public. If you need to use private repositories, create secret called `github-ssh-key` in respective accounts and region. This secret should contain your GitHub SSH private key as a JSON structure with fields `sshPrivateKey` and `url` in AWS Secrets Manager. Argo CD add-on will use this secret for authentication with private GitHub repositories. For more details on setting up SSH credentials, please refer to [ArgoCD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/add-ons/argo-cd/#secrets-support).
+> ___NOTE___: Argo CD source repositories used here for `prodEnv1`, `prodEnv2` and `monitoringEnv` are public. If you need to use private repositories, create secret called `github-ssh-key` in respective accounts and region. This secret should contain your GitHub SSH private key as a JSON structure with fields `sshPrivateKey` and `url` in AWS Secrets Manager. Argo CD add-on will use this secret for authentication with private GitHub repositories. For more details on setting up SSH credentials, please refer to [Argo CD Secrets Support](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/argo-cd/#secrets-support).
 
 ---
 
@@ -295,7 +295,7 @@ dots=""; while true; do status=$(aws codepipeline --profile pipeline-account lis
 source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/post-deployment-source-envs.sh
 ```
 
-2. Then, update parameter `AMP_ENDPOINT_URL` of ArgoCD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `ProdEnv1` account (`COA_AMP_ENDPOINT_URL`) and sync argocd apps.
+2. Then, update parameter `AMP_ENDPOINT_URL` of Argo CD bootstrap app in `monitoringEnv` with Amazon Prometheus endpoint URL from `ProdEnv1` account (`COA_AMP_ENDPOINT_URL`) and sync Argo CD apps.
 
 ```bash { category=03-postdeploy promptEnv=false }
 if [[ `lsof -i:8080 | wc -l` -eq 0 ]]
@@ -437,7 +437,7 @@ source `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observabi
 make pattern multi-acc-new-eks-mixed-observability destroy multi-account-COA-pipeline
 ```
 
-2. Next, run this script to clean up resources created in respective accounts. This script deletes argocd apps, unsets kubeconfig entries, initiates deletion of CloudFormation stacks, secrets, SSM parameters and Amazon Grafana Workspace API key from respective accounts.
+2. Next, run this script to clean up resources created in respective accounts. This script deletes Argo CD apps, unsets kubeconfig entries, initiates deletion of CloudFormation stacks, secrets, SSM parameters and Amazon Grafana Workspace API key from respective accounts.
 
 ```bash { category=05-cleanup }
 eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observability-pattern/clean-up.sh
