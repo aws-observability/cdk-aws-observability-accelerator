@@ -193,7 +193,7 @@ eval bash `git rev-parse --show-toplevel`/helpers/multi-acc-new-eks-mixed-observ
 
    1. Apps Git Repo - This repository serves as the source for deploying and managing applications in `prodEnv1` and `prodEnv2` using GitOps by Argo CD. Here, it is configured to [sample-apps from aws-observability-accelerator](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/envs/prod).
    2. Source for CodePipeline - This repository serves as the CodePipeline source stage for retrieving and providing source code to downstream pipeline stages, facilitating automated CI/CD processes. Whenever a change is detected in the source code, the pipeline is initiated automatically. This is achieved using GitHub webhooks. We are using CodePipeline to deploy multi-account multi-region clusters.
-   3. Source for `monitoringEnv` Argo CD - This repository serves as the source for deploying and managing applications in the `monitoringEnv` environment using GitOps by Argo CD. Here, it is configured to [grafana-operator-app from aws-observability-accelerator](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/sample-apps/grafana-operator-app), using which Grafana Datasoures and Dashboards are deployed.
+   3. Source for `monitoringEnv` Argo CD - This repository serves as the source for deploying and managing applications in the `monitoringEnv` environment using GitOps by Argo CD. Here, it is configured to [grafana-operator-app from aws-observability-accelerator](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/grafana-operator-app), using which Grafana Datasoures and Dashboards are deployed.
 
 ---
 
