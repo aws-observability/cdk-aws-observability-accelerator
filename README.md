@@ -200,6 +200,8 @@ npx cdk bootstrap
 make pattern single-new-eks-opensource-observability deploy
 ```
 
+- To access instructions for individual patterns check documentation in `docs/patterns` directory.
+
 # Developer Flow
 
 ## Modifications
