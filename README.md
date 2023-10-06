@@ -176,13 +176,16 @@ Example:
 
 Patterns:
 
-	existing-eks-mixed-observability
-	existing-eks-opensource-observability
-	single-new-eks-awsnative-observability
 	single-new-eks-cluster
+	existing-eks-mixed-observability
+	single-new-eks-opensource-observability
+	single-new-eks-awsnative-observability
+	single-new-eks-gpu-opensource-observability
 	single-new-eks-graviton-opensource-observability
 	single-new-eks-mixed-observability
-	single-new-eks-opensource-observability
+	existing-eks-opensource-observability
+	existing-eks-awsnative-observability
+	multi-acc-new-eks-mixed-observability
 ```
 
 - Bootstrap your CDK environment.
@@ -196,26 +199,6 @@ npx cdk bootstrap
 ```sh
 make pattern single-new-eks-opensource-observability deploy
 ```
-
-- To access instructions for individual patterns, please follow the links provided here:
-
-    - New Cluster
-        - [Multi-Account Multi-Region Mixed Observability (M3) Accelerator](docs/patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability.md)
-        - [Single New EKS Cluster AWS Mixed Observability Accelerator](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md)
-        - [Single New EKS Cluster AWS Native Observability Accelerator](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md)
-        - [Single New EKS Cluster Observability Accelerator](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md)
-        - [Single New EKS Cluster Open Source Observability Accelerator - API Server monitoring](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability.md)
-        - [Single New EKS Cluster Open Source Observability Accelerator - monitoring Java applications](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md)
-        - [Single New EKS Cluster Open Source Observability Accelerator - monitoring Nginx applications](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md)
-        - [Single New EKS Cluster Open Source Observability Accelerator for NVIDIA GPU-based clusters](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-gpu-opensource-observability.md)
-        - [Single New EKS Cluster Open Source Observability Accelerator](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md)
-        - [Single New EKS Graviton Cluster Open Source Observability Accelerator](docs/patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md)
-    - Existing Cluster
-        - [Existing EKS Cluster AWS Mixed Observability Accelerator](docs/patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md)
-        - [Existing EKS Cluster AWS Native Observability Accelerator](docs/patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability.md)
-        - [Existing EKS Cluster Nginx Observability Accelerator](docs/patterns/existing-eks-observability-accelerators/existing-eks-nginx-observability.md)
-        - [Existing EKS Cluster Observability Accelerator - API Server Monitoring](docs/patterns/existing-eks-observability-accelerators/existing-eks-apiserver-observability.md)
-        - [Existing EKS Cluster Open Source Observability Accelerator](docs/patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md)
 
 # Developer Flow
 
