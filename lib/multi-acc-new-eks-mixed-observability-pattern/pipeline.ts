@@ -196,33 +196,3 @@ export class PipelineMultiEnvMonitoring {
 
     }
 }
-
-function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
-
-    branch = branch! || 'main';
-    repoType = repoType! || 'public';
-
-    let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
-
-    if (repoType.toLocaleLowerCase() === 'public') {
-        ArgoCDAddOnProps = {
-            bootstrapRepo: {
-                repoUrl: repoUrl,
-                path: path,
-                targetRevision: branch,
-            },
-        };
-    } else {
-
-        ArgoCDAddOnProps = {
-            bootstrapRepo: {
-                repoUrl: repoUrl,
-                path: path,
-                targetRevision: branch,
-                credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
-                credentialsType: 'SSH',
-            },
-        };
-    }
-    return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
-}
