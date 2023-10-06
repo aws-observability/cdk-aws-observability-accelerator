@@ -5,34 +5,16 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import AmpMonitoringConstruct from './amp-monitoring';
 import CloudWatchMonitoringConstruct from './cloudwatch-monitoring';
-import GrafanaOperatorConstruct from "./grafana-operator-index";
+import GrafanaOperatorConstruct from "./central-monitoring";
 import { AmgIamSetupStack, AmgIamSetupStackProps } from './amg-iam-setup';
 import { getAMPAccessPolicyDocument } from './amp-access-policy';
 import { getCWAccessPolicyDocument } from './cw-access-policy';
 import { getCodeBuildPolicyDocument } from './codebuild-policy';
 import { CreateIAMRoleNestedStack, CreateIAMRoleNestedStackProps } from './create-iam-role';
 import { getSSMSecureString } from './get-ssm-securestring';
+import { createArgoCDAddonConfig, ArgoCDAddOnConfigProps, GrafanaOperatorProps } from './argocd-addon-config';
 
 const logger = blueprints.utils.logger;
-
-let ampAccount: string;
-let ampRegion: string;
-let cwAccount: string;
-let cwRegion: string;
-// let monAccount: string;
-// let monRegion: string;
-
-type repoTypeValues = 'public' | 'private';
-
-let ampAssumeRoleName: string;
-let cwAssumeRoleName: string;
-let amgWorkspaceUrl: string;
-let clusterDashUrl: string;
-let kubeletDashUrl: string;
-let namespaceWorkloadsDashUrl: string;
-let nodeExporterDashUrl: string;
-let nodesDashUrl: string;
-let workloadsDashUrl: string;
 
 // Function relies on a secret called "cdk-context" defined in COA_PIPELINE_REGION region in pipeline account. Its a MANDATORY STEP.
 export async function populateAccountWithContextDefaults(region: string): Promise<PipelineMultiEnvMonitoringProps> {
@@ -61,15 +43,6 @@ export class PipelineMultiEnvMonitoring {
     readonly pipelineRegion = process.env.COA_PIPELINE_REGION! || process.env.CDK_DEFAULT_REGION!;
 
     async buildAsync(scope: Construct) {
-
-        // All Grafana Dashboard URLs from `cdk.json` if present
-        clusterDashUrl = utils.valueFromContext(scope, "cluster.dashboard.url", undefined);
-        kubeletDashUrl = utils.valueFromContext(scope, "kubelet.dashboard.url", undefined);
-        namespaceWorkloadsDashUrl = utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined);
-        nodeExporterDashUrl = utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined);
-        nodesDashUrl = utils.valueFromContext(scope, "nodes.dashboard.url", undefined);
-        workloadsDashUrl = utils.valueFromContext(scope, "workloads.dashboard.url", undefined);
-
         // Checks for Git Owner
         if (!this.pipelineRegion) {
             logger.debug("ERROR: COA_PIPELINE_REGION or CDK_DEFAULT_REGION environment variable is not defined.");
@@ -78,13 +51,6 @@ export class PipelineMultiEnvMonitoring {
 
         // environments IDs consts
         const context = await populateAccountWithContextDefaults(this.pipelineRegion);
-
-        ampAccount = context.prodEnv1.account as string;
-        ampRegion = context.prodEnv1.region as string;
-        cwAccount = context.prodEnv2.account as string;
-        cwRegion = context.prodEnv2.region as string;
-        // monAccount = context.monitoringEnv.account as string;
-        // monRegion = context.monitoringEnv.region as string;
 
         const PROD1_ENV_ID = `coa-eks-prod1-${context.prodEnv1.region}`;
         const PROD2_ENV_ID = `coa-eks-prod2-${context.prodEnv2.region}`;
@@ -98,7 +64,6 @@ export class PipelineMultiEnvMonitoring {
 
         // Get AMG info from SSM SecureString
         const amgInfo = JSON.parse(await getSSMSecureString('/cdk-accelerator/amg-info',this.pipelineRegion))['amg'];
-        amgWorkspaceUrl = amgInfo.workspaceURL;
         const amgWorkspaceIAMRoleARN = amgInfo.workspaceIAMRoleARN;
 
         const AmgIamSetupStackProps: AmgIamSetupStackProps = {
@@ -130,15 +95,16 @@ export class PipelineMultiEnvMonitoring {
             .enableCrossAccountKeys();
 
         // Argo configuration for prod1 and prod2
-        const prodArgoAddonConfig = createArgoAddonConfig(
-            'https://github.com/aws-observability/aws-observability-accelerator.git',
-            'artifacts/argocd-apps/sample-apps/envs/prod',
-            'main',
-            'public'
-        );
+        const prodArgoCDAddOnConfigProps: ArgoCDAddOnConfigProps = {
+            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator.git',
+            path: 'artifacts/argocd-apps/sample-apps/envs/prod',
+            branch: 'main',
+            repoType: 'public'
+        };
+        const prodArgoCDAddOnConfig = createArgoCDAddonConfig(prodArgoCDAddOnConfigProps);
 
         // Props for cross-account trust role in PROD1 account to trust AMG from MON account, inorder to access PROD1's AMP.
-        ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
+        const ampAssumeRoleName = "AMPAccessForTrustedAMGRole";
         const AMPAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: ampAssumeRoleName!,
             trustArn: amgWorkspaceIAMRoleARN!,
@@ -155,11 +121,11 @@ export class PipelineMultiEnvMonitoring {
                     builder: CreateIAMRoleNestedStack.builder(AMPAccessRoleStackProps),
                     id: "amp-ds-trustrole-nested-stack"
                 }))
-                .addOns(prodArgoAddonConfig)
+                .addOns(prodArgoCDAddOnConfig)
         };
 
         // Props for cross-account trust role in PROD2 account to trust AMG from MON account, inorder to access PROD2's CloudWatch data
-        cwAssumeRoleName = "CWAccessForTrustedAMGRole";
+        const cwAssumeRoleName = "CWAccessForTrustedAMGRole";
         const CWAccessRoleStackProps: CreateIAMRoleNestedStackProps = {
             roleName: cwAssumeRoleName,
             trustArn: amgWorkspaceIAMRoleARN!,
@@ -175,7 +141,7 @@ export class PipelineMultiEnvMonitoring {
                     builder: CreateIAMRoleNestedStack.builder(CWAccessRoleStackProps),
                     id: "cloudwatch-iam-nested-stack"
                 }))
-                .addOns(prodArgoAddonConfig)
+                .addOns(prodArgoCDAddOnConfig)
         };
 
         pipeline.wave({
@@ -184,12 +150,30 @@ export class PipelineMultiEnvMonitoring {
         });
 
         // ArgoCD configuration for monitoringEnv
-        const grafanaOperatorArgoAddonConfig = createGOArgoAddonConfig(
-            'https://github.com/aws-observability/aws-observability-accelerator.git',
-            'artifacts/argocd-apps/grafana-operator-app',
-            'main',
-            'public'
-        );
+        const goProps: GrafanaOperatorProps = {
+            ampAccount: context.prodEnv1.account as string,
+            ampRegion: context.prodEnv1.region as string,
+            cwAccount: context.prodEnv2.account as string,
+            cwRegion: context.prodEnv2.region as string,
+            ampAssumeRoleName: ampAssumeRoleName,
+            cwAssumeRoleName: cwAssumeRoleName,
+            amgWorkspaceUrl: amgInfo.workspaceURL,
+            clusterDashUrl: utils.valueFromContext(scope, "cluster.dashboard.url", undefined),
+            kubeletDashUrl: utils.valueFromContext(scope, "kubelet.dashboard.url", undefined),
+            namespaceWorkloadsDashUrl: utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined),
+            nodeExporterDashUrl: utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined),
+            nodesDashUrl: utils.valueFromContext(scope, "nodes.dashboard.url", undefined),
+            workloadsDashUrl: utils.valueFromContext(scope, "workloads.dashboard.url", undefined)
+        };
+        const monArgoCDAddOnConfigProps: ArgoCDAddOnConfigProps = {
+            repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator.git',
+            path: 'artifacts/argocd-apps/grafana-operator-app',
+            branch: 'main',
+            repoType: 'public',
+            goProps: goProps
+        };
+
+        const goArgoCDAddOnConfig = createArgoCDAddonConfig(monArgoCDAddOnConfigProps);
 
         const monStage: blueprints.StackStage = {
             id: MON_ENV_ID,
@@ -200,7 +184,7 @@ export class PipelineMultiEnvMonitoring {
                     builder: AmgIamSetupStack.builder(AmgIamSetupStackProps),
                     id: "amg-iam-nested-stack"
                 }))
-                .addOns(grafanaOperatorArgoAddonConfig)
+                .addOns(goArgoCDAddOnConfig)
         };
 
         // adding monitoring env setup as separate stage
@@ -240,65 +224,5 @@ function createArgoAddonConfig(repoUrl: string, path: string, branch?: string, r
             },
         };
     }
-    return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
-}
-
-
-function createGOArgoAddonConfig(repoUrl: string, path: string, branch?: string, repoType?: repoTypeValues): blueprints.ArgoCDAddOn {
-
-    branch = branch! || 'main';
-    repoType = repoType! || 'public';
-
-    const ampAssumeRoleArn = `arn:aws:iam::${ampAccount}:role/${ampAssumeRoleName}`;
-    const cwAssumeRoleArn = `arn:aws:iam::${cwAccount}:role/${cwAssumeRoleName}`;
-
-    const ampEndpointURL = "UPDATE_ME_WITH_AMP_ENDPOINT_URL";
-
-    let ArgoCDAddOnProps: blueprints.ArgoCDAddOnProps;
-
-    if (repoType.toLocaleLowerCase() === 'public') {
-        ArgoCDAddOnProps = {
-            bootstrapRepo: {
-                repoUrl: repoUrl,
-                path: path,
-                targetRevision: branch,
-            },
-        };
-    } else {
-
-        ArgoCDAddOnProps = {
-            bootstrapRepo: {
-                repoUrl: repoUrl,
-                path: path,
-                targetRevision: branch,
-                credentialsSecretName: 'github-ssh-key', // for access to private repo. This needs SecretStoreAddOn added to your cluster. Ensure github-ssh-key secret exists in pipeline account at COA_REGION
-                credentialsType: 'SSH',
-            },
-        };
-    }
-
-    ArgoCDAddOnProps.bootstrapValues = {
-        AMP_ASSUME_ROLE_ARN: ampAssumeRoleArn,
-        AMP_AWS_REGION: ampRegion,
-        CW_ASSUME_ROLE_ARN: cwAssumeRoleArn,
-        CW_AWS_REGION: cwRegion,
-        AMP_ENDPOINT_URL: ampEndpointURL,
-        AMG_ENDPOINT_URL: amgWorkspaceUrl,
-        GRAFANA_CLUSTER_DASH_URL: clusterDashUrl,
-        GRAFANA_KUBELET_DASH_URL: kubeletDashUrl,
-        GRAFANA_NSWRKLDS_DASH_URL: namespaceWorkloadsDashUrl,
-        GRAFANA_NODEEXP_DASH_URL: nodeExporterDashUrl,
-        GRAFANA_NODES_DASH_URL: nodesDashUrl,
-        GRAFANA_WORKLOADS_DASH_URL: workloadsDashUrl
-    };
-
-    // ArgoCDAddOnProps.values = {
-    //     server: {  // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB
-    //         service: {
-    //             type: 'LoadBalancer'
-    //         }
-    //     }
-    // };
-
     return new blueprints.ArgoCDAddOn(ArgoCDAddOnProps);
 }
