@@ -1,0 +1,72 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: torch-neuron
+  namespace: kube-system
+  labels:
+    app: torch-neuron
+    role: master
+spec:
+  selector:
+    matchLabels:
+      app: torch-neuron
+      role: master
+  template:
+    metadata:
+      labels:
+        app: torch-neuron
+        role: master
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+        - name: torch-neuron
+          image: 763104351884.dkr.ecr.us-west-2.amazonaws.com/pytorch-inference-neuron:1.13.1-neuron-py310-sdk2.13.2-ubuntu20.04
+          command: ["/bin/sh"]
+          args: ["-c", "pip install prometheus-client && neuron-monitor | neuron-monitor-prometheus.py --port 9010"]
+          ports:
+          - name: prom-node-exp
+            containerPort: 9010
+            hostPort: 9010
+          resources:
+            limits:
+              cpu: 4
+              memory: 4Gi
+              aws.amazon.com/neuron: 1
+            requests:
+              cpu: "1"
+              memory: 1Gi
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/app-metrics: 'true'
+    prometheus.io/port: '9010'
+  name: torch-neuron
+  namespace: kube-system
+  labels:
+    app: torch-neuron
+spec:
+  clusterIP: None
+  ports:
+    - name: torch-neuron
+      port: 9010
+      protocol: TCP
+  selector:
+    app: torch-neuron
+  type: ClusterIP

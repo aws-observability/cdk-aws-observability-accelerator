@@ -47,6 +47,13 @@
       "maxSize": 3,
       "ebsSize": 50
     },
+    "inf1NodeGroup": {
+      "instanceSize": "2xlarge",
+      "desiredSize": 1, 
+      "minSize": 1, 
+      "maxSize": 3,
+      "ebsSize": 512
+    },
     "existing.cluster.name": "single-new-eks-observability-accelerator",
     "existing.kubectl.rolename": "YOUR_KUBECTL_ROLE"
   }
