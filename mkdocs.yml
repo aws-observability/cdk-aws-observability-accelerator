@@ -25,22 +25,23 @@ theme:
 nav:
   - Home: index.md
   - Amazon EKS:
-    - Existing Cluster: 
+    - Existing Cluster:
       - AWS Native : patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability.md
-      - OSS : patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
-      - OSS Nginx Mon : patterns/existing-eks-observability-accelerators/existing-eks-nginx-observability.md
-      - OSS Apiserver Mon : patterns/existing-eks-observability-accelerators/existing-eks-apiserver-observability.md
       - Mixed : patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability.md
-    - New Cluster: 
+      - OSS : patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability.md
+      - OSS Apiserver Mon : patterns/existing-eks-observability-accelerators/existing-eks-apiserver-observability.md
+      - OSS Nginx Mon : patterns/existing-eks-observability-accelerators/existing-eks-nginx-observability.md
+    - New Cluster:
       - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
+      - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+      - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
+      - Multi-Cluster Multi-Region Mon : patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability.md
       - OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
+      - OSS Apiserver Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability.md
+      - OSS GPU: patterns/single-new-eks-observability-accelerators/single-new-eks-gpu-opensource-observability.md
       - OSS Java Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md
       - OSS Nginx Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md
-      - OSS Apiserver Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability.md
-      - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
-      - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
-      - OSS GPU: patterns/single-new-eks-observability-accelerators/single-new-eks-gpu-opensource-observability.md
-    - Logs: logs.md  
+    - Logs: logs.md
     - Tracing: tracing.md
   - Supporting Examples:
     - EKS Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
