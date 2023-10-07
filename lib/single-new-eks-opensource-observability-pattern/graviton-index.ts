@@ -93,7 +93,6 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             .region(region)
             .version('auto')
             .withAmpProps(ampAddOnProps)
-            .withKubeProxyProps({},"v1.27.1-eksbuild.1")
             .enableOpenSourcePatternAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(new blueprints.MngClusterProvider(mngProps))
