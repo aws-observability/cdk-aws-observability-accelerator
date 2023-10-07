@@ -63,7 +63,8 @@ export default class AmpMonitoringConstruct {
             .account(account)
             .region(region)
             .version('auto')
-            .enableOpenSourcePatternAddOns(ampAddOnProps)
+            .enableOpenSourcePatternAddOns()
+            .withAmpProps(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .teams(new team.TeamGeordi, new team.CorePlatformTeam);
