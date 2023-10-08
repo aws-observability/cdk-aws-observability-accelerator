@@ -176,16 +176,17 @@ Example:
 
 Patterns:
 
-	single-new-eks-cluster
-	existing-eks-mixed-observability
-	single-new-eks-opensource-observability
-	single-new-eks-awsnative-observability
-	single-new-eks-gpu-opensource-observability
-	single-new-eks-graviton-opensource-observability
-	single-new-eks-mixed-observability
-	existing-eks-opensource-observability
 	existing-eks-awsnative-observability
-	multi-acc-new-eks-mixed-observability
+    existing-eks-mixed-observability
+    existing-eks-opensource-observability
+    multi-acc-new-eks-mixed-observability
+    single-new-eks-awsnative-fargate-observability
+    single-new-eks-awsnative-observability
+    single-new-eks-cluster
+    single-new-eks-gpu-opensource-observability
+    single-new-eks-graviton-opensource-observability
+    single-new-eks-mixed-observability
+    single-new-eks-opensource-observability
 ```
 
 - Bootstrap your CDK environment.

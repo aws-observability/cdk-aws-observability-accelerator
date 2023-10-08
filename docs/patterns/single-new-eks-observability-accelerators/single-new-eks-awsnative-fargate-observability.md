@@ -4,10 +4,12 @@
 
 The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Fargate Cluster Native Observability pattern using AWS native tools such as CloudWatch Logs and Container Insights.
 
-![Architecture](../images/cloud-native-arch.png)
+![Architecture](../images/fargate-container-insights.png)
 
 This example makes use of CloudWatch Container Insights as a vizualization and metric-aggregation layer.
 Amazon CloudWatch Container Insights helps customers collect, aggregate, and summarize metrics and logs from containerized applications and microservices. Metrics data is collected as performance log events using the embedded metric format. These performance log events use a structured JSON schema that enables high-cardinality data to be ingested and stored at scale. From this data, CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics. The metrics that Container Insights collects are available in CloudWatch automatic dashboards.
+
+ AWS Distro for OpenTelemetry (ADOT) is a secure, AWS-supported distribution of the OpenTelemetry project. With ADOT, users can instrument their applications just once to send correlated metrics and traces to multiple monitoring solutions. With ADOT support for CloudWatch Container Insights, customers can collect system metrics such as CPU, memory, disk, and network usage from Amazon EKS clusters running on Amazon Elastic Cloud Compute (Amazon EC2), providing the same experience as Amazon CloudWatch agent. In EKS Fargate networking architecture, a pod is not allowed to directly reach the kubelet on that worker node. Hence, the ADOT Collector calls the Kubernetes API Server to proxy the connection to the kubelet on a worker node, and collect kubelet’s cAdvisor metrics for workloads on that node. 
 
 By combining Container Insights and CloudWatch logs, we are able to provide a foundation for EKS (Amazon Elastic Kubernetes Service) Observability. Monitoring EKS for metrics has two categories:
 the control plane and the Amazon EKS nodes (with Kubernetes objects).
