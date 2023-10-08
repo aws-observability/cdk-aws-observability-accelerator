@@ -100,8 +100,8 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .withAmpProps(ampAddOnProps)
             .enableOpenSourcePatternAddOns()
+            .withAmpProps(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);
