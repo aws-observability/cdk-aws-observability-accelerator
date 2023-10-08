@@ -24,7 +24,6 @@ export default class GrafanaOperatorConstruct {
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon); //sets metadata ordered to true for GrafanaOperatorAddon
 
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.ClusterAutoScalerAddOn(),
             new blueprints.addons.SecretsStoreAddOn(),
             new blueprints.addons.ExternalsSecretsAddOn(),
