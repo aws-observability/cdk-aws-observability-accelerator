@@ -51,7 +51,7 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
         };
 
         const coreDnsAddOnProps : blueprints.CoreDnsAddOnProps = {
-            version:"v1.10.1-eksbuild.1",
+            version:"auto",
             configurationValues:{ computeType: "Fargate" }
         };
         
