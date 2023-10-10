@@ -1,14 +1,15 @@
 import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
+import { GrafanaOperatorSecretAddon } from '../grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from "aws-cdk-lib/aws-eks";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { NeuronDevicePluginAddOn } from './neuron-addon';
 
-interface Inf1NodeGroupProps {
+interface NeuronNodeGroupProps {
+    instanceClass: "inf1"
     instanceSize: "xlarge" | "2xlarge" | "6xlarge" | "24xlarge",
     desiredSize: number, 
     minSize: number, 
@@ -16,7 +17,7 @@ interface Inf1NodeGroupProps {
     ebsSize: number
 }
 
-export default class SingleNewEksInf1OpenSourceObservabilityPattern {
+export default class SingleNewEksNeuronOpenSourceObservabilityPattern {
     constructor(scope: Construct, id: string) {
         
         const stackId = `${id}-observability-accelerator`;
@@ -47,8 +48,8 @@ export default class SingleNewEksInf1OpenSourceObservabilityPattern {
             }
         };
 
-        const inf1NodeGroup: Inf1NodeGroupProps = utils.valueFromContext(scope, "inf1NodeGroup", undefined);
-        if (inf1NodeGroup === undefined) {
+        const neuronNodeGroup: NeuronNodeGroupProps = utils.valueFromContext(scope, "neuronNodeGroup", undefined);
+        if (neuronNodeGroup === undefined) {
             throw new Error("Missing node group configuration");
         }
 
@@ -74,11 +75,11 @@ export default class SingleNewEksInf1OpenSourceObservabilityPattern {
             .clusterProvider(
                 new blueprints.GenericClusterProvider({
                     tags: {
-                        "Name": "blueprints-gpu-eks-cluster",
-                        "Type": "generic-gpu-cluster"
+                        "Name": "blueprints-neuron-eks-cluster",
+                        "Type": "generic-neuron-cluster"
                     },
                     managedNodeGroups: [
-                        addInf1NodeGroup(inf1NodeGroup),
+                        addNeuronNodeGroup(neuronNodeGroup),
                     ]
                 })
             )
@@ -87,25 +88,25 @@ export default class SingleNewEksInf1OpenSourceObservabilityPattern {
     }
 }
 
-function addInf1NodeGroup(inf1NodeGroupProps: Inf1NodeGroupProps): blueprints.ManagedNodeGroup {
+function addNeuronNodeGroup(neuronNodeGroupProps: NeuronNodeGroupProps): blueprints.ManagedNodeGroup {
     return {
-        id: "mng-linux-inf1-01",
+        id: "mng-linux-neuron-01",
         amiType: eks.NodegroupAmiType.AL2_X86_64_GPU,
-        instanceTypes: [new ec2.InstanceType(`inf1.${inf1NodeGroupProps.instanceSize}`)],
-        desiredSize: inf1NodeGroupProps.desiredSize, 
-        minSize: inf1NodeGroupProps.minSize, 
-        maxSize: inf1NodeGroupProps.maxSize,
+        instanceTypes: [new ec2.InstanceType(`${neuronNodeGroupProps.instanceClass}.${neuronNodeGroupProps.instanceSize}`)],
+        desiredSize: neuronNodeGroupProps.desiredSize, 
+        minSize: neuronNodeGroupProps.minSize, 
+        maxSize: neuronNodeGroupProps.maxSize,
         nodeGroupSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
         launchTemplate: {
             tags: {
-                "Name": "Mng-linux-Inf1",
-                "Type": "Managed-linux-Inf1-Node-Group",
+                "Name": "Mng-linux-Neuron",
+                "Type": "Managed-linux-Neuron-Node-Group",
                 "LaunchTemplate": "Linux-Launch-Template",
             },
             blockDevices: [
                 {
                     deviceName: "/dev/xvda",
-                    volume: ec2.BlockDeviceVolume.ebs(inf1NodeGroupProps.ebsSize, {
+                    volume: ec2.BlockDeviceVolume.ebs(neuronNodeGroupProps.ebsSize, {
                         volumeType: ec2.EbsDeviceVolumeType.GP3
                     })
                 }
