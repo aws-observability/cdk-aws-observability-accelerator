@@ -6,7 +6,9 @@ import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from "aws-cdk-lib/aws-eks";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import { NeuronDevicePluginAddOn } from './neuron-addon';
+import { NeuronDevicePluginAddOn } from './neuron-device-plugin-addon';
+import { NeuronMonitorAddOn } from './neuron-monitor-addon';
+
 
 interface NeuronNodeGroupProps {
     instanceClass: "inf1"
@@ -42,8 +44,8 @@ export default class SingleNewEksNeuronOpenSourceObservabilityPattern {
             ampRules: {
                 ampWorkspaceArn: ampWorkspaceArn,
                 ruleFilePaths: [
-                    __dirname + '/../common/resources/amp-config/alerting-rules.yml',
-                    __dirname + '/../common/resources/amp-config/recording-rules.yml'
+                    __dirname + '/../../common/resources/amp-config/alerting-rules.yml',
+                    __dirname + '/../../common/resources/amp-config/recording-rules.yml'
                 ]
             }
         };
@@ -63,7 +65,8 @@ export default class SingleNewEksNeuronOpenSourceObservabilityPattern {
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
             new blueprints.addons.VpcCniAddOn(),
-            new NeuronDevicePluginAddOn()
+            new NeuronDevicePluginAddOn(),
+            new NeuronMonitorAddOn()
         ];
 
         ObservabilityBuilder.builder()

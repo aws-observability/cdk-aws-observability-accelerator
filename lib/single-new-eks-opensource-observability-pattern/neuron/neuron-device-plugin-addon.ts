@@ -7,7 +7,7 @@ export class NeuronDevicePluginAddOn implements ClusterAddOn {
         const cluster = clusterInfo.cluster;
 
         const plugin = loadExternalYaml(
-            "https://github.com/aws-neuron/aws-neuron-sdk/blob/master/src/k8/k8s-neuron-device-plugin.yml"
+            "https://raw.githubusercontent.com/aws-neuron/aws-neuron-sdk/master/src/k8/k8s-neuron-device-plugin.yml"
         );
 
         new KubernetesManifest(cluster.stack, "neuron-plugin-manifest", {
