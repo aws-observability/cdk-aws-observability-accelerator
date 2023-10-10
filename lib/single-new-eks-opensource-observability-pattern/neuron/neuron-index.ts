@@ -70,7 +70,8 @@ export default class SingleNewEksNeuronOpenSourceObservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .enableOpenSourcePatternAddOns(ampAddOnProps)
+            .withAmpProps(ampAddOnProps)
+            .enableOpenSourcePatternAddOns()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(
                 new blueprints.GenericClusterProvider({
