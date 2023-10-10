@@ -1,4 +1,4 @@
-# Multi-Account Multi-Region Mixed Observability (M3) Accelerator
+# Multi-Cluster Multi-Account Multi-Region (M3) Observability
 
 ## Architecture
 

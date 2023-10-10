@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator
+# Single Cluster Open Source Observability
 
 ## Architecture
 

@@ -1,4 +1,4 @@
-# Single New EKS Cluster Observability Accelerator
+# Single Cluster Setup
 
 ## Objective
 
