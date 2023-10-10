@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator - monitoring Nginx applications
+# Single Cluster Open Source Observability - NGINX Monitoring
 
 ## Objective
 

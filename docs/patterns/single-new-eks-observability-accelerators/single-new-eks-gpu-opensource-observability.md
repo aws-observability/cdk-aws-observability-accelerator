@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator for NVIDIA GPU-based clusters
+# Single Cluster Open Source Observability - NVIDIA GPU
 
 Graphics Processing Units (GPUs) play an integral part in the Machine Learning (ML) workflow, by providing the scalable performance needed for fast ML training and cost-effective ML inference. On top of that, they are used in flexible remote virtual workstations and powerful HPC computations.
 

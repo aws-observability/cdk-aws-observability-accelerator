@@ -1,4 +1,4 @@
-# Existing EKS Cluster AWS Mixed Observability Accelerator
+# Single Cluster AWS Mixed Observability
 
 ## Architecture
 
