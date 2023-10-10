@@ -34,26 +34,6 @@ neuron-monitor | neuron-monitor-prometheus.py --port <port>
 
 `neuron-monitor-prometheus.py` maps and exposes the telemetry data from JSON format into Prometheus compatible format.
 
-
---------
-***
-
-image
-https://gallery.ecr.aws/h6c7e9p3/neuron/neuron-tools
-
-talk about 
-Neuron tools: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/index.html
-Neuron top: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-top-user-guide.html
-Neuron-ls: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-ls.html
-
--c", "neuron-monitor | neuron-monitor-prometheus.py --port 9010"
-
-telemetry
-
---------
-
-
-
 Data is visualised in Amazon Managed Grafana by the corresponding dashboard.
 
 The rest of the setup to collect and visualise metrics with Amazon Managed Service for Prometheus and Amazon Managed Grafana, is similar to that used in other open-source based patterns, included in this repository.
@@ -225,7 +205,7 @@ NAME             DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELEC
 neuron-monitor   1         1         1       1            1           <none>          2h
 ```
 
-Next, let's verify that Neuron devices and cores are visible, by running `neuron-ls` and `neuron-top` commands from a pod:
+Next, let's verify that Neuron devices and cores are visible, by running [`neuron-ls`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-ls.html) and [`neuron-top`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-top-user-guide.html) commands from e.g. your neuron-monitor pod:
 
 ```bash
 kubectl exec -it {your neuron-monitor pod} -- /bin/bash -c "neuron-ls"
