@@ -102,9 +102,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .version('auto')
             .withAmpProps(ampAddOnProps)
-            .withGrafanaOperatorProps({
-                version: 'v5.3.0',
-            })
+            .withGrafanaOperatorProps()
             .enableOpenSourcePatternAddOns()
             .addOns(...addOns)
             .build(scope, stackId);
