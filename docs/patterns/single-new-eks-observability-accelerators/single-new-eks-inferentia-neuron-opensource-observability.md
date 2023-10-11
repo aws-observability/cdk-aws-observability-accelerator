@@ -237,7 +237,7 @@ To actually see some interesting metrics on the Grafana dashboard, we will apply
 kubectl apply -f ./lib/common/resources/neuron/pytorch-inference-resnet50.yml
 ```
 
-This is just a sample workload that compiles [Resnet/Pytorch](https://github.com/aws-neuron/aws-neuron-samples/blob/master/torch-neuron/inference/resnet/Resnet.ipynb) and runs repetitive inference in a loop to generate telemetry data.
+This is just a sample workload that compiles the [torchvision ResNet50 model](https://docs.aws.amazon.com/dlami/latest/devguide/tutorial-inferentia-pytorch-neuron.html) and runs repetitive inference in a loop to generate telemetry data.
 
 To verify the Pod was successfully deployed, please run:
 
