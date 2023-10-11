@@ -208,7 +208,7 @@ neuron-monitor   1         1         1       1            1           <none>    
 Next, let's verify that Neuron devices and cores are visible, by running [`neuron-ls`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-ls.html) and [`neuron-top`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-top-user-guide.html) commands from e.g. your neuron-monitor pod:
 
 ```bash
-kubectl exec -it {your neuron-monitor pod} -- /bin/bash -c "neuron-ls"
+kubectl exec -it {your neuron-monitor pod} -n kube-system -- /bin/bash -c "neuron-ls"
 ```
 
 Output:
@@ -217,7 +217,7 @@ Output:
 
 
 ```bash
-kubectl exec -it {your neuron-monitor pod} -- /bin/bash -c "neuron-top"
+kubectl exec -it {your neuron-monitor pod} -n kube-system -- /bin/bash -c "neuron-top"
 ```
 
 Output:
