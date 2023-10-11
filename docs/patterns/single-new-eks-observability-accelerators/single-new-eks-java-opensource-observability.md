@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator - monitoring Java applications
+# Single Cluster Open Source Observability - Java Monitoring
 
 ## Objective
 

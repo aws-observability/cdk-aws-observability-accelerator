@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator - API Server monitoring
+# Single Cluster Open Source Observability - API Server Monitoring
 
 ## Objective
 
