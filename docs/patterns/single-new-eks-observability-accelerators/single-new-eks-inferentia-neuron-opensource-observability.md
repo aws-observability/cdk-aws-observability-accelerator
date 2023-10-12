@@ -24,7 +24,7 @@ The Neuron container runtime consists of kernel driver and C/C++ libraries which
 
 To access Neuron cores & devices from Kubernetes, the pattern deploys the Neuron device plugin, which exposes Neuron cores & devices to Kubernetes, as resources.
 
-Neuron metrics are exposed to Amazon Managed Service for Prometheus by the `neuron-monitor` DaemonSet, which deploys a minimal container, with the [Neuron Tools](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/index.html) installed. Specifically, the container runs the [`neuron-monitor`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-monitor-user-guide.html#neuron-monitor-ug) command piped into the `neuron-monitor-prometheus.py` companion script:
+Neuron metrics are exposed to Amazon Managed Service for Prometheus by the `neuron-monitor` DaemonSet, which deploys a minimal container, with the [Neuron Tools](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/index.html) installed. Specifically, the `neuron-monitor` DaemonSet runs the [`neuron-monitor`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-monitor-user-guide.html#neuron-monitor-ug) command piped into the `neuron-monitor-prometheus.py` companion script (both commands are part of the container):
 
 ```bash
 neuron-monitor | neuron-monitor-prometheus.py --port <port>
