@@ -1,4 +1,4 @@
-# Single New EKS Cluster Open Source Observability Accelerator for Neuron-based clusters
+# Single Cluster Open Source Observability - Neuron-based cluster
 
 [AWS Trainium](https://aws.amazon.com/machine-learning/trainium/) and [AWS Inferentia](https://aws.amazon.com/machine-learning/inferentia/) are accelerated Machine Learning (ML) chips (or ML accelerators), designed and built by AWS. They are also referred to as Neuron Devices. Each Neuron device includes multiple NeuronCores, the machine learning compute cores.
 
