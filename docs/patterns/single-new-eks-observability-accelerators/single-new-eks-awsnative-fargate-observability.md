@@ -1,4 +1,4 @@
-# Single New EKS Fargate Cluster AWS Native Observability Accelerator
+# Single Cluster AWS Native Observability - Fargate
 
 ## Architecture
 
@@ -158,9 +158,168 @@ Example with "EKS_Cluster" metrics
 
 Although the default metrics exposed by cloudWatchAdotAddon are useful for getting some standardized metrics from our application we often instrument our own application with OLTP to expose metrics. Fortunately, the otel-collector-cloudwatch-collector can be specified as the endpoint for collecting these metrics and getting metrics and logs to cloudwatch. 
 
-We will be fetching metrics from `ho11y` a synthetic signal generator allowing you to test observability solutions for microservices. It emits logs, metrics, and traces in a configurable manner. The application can be deployed using `team-geordie` ArgoCD configuration found [here](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/teams/team-geordie).
+We will be fetching metrics from `ho11y` a synthetic signal generator allowing you to test observability solutions for microservices. It emits logs, metrics, and traces in a configurable manner. 
 
-We will have to edit the `OTEL_EXPORTER_OTLP_ENDPOINT` value in `ho11y.yaml` and set the value as 'otel-collector-cloudwatch-collector.default.svc.cluster.local:4317' 
+## Deploying Workload
+
+
+``` yaml title="holly.yaml" linenums="1"
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ho11y
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: ho11y
+        image: public.ecr.aws/z0a4o2j5/ho11y:latest
+        ports:
+        - containerPort: 8765
+        env:
+        - name: DISABLE_OM
+          value: "on"
+        - name: HO11Y_LOG_DEST
+          value: "stdout"
+        - name: OTEL_RESOURCE_ATTRIB
+          value: "frontend"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector-cloudwatch-collector.default.svc.cluster.local:4317"
+        - name: HO11Y_INJECT_FAILURE
+          value: "enabled"
+        - name: DOWNSTREAM0
+          value: "http://downstream0"
+        - name: DOWNSTREAM1
+          value: "http://downstream1"
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: downstream0
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: downstream0
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: downstream0
+    spec:
+      containers:
+      - name: ho11y
+        image: public.ecr.aws/mhausenblas/ho11y:stable
+        ports:
+        - containerPort: 8765
+        env:
+        - name: DISABLE_OM
+          value: "on"
+        - name: HO11Y_LOG_DEST
+          value: "stdout"
+        - name: OTEL_RESOURCE_ATTRIB
+          value: "downstream0"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector-cloudwatch-collector.default.svc.cluster.local:4317"
+        - name: DOWNSTREAM0
+          value: "https://mhausenblas.info/"
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: downstream1
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: downstream1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: downstream1
+    spec:
+      containers:
+      - name: ho11y
+        image: public.ecr.aws/mhausenblas/ho11y:stable
+        ports:
+        - containerPort: 8765
+        env:
+        - name: DISABLE_OM
+          value: "on"
+        - name: HO11Y_LOG_DEST
+          value: "stdout"
+        - name: OTEL_RESOURCE_ATTRIB
+          value: "downstream1"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector-cloudwatch-collector.default.svc.cluster.local:4317"
+        - name: DOWNSTREAM0
+          value: "https://o11y.news/2021-03-01/"
+        - name: DOWNSTREAM1
+          value: "DUMMY:187kB:42ms"
+        - name: DOWNSTREAM2
+          value: "DUMMY:13kB:2ms"
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: default
+  annotations:
+    scrape: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8765
+  selector:
+    app: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: downstream0
+  namespace: default
+  annotations:
+    scrape: "true"
+spec:
+  ports:
+  - port: 80
+    targetPort: 8765
+  selector:
+    app: downstream0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: downstream1
+  namespace: default
+  annotations:
+    scrape: "true"
+spec:
+  ports:
+  - port: 80
+    targetPort: 8765
+  selector:
+    app: downstream1
+---
+```
 
 Once deployed you will be able to monitor the Ho11y metrics in cloudwatch as shown:
 
