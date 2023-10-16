@@ -16,9 +16,10 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             deploymentMode: blueprints.cloudWatchDeploymentMode.DEPLOYMENT,
             namespace: 'default',
             name: 'adot-collector-cloudwatch',
-            metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*'],
+            metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*', "ho11y*"],
+            podLabelRegex: 'frontend|downstream(.*)',
         });
-        
+        Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);
 
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -29,9 +30,8 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             new blueprints.addons.XrayAdotAddOn(),
         ];
 
-        // Create Fargate profile, you can add selectors to match which pods to schedule on fargate, we will use 'default' i.e., all pods
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
-            ["MyProfile", { selectors: [{ namespace: "mynamespace" },
+            ["MyProfile", { selectors: [
                 { namespace: "cert-manager" },
                 { namespace: "opentelemetry-operator-system" }
             ]}]
@@ -51,8 +51,10 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
         };
 
         const coreDnsAddOnProps : blueprints.CoreDnsAddOnProps = {
-            version:"auto",
-            configurationValues:{ computeType: "Fargate" }
+            version:"v1.10.1-eksbuild.1",
+            configurationValues:{
+                computeType: "Fargate" 
+            }
         };
         
         /* Use observability builder mixed pattern addons, aws native containerInsightsAddon

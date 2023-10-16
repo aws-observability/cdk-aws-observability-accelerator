@@ -88,7 +88,6 @@ fargate-ip-10-0-187-27.ec2.internal    Ready    <none>   15m   v1.27.1-eks-2f008
 fargate-ip-10-0-188-225.ec2.internal   Ready    <none>   15m   v1.27.1-eks-2f008fe   10.0.188.225   <none>        Amazon Linux 2   5.10.186-179.751.amzn2.x86_64   containerd://1.6.6
 fargate-ip-10-0-189-234.ec2.internal   Ready    <none>   15m   v1.27.1-eks-2f008fe   10.0.189.234   <none>        Amazon Linux 2   5.10.186-179.751.amzn2.x86_64   containerd://1.6.6
 fargate-ip-10-0-96-29.ec2.internal     Ready    <none>   15m   v1.27.1-eks-2f008fe   10.0.96.29     <none>        Amazon Linux 2   5.10.184-175.749.amzn2.x86_64   containerd://1.6.6
-Next, lets verify the namespaces in the cluster:
 ```
 
 ```bash
@@ -154,6 +153,18 @@ Select "All Metrics" from the dropdown and select any logs in the ContainerInsig
 Example with "EKS_Cluster" metrics
 
 ![metrics](../images/metrics-fargate-1.png)
+
+## Monitoring workloads
+
+Although the default metrics exposed by cloudWatchAdotAddon are useful for getting some standardized metrics from our application we often instrument our own application with OLTP to expose metrics. Fortunately, the otel-collector-cloudwatch-collector can be specified as the endpoint for collecting these metrics and getting metrics and logs to cloudwatch. 
+
+We will be fetching metrics from `ho11y` a synthetic signal generator allowing you to test observability solutions for microservices. It emits logs, metrics, and traces in a configurable manner. The application can be deployed using `team-geordie` ArgoCD configuration found [here](https://github.com/aws-observability/aws-observability-accelerator/tree/main/artifacts/argocd-apps/teams/team-geordie).
+
+We will have to edit the `OTEL_EXPORTER_OTLP_ENDPOINT` value in `ho11y.yaml` and set the value as 'otel-collector-cloudwatch-collector.default.svc.cluster.local:4317' 
+
+Once deployed you will be able to monitor the Ho11y metrics in cloudwatch as shown:
+
+![metrics](../images/holly-fargate-metrics.png)
 
 ## Teardown
 
