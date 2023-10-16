@@ -154,13 +154,13 @@ Example with "EKS_Cluster" metrics
 
 ![metrics](../images/metrics-fargate-1.png)
 
-## Monitoring workloads
+## Monitoring workloads on EKS
 
 Although the default metrics exposed by cloudWatchAdotAddon are useful for getting some standardized metrics from our application we often instrument our own application with OLTP to expose metrics. Fortunately, the otel-collector-cloudwatch-collector can be specified as the endpoint for collecting these metrics and getting metrics and logs to cloudwatch. 
 
 We will be fetching metrics from `ho11y` a synthetic signal generator allowing you to test observability solutions for microservices. It emits logs, metrics, and traces in a configurable manner. 
 
-## Deploying Workload
+### Deploying Workload
 
 
 ``` yaml title="holly.yaml" linenums="1"
@@ -319,6 +319,20 @@ spec:
   selector:
     app: downstream1
 ---
+```
+With the Kubernetes manifest ready, run:
+
+```bash
+kubectl apply -f holly.yaml
+```
+You should see the pods running with the command:
+
+```console
+kubectl get pods
+NAME                                                   READY   STATUS    RESTARTS   AGE
+downstream0-6b665bbfd-6zdsb                            1/1     Running   0          61s
+downstream1-749d75f6c-9t5dl                            1/1     Running   0          61s
+frontend-557fd48b4f-gx8ff                              1/1     Running   0          61s
 ```
 
 Once deployed you will be able to monitor the Ho11y metrics in cloudwatch as shown:
