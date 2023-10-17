@@ -19,8 +19,7 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             metricsNameSelectors: ['apiserver_request_.*', 'container_memory_.*', 'container_threads', 'otelcol_process_.*', "ho11y*"],
             podLabelRegex: 'frontend|downstream(.*)',
         });
-        Reflect.defineMetadata("ordered", true, blueprints.addons.CloudWatchLogsAddon);
-
+        
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
