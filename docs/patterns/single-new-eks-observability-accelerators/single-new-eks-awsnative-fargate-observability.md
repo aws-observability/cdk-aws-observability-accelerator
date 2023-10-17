@@ -163,7 +163,8 @@ We will be fetching metrics from `ho11y` a synthetic signal generator allowing y
 ### Deploying Workload
 
 
-``` yaml title="holly.yaml" linenums="1"
+```bash
+cat << EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -319,13 +320,14 @@ spec:
   selector:
     app: downstream1
 ---
+EOF
 ```
-With the Kubernetes manifest ready, run:
+
+To verify the Pod was successfully deployed, please run:
 
 ```bash
-kubectl apply -f holly.yaml
+kubectl get pods
 ```
-You should see the pods running with the command:
 
 ```console
 kubectl get pods
