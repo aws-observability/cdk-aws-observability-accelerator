@@ -34,6 +34,7 @@ nav:
     - New Cluster:
       - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
       - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
+      - Fargate AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-fargate-observability.md
       - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
       - Multi-Cluster Multi-Region Mon : patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability.md
       - OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
