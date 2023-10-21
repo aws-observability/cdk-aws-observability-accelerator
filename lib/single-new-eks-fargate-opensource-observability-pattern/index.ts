@@ -4,7 +4,6 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
-//import { cloudWatchDeploymentMode } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
 
 
@@ -21,9 +20,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         const ampWorkspaceArn = ampWorkspace.attrArn;
 
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
-
-        // assert(amgEndpointUrl, "AMG Endpoint URL environmane variable COA_AMG_ENDPOINT_URL is mandatory");
-
         // All Grafana Dashboard URLs from `cdk.json`
         const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
         fluxRepository.values!.AMG_AWS_REGION = region;
@@ -109,10 +105,8 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
-            //.version('auto')
             .clusterProvider(fargateClusterProvider)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
-            //.enableOpenSourcePatternAddOns(ampAddOnProps)
             .addOns(...addOns)
             .build(scope, stackId);
     }

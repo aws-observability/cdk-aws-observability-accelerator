@@ -2,5 +2,4 @@ import SingleNewEksFargateOpenSourceObservabilityConstruct from '../lib/single-n
 import { configureApp } from '../lib/common/construct-utils';
 
 const app = configureApp();
-
 new SingleNewEksFargateOpenSourceObservabilityConstruct(app, 'single-new-eks-fargate-opensource');
