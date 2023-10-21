@@ -6,10 +6,11 @@ import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
+import * as fs from 'fs';
 
 export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
-        
+
         const stackId = `${id}-observability-accelerator`;
         const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
         const kubectlRoleName = utils.valueFromContext(scope, "existing.kubectl.rolename", undefined);
@@ -19,7 +20,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-Workspace';
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        const ampWorkspaceArn = ampWorkspace.attrArn;        
+        const ampWorkspaceArn = ampWorkspace.attrArn;
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
         const sdkCluster = await blueprints.describeCluster(clusterName, region); // get cluster information using EKS APIs
         const vpcId = sdkCluster.resourcesVpcConfig?.vpcId;
@@ -56,9 +57,21 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             }
         };
 
+        const jsonString = fs.readFileSync(__dirname + '/../../cdk.json', 'utf-8');
+        const jsonStringnew = JSON.parse(jsonString);
+        let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ if enableAPIserverJob }}",
+            "{{ end }}",
+            jsonStringnew.context["apiserver.pattern.enabled"]
+        );
+        console.log(doc);
+        fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     javaScrapeSampleLimit: 1000,
                     javaPrometheusMetricsEndpoint: "/metrics"
@@ -70,6 +83,26 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
+            ampAddOnProps.enableAPIServerJob = true,
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
+            );
+        }
+
+        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -77,7 +110,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
                 logRetentionDays: 30
             }),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+            new blueprints.addons.FluxCDAddOn({ "repositories": [fluxRepository] }),
             new GrafanaOperatorSecretAddon(),
         ];
 
@@ -85,7 +118,8 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             .account(account)
             .region(region)
             .version('auto')
-            .enableOpenSourcePatternAddOns(ampAddOnProps)
+            .withAmpProps(ampAddOnProps)
+            .enableOpenSourcePatternAddOns()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))

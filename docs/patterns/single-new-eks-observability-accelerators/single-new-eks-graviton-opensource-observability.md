@@ -1,4 +1,4 @@
-# Single New EKS Graviton Cluster Open Source Observability Accelerator
+# Single Cluster Open Source Observability - Graviton
 
 ## Architecture
 
@@ -159,6 +159,48 @@ If you need Java observability you can instead use:
   }
 ```
 
+If you want to deploy API Server dashboards along with Java observability you can instead use:
+
+```typescript
+  "context": {
+    "fluxRepository": {
+      "name": "grafana-dashboards",
+      "namespace": "grafana-operator",
+      "repository": {
+        "repoUrl": "https://github.com/aws-observability/aws-observability-accelerator",
+        "name": "grafana-dashboards",
+        "targetRevision": "main",
+        "path": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+      },
+      "values": {
+        "GRAFANA_CLUSTER_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/cluster.json",
+        "GRAFANA_KUBELET_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kubelet.json",
+        "GRAFANA_NSWRKLDS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/namespace-workloads.json",
+        "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
+        "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
+        "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
+        "GRAFANA_JAVA_JMX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/java/default.json",
+        "GRAFANA_APISERVER_BASIC_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-basic.json",
+        "GRAFANA_APISERVER_ADVANCED_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-advanced.json",
+        "GRAFANA_APISERVER_TROUBLESHOOTING_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/apiserver/apiserver-troubleshooting.json"
+      },
+      "kustomizations": [
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+        },
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/java"
+        }
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/apiserver"
+        }
+      ]
+    },
+    "java.pattern.enabled": true,
+    "apiserver.pattern.enabled": true,
+  }
+```
+
 8. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
 
 ```bash
@@ -290,58 +332,7 @@ Grafana Operator and Flux always work together to synchronize your dashboards wi
 
 ## Viewing Logs
 
-By default, we deploy a FluentBit daemon set in the cluster to collect worker logs for all namespaces. Logs are collected and exported to Amazon CloudWatch Logs, which enables you to centralize the logs from all of your systems, applications,
-and AWS services that you use, in a single, highly scalable service.
-
-## Using CloudWatch Logs as data source in Grafana
-
-Follow [the documentation](https://docs.aws.amazon.com/grafana/latest/userguide/using-amazon-cloudwatch-in-AMG.html)
-to enable Amazon CloudWatch as a data source. Make sure to provide permissions.
-
-All logs are delivered in the following CloudWatch Log groups naming pattern:
-`/aws/eks/single-new-eks-opensource-observability-accelerator`.
-Log streams follow `{container-name}.{pod-name}`. In Grafana, querying and analyzing logs is done with [CloudWatch Logs Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html)
-
-### Example - ADOT collector logs
-
-Select one or many log groups and run the following query. The example below,
-queries AWS Distro for OpenTelemetry (ADOT) logs
-
-```console
-fields @timestamp, log
-| order @timestamp desc
-| limit 100
-```
-
-![logs-1](../images/logs-1.png)
-
-### Example - Using time series visualizations
-
-[CloudWatch Logs syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CWL_QuerySyntax.html)
-provide powerful functions to extract data from your logs. The `stats()`
-function allows you to calculate aggregate statistics with log field values.
-This is useful to have visualization on non-metric data from your applications.
-
-In the example below, we use the following query to graph the number of metrics
-collected by the ADOT collector
-
-```console
-fields @timestamp, log
-| parse log /"#metrics": (?<metrics_count>\d+)}/
-| stats avg(metrics_count) by bin(5m)
-| limit 100
-```
-
-!!! tip
-    You can add logs in your dashboards with logs panel types or time series
-    depending on your query results type.
-
-![logs-2](../images/logs-2.png)
-
-!!! warning
-    Querying CloudWatch logs will incur costs per GB scanned. Use small time
-    windows and limits in your queries. Checkout the CloudWatch
-    [pricing page](https://aws.amazon.com/cloudwatch/pricing/) for more infos.
+Refer to the "Using CloudWatch Logs as a data source in Grafana" section in [Logging](../../logs.md).
 
 ## Teardown
 
