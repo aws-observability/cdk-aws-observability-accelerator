@@ -9,7 +9,7 @@ import * as fs from 'fs';
 
 export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
-        const stackId = `${id}-observability-accelerator-11`;
+        const stackId = `${id}-observability-accelerator`;
 
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
