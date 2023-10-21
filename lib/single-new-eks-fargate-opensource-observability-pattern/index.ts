@@ -98,11 +98,11 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
             ["MyProfile", {
                 selectors: [
-                { namespace: "cert-manager" },
-                { namespace: "opentelemetry-operator-system" },
-                { namespace: "external-secrets" },
-                { namespace: "grafana-operator" },
-                { namespace: "flux-system" }
+                    { namespace: "cert-manager" },
+                    { namespace: "opentelemetry-operator-system" },
+                    { namespace: "external-secrets" },
+                    { namespace: "grafana-operator" },
+                    { namespace: "flux-system" }
                 ]
             }]
         ]);
