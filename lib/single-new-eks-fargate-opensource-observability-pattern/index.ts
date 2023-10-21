@@ -5,7 +5,7 @@ import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
-
+import * as fs from 'fs';
 
 export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -36,10 +36,21 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 ]
             }
         };
+        
+        let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ if enableAPIserverJob }}",
+            "{{ end }}",
+            true
+        );
+        console.log(doc);
+        fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config.yml',
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     javaScrapeSampleLimit: 1000,
                     javaPrometheusMetricsEndpoint: "/metrics"
