@@ -77,6 +77,8 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 namespace: "cert-manager",
                 values: { webhook: { securePort: 10260 } }
             }),
+            new blueprints.addons.KubeStateMetricsAddOn(),
+            new blueprints.addons.MetricsServerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
