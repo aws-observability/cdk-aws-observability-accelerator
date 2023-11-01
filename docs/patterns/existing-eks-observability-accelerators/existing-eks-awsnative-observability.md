@@ -1,4 +1,4 @@
-# Existing EKS Cluster AWS Native Observability Accelerator
+# Single Cluster AWS Native Observability
 
 ## Architecture
 

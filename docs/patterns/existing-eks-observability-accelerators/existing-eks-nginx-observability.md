@@ -1,4 +1,4 @@
-# Existing EKS Cluster Nginx Observability Accelerator
+# Single Cluster Open Source Observability - NGINX Monitoring
 
 ## Architecture
 
