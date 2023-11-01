@@ -178,7 +178,7 @@ kubectl get pods -n nginx-ingress-sample
 
 4. Set an EXTERNAL-IP variable to the value of the EXTERNAL-IP column in the row of the NGINX ingress controller.
 ```
-EXTERNAL_IP=your-nginx-controller-external-ip
+EXTERNAL_IP=$(kubectl get svc blueprints-addon-nginx-ingress-nginx-controller -n nginx-ingress-sample --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 ```
 
 5. Start some sample NGINX traffic by entering the following command.
