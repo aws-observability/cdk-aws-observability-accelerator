@@ -178,13 +178,13 @@ kubectl get pods -n nginx-ingress-sample
 
 4. Set an EXTERNAL-IP variable to the value of the EXTERNAL-IP column in the row of the NGINX ingress controller.
 ```
-EXTERNAL_IP=your-nginx-controller-external-ip
+EXTERNAL_IP=$(kubectl get svc blueprints-addon-nginx-ingress-nginx-controller -n nginx-ingress-sample --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 ```
 
 5. Start some sample NGINX traffic by entering the following command.
 ```
 SAMPLE_TRAFFIC_NAMESPACE=nginx-sample-traffic
-curl https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/master/k8s-deployment-manifest-templates/deployment-mode/service/cwagent-prometheus/sample_traffic/nginx-traffic/nginx-traffic-sample.yaml |
+curl https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/k8s-deployment-manifest-templates/nginx/nginx-traffic-sample.yaml |
 sed "s/{{external_ip}}/$EXTERNAL_IP/g" |
 sed "s/{{namespace}}/$SAMPLE_TRAFFIC_NAMESPACE/g" |
 kubectl apply -f -
