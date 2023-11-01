@@ -17,7 +17,7 @@ export default class SingleNewEksCostMonitoringPattern {
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
         const ampWorkspaceArn = ampWorkspace.attrArn;
         
-        const queryUrl = `https://aps-workspaces.us-west-2.amazonaws.com/workspaces/ws-bd2b2b87-6484-4349-8753-fa46557e6031/api/v1/query`
+        const queryUrl = `https://aps-workspaces.us-west-2.amazonaws.com/workspaces/ws-bd2b2b87-6484-4349-8753-fa46557e6031/api/v1/query`;
 
         const ampAddOnProps: blueprints.AmpAddOnProps = {
             ampPrometheusEndpoint: ampEndpoint,
