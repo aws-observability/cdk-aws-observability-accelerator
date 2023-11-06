@@ -10,7 +10,7 @@
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {
-    "@aws-quickstart/eks-blueprints": "file:~/source/cdk-eks-blueprints/aws-quickstart-eks-blueprints-1.12.0.tgz",
+    "@aws-quickstart/eks-blueprints": "^1.12.0",
     "@types/jest": "^29.5.1",
     "@types/node": "^18.17.5",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
@@ -23,7 +23,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@aws-quickstart/eks-blueprints": "file:~/source/cdk-eks-blueprints/aws-quickstart-eks-blueprints-1.12.0.tgz",
+    "@aws-quickstart/eks-blueprints": "^1.12.0",
     "aws-cdk": "2.99.1",
     "aws-sdk": "^2.1455.0",
     "constructs": "^10.2.33",
@@ -31,7 +31,7 @@
     "source-map-support": "^0.5.21"
   },
   "overrides": {
-    "@aws-quickstart/eks-blueprints": "file:~/source/cdk-eks-blueprints/aws-quickstart-eks-blueprints-1.12.0.tgz",
+    "@aws-quickstart/eks-blueprints": "^1.12.0",
     "aws-cdk": "2.99.1",
     "xml2js": "0.5.0"
   }
