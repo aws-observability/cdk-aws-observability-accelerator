@@ -2,7 +2,7 @@
 
 ## Objective
 
-This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with Nginx based workloads.
+This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with Nginx based workloads and control plane logging.
 
 ## Prerequisites
 

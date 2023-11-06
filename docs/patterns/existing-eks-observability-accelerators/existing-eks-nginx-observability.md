@@ -10,7 +10,7 @@ The current example deploys the AWS Distro for OpenTelemetry Operator for Amazon
 
 ## Objective 
 
-This pattern aims to add Observability on top of an existing EKS cluster and NGINX workloads, with open source managed AWS services.
+This pattern aims to add Observability and control plane logging on top of an existing EKS cluster and NGINX workloads, with open source managed AWS services.
 
 ## Prerequisites:
 

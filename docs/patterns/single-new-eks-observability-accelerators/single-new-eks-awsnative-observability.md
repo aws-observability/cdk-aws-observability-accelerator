@@ -17,7 +17,7 @@ please read the [service documentation](https://docs.aws.amazon.com/eks/latest/u
 
 ## Objective
 
-- Deploys one production grade Amazon EKS cluster.
+- Deploys one production grade Amazon EKS cluster with control plane logging.
 - AWS Distro For OpenTelemetry Operator and Collector
 - Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit) and CloudWatch Logs
 - Enables CloudWatch Container Insights.

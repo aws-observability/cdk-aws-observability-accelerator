@@ -12,7 +12,7 @@ Amazon Managed Grafana is a managed service for Grafana, a popular open-source a
 
 ## Objective
 
-This pattern deploys an Amazon EKS cluster with a node group that includes instance types featuring NVIDIA GPUs.
+This pattern deploys an Amazon EKS cluster with control plane logging and a node group that includes instance types featuring NVIDIA GPUs.
 
 The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized Linux AMI with GPU support](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the GPU AMI includes the NVIDIA drivers.
 

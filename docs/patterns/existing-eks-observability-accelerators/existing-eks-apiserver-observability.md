@@ -2,7 +2,7 @@
 
 ## Objective 
 
-This pattern aims to add Observability on top of an existing EKS cluster and adds API server monitoring, with open source managed AWS services.
+This pattern aims to add Observability and Control plane logging on top of an existing EKS cluster and adds API server monitoring, with open source managed AWS services.
 
 ## Prerequisites:
 

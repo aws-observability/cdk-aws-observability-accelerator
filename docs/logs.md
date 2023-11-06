@@ -18,6 +18,13 @@ Then you can view the results of your query:
 
 ![logs-results](./patterns/images/mixed-log-results.png)
 
+You can also find control plane logs in CloudWatch with Control Plane logs visible under the `/cluster` log group:
+
+![control-plane-logs](./patterns/images/control-plane-logs.png)
+
+You can then filter by patterns within the logs to find specific events like so:
+![control-plane-insights](./patterns/images/control-plane-insights.png)
+
 ## Viewing Logs in Grafana
 
 ### Using CloudWatch Logs as data source in Grafana

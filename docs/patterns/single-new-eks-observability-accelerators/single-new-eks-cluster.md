@@ -2,7 +2,7 @@
 
 ## Objective
 
-This pattern deploys one production grade Amazon EKS cluster, without any Observability add-on.
+This pattern deploys one production grade Amazon EKS cluster with control plane logging, without any Observability add-on.
 
 ## Prerequisites:
 

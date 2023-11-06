@@ -14,7 +14,7 @@ This example makes use of CloudWatch, as a metric and log aggregation layer. In 
 
 ## Objective
 
-This pattern aims to add Observability on top of an existing EKS cluster, with AWS services.
+This pattern aims to add Observability and control plane logging on top of an existing EKS cluster, with AWS services.
 
 ## Prerequisites:
 

@@ -14,7 +14,7 @@ Utilizing CloudWatch and X-Ray as an aggregation layer allows for a fully-manage
 
 ## Objective
 
-This pattern aims to add Observability on top of an existing EKS cluster, with a mixture of AWS native and open source managed AWS services.
+This pattern aims to add Observability and control plane logging on top of an existing EKS cluster, with a mixture of AWS native and open source managed AWS services.
 
 ## Prerequisites:
 
