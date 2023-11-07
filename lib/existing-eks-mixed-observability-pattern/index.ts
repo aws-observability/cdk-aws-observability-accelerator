@@ -55,7 +55,6 @@ export default class ExistingEksMixedobservabilityPattern {
             .region(region)
             .version('auto')
             .enableMixedPatternAddOns()
-            .enableControlPlaneLogging()
             .clusterProvider(importClusterProvider)
             .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
             .addOns(...addOns)

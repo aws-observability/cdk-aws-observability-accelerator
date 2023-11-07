@@ -2,7 +2,7 @@
 
 ## Objective
 
-This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with API Server monitoring and control plane logging.
+This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with API Server monitoring.
 
 ## Prerequisites
 

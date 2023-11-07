@@ -2,7 +2,9 @@
 
 ## Objective
 
-This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with Java based workloads and control plane logging.
+This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with Java based workloads.
+
+It also enables control plane logging for comprehensive monitoring on the EKS cluster.
 
 ## Prerequisites
 

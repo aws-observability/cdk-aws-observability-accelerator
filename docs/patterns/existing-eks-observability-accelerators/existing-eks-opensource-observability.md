@@ -12,7 +12,6 @@ please read the [service documentation](https://docs.aws.amazon.com/eks/latest/u
 ## Objective
 
 Configure the existing Amazon EKS cluster with below Observability components;
-- Control Plane logging
 - AWS Distro For OpenTelemetry Operator and Collector for Metrics and Traces
 - Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit)
 - Installs Grafana Operator to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.
@@ -36,6 +35,15 @@ You will also need:
 2. An OpenID Connect (OIDC) provider, associated to the above EKS cluster (Note: Single EKS Cluster Pattern takes care of that for you)
 
 ## Deploying
+
+!!! note If control plane logging is not enabled in the existing cluster, edit `lib/existing-eks-opensource-observability-pattern/index.ts` to include the following code snippet:
+```typescript
+    ObservabilityBuilder.builder()
+        // some properties
+        .enableControlPlaneLogging()
+        // other properties
+        .build(scope, stackId);
+```
 
 1. Edit `~/.cdk.json` by setting the name of your existing cluster:
 

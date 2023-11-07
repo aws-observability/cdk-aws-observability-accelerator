@@ -10,7 +10,7 @@ The current example deploys the AWS Distro for OpenTelemetry Operator for Amazon
 
 ## Objective 
 
-This pattern aims to add Observability and control plane logging on top of an existing EKS cluster and NGINX workloads, with open source managed AWS services.
+This pattern aims to add Observability on top of an existing EKS cluster and NGINX workloads, with open source managed AWS services.
 
 ## Prerequisites:
 
@@ -27,6 +27,15 @@ You will also need:
 2. An OpenID Connect (OIDC) provider, associated to the above EKS cluster (Note: Single EKS Cluster Pattern takes care of that for you)
 
 ## Deploying
+
+!!! note If control plane logging is not enabled in the existing cluster, edit `lib/existing-eks-opensource-observability-pattern/index.ts` to include the following code snippet:
+```typescript
+    ObservabilityBuilder.builder()
+        // some properties
+        .enableControlPlaneLogging()
+        // other properties
+        .build(scope, stackId);
+```
 
 1. Edit `~/.cdk.json` by setting the name of your existing cluster:
 
