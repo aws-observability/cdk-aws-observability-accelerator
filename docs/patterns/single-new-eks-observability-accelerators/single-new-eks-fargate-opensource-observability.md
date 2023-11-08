@@ -1,6 +1,18 @@
 # Single New EKS Cluster Opensource Observability - Fargate
 
-This pattern deploys a single production grade EKS cluster running on AWS Fargate with monitoring enabled using open source tooling such as AWS Distro for Open Telemetry (ADOT), Amazon Managed Service for Prometheus and Amazon Managed Grafana. 
+## Architecture
+
+The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Fargate Open Source Observability pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), FluentBit (Logs), Amazon Managed Service for Prometheus and Amazon Managed Grafana:
+
+![Architecture](../images/OSSFargate_Arch.png)
+
+### Metrics and Traces
+AWS Distro for OpenTelemetry (ADOT) is a secure, AWS-supported distribution of the OpenTelemetry project. With ADOT, users can instrument their applications just once to send correlated metrics and traces to multiple monitoring solutions. 
+
+The ADOT Collector has the concept of a pipeline which comprises three key types of components, namely, receiver, processor, and exporter. A receiver is how data gets into the collector. It accepts data in a specified format, translates it into the internal format and passes it to processors and exporters defined in the pipeline. It can be pull or push based. A processor is an optional component that is used to perform tasks such as batching, filtering, and transformations on data between being received and being exported. An exporter is used to determine which destination to send the metrics, logs or traces
+
+### Logs
+With Amazon EKS on Fargate, you can deploy pods without allocating or managing your Kubernetes nodes. This removes the need to capture system-level logs for your Kubernetes nodes. To capture the logs from your Fargate pods, we use Fluent Bit to forward the logs directly to CloudWatch. This enables you to automatically route logs to CloudWatch without further configuration or a sidecar container for your Amazon EKS pods on Fargate. For more information about this, see [Fargate logging](https://docs.aws.amazon.com/eks/latest/userguide/fargate-logging.html) in the Amazon EKS documentation and [Fluent Bit for Amazon EKS](http://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/) on the AWS Blog. This solution captures the STDOUT and STDERR input/output (I/O) streams from your container and sends them to CloudWatch through Fluent Bit, based on the Fluent Bit configuration established for the Amazon EKS cluster on Fargate
 
 ## Objective
 
