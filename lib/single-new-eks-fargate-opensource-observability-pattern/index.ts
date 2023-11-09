@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
+import { GrafanaOperatorSecretAddon } from '../single-new-eks-opensource-observability-pattern/grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
@@ -10,7 +10,6 @@ import * as fs from 'fs';
 export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
         const stackId = `${id}-observability-accelerator`;
-
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
@@ -61,6 +60,26 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
             );
         }
+        
+        if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
+            ampAddOnProps.enableAPIServerJob = true,
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
+            );
+        }
+
+        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
+        }
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
@@ -87,12 +106,11 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 namespace: "external-secrets",
                 values: { webhook: { port: 9443 } }
             }),
-            new blueprints.addons.GrafanaOperatorAddon({
-                version: 'v5.0.0-rc3'
-            }),
+            new blueprints.addons.GrafanaOperatorAddon(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
             new blueprints.addons.AdotCollectorAddOn(),
+            new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.AmpAddOn(ampAddOnProps)
         ];
 
