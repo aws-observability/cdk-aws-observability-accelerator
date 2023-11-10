@@ -1,4 +1,4 @@
-# Single New EKS Cluster Opensource Observability - Fargate
+# Single Cluster Opensource Observability - Fargate
 
 ## Architecture
 
@@ -191,6 +191,11 @@ You should now see a new dashboard named `Java/JMX`, under `Observability Accele
 
 
 ![java-dashboard](../images/java-jmx-dashboard-fargate-oss.png)
+
+## Viewing Logs
+
+By default, we deploy a FluentBit daemon set in the cluster to collect worker logs for all namespaces. Logs are collected and exported to Amazon CloudWatch Logs, which enables you to centralize the logs from all of your systems, applications,
+and AWS services that you use, in a single, highly scalable service.
 
 ## Teardown
 
