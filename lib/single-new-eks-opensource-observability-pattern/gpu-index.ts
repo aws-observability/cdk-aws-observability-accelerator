@@ -61,6 +61,7 @@ export default class SingleNewEksGpuOpenSourceObservabilityPattern {
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
             new blueprints.addons.VpcCniAddOn(),
+            new blueprints.addons.SSMAgentAddOn(),
             new blueprints.addons.GpuOperatorAddon({
                 version: "v23.6.1",
                 values: {

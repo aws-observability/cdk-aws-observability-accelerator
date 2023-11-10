@@ -33,13 +33,20 @@
         "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
         "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json"
+
       },
       "kustomizations": [
         {
           "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
+        },
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/gpu"
         }
       ]
     },
+    "java.pattern.enabled": true,
+    "nginx.pattern.enabled": true,
+    "apiserver.pattern.enabled": true,
     "gpuNodeGroup": {
       "instanceType": "g4dn.xlarge",
       "desiredSize": 2, 

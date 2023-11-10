@@ -92,6 +92,27 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
                 logRetentionDays: 30
             }),
             new blueprints.addons.XrayAdotAddOn(),
+            new blueprints.addons.SSMAgentAddOn(),
+            new blueprints.addons.NginxAddOn({
+                name: "ingress-nginx",
+                chart: "ingress-nginx",
+                repository: "https://kubernetes.github.io/ingress-nginx",
+                version: "4.7.2",
+                namespace: "nginx-ingress-sample",
+                values: {
+                    controller: { 
+                        metrics: {
+                            enabled: true,
+                            service: {
+                                annotations: {
+                                    "prometheus.io/port": "10254",
+                                    "prometheus.io/scrape": "true"
+                                }
+                            }
+                        }
+                    }
+                }
+            }),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon()
         ];
