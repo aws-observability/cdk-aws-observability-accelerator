@@ -42,7 +42,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             doc,
             "{{ if enableAPIserverJob }}",
             "{{ end }}",
-            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+            true
         );
         doc = utils.changeTextBetweenTokens(
             doc,
