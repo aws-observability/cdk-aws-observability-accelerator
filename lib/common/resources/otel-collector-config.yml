@@ -28,6 +28,12 @@ spec:
             external_labels:
               cluster: "{{clusterName}}"
           scrape_configs:
+            {{ start enableAdotMetricsCollectionJob}}
+            - job_name: otel-collector-metrics
+              scrape_interval: 10s
+              static_configs:
+                - targets: ['localhost:8888']
+            {{ stop enableAdotMetricsCollectionJob }}
             - job_name: 'kubernetes-kubelet'
               scheme: https
               tls_config:
@@ -1653,3 +1659,9 @@ spec:
         metrics:
           receivers: [prometheus]
           exporters: [logging, prometheusremotewrite]
+      {{ start enableAdotMetricsCollectionTelemetry }}
+      telemetry:
+        metrics:
+          address: 0.0.0.0:8888
+          level: basic
+      {{ stop enableAdotMetricsCollectionTelemetry }}

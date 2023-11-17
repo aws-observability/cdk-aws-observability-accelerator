@@ -35,12 +35,25 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 ]
             }
         };
-        
+        const jsonString = fs.readFileSync(__dirname + '/../../cdk.json', 'utf-8');
+        const jsonStringnew = JSON.parse(jsonString);
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
             "{{ if enableAPIserverJob }}",
             "{{ end }}",
+            true
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ stop enableAdotMetricsCollectionJob }}",
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionTelemetry }}",
+            "{{ stop enableAdotMetricsCollectionTelemetry }}",
             true
         );
         console.log(doc);
