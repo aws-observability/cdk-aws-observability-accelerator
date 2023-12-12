@@ -28,7 +28,8 @@ You will also need:
 
 ## Deploying
 
-!!! note If control plane logging is not enabled in the existing cluster, edit `lib/existing-eks-opensource-observability-pattern/index.ts` to include the following code snippet:
+!!! note If control plane logging is not enabled in the existing cluster, edit 
+`lib/existing-eks-opensource-observability-pattern/index.ts` to include `.enableControlPlaneLogging()` as shown below:
 ```typescript
     ObservabilityBuilder.builder()
         // some properties
