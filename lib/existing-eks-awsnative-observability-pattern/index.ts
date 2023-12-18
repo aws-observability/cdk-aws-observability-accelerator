@@ -34,10 +34,7 @@ export default class ExistingEksAwsNativeObservabilityPattern {
         });
 
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            })
+            new blueprints.addons.XrayAddOn()
         ];
 
         ObservabilityBuilder.builder()

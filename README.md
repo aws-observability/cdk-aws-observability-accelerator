@@ -70,9 +70,9 @@ Check the installed version of npm:
 npm -v
 ```
 
-The output should be a version greater than `9.7.x`.
+The output should be a version greater than `10.1.x`.
 
-If your npm version is not `9.7.x` or above, update npm with the following command:
+If your npm version is not `10.1.x` or above, update npm with the following command:
 
 ```bash
 sudo npm install -g npm@latest
@@ -118,23 +118,23 @@ sudo n stable
 
 3. Make sure the following pre-requisites are met:
 
-- Node version is a current stable node version 18.x.
+- Node version is a current stable node version 20.x.x
 
 ```bash
 $ node -v
-v20.3.1
+v20.8.0
 ```
 
 Update (provided Node version manager is installed): `n stable`. May require `sudo`.
 
-- NPM version must be 8.4 or above:
+- NPM version must be 10.1 or above:
 
 ```bash
 $ npm -v
-9.7.2
+10.1.0
 ```
 
-Updating npm: `sudo n stable` where stable can also be a specific version above 8.4. May require `sudo`.
+Updating npm: `sudo n stable` where stable can also be a specific version above 10.1. May require `sudo`.
 
 ### Repo setup
 
@@ -177,16 +177,17 @@ Example:
 Patterns:
 
 	existing-eks-awsnative-observability
-    existing-eks-mixed-observability
-    existing-eks-opensource-observability
-    multi-acc-new-eks-mixed-observability
-    single-new-eks-awsnative-fargate-observability
-    single-new-eks-awsnative-observability
-    single-new-eks-cluster
-    single-new-eks-gpu-opensource-observability
-    single-new-eks-graviton-opensource-observability
-    single-new-eks-mixed-observability
-    single-new-eks-opensource-observability
+	existing-eks-mixed-observability
+	existing-eks-opensource-observability
+	multi-acc-new-eks-mixed-observability
+	single-new-eks-awsnative-fargate-observability
+	single-new-eks-awsnative-observability
+	single-new-eks-cluster
+	single-new-eks-fargate-opensource-observability
+	single-new-eks-gpu-opensource-observability
+	single-new-eks-graviton-opensource-observability
+	single-new-eks-mixed-observability
+	single-new-eks-opensource-observability
 ```
 
 - Bootstrap your CDK environment.
