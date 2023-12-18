@@ -85,14 +85,13 @@ Output:
 
 ```console
 NAME                       STATUS   AGE
-amazon-metrics             Active   10m
-aws-for-fluent-bit         Active   10m
-cert-manager               Active   10m
-default                    Active   16m
-kube-node-lease            Active   16m
-kube-public                Active   16m
-kube-system                Active   16m
-prometheus-node-exporter   Active   10m
+amazon-cloudwatch          Active   5h36m
+cert-manager               Active   5h36m
+default                    Active   5h46m
+kube-node-lease            Active   5h46m
+kube-public                Active   5h46m
+kube-system                Active   5h46m
+prometheus-node-exporter   Active   5h36m
 ```
 
 ## Visualization

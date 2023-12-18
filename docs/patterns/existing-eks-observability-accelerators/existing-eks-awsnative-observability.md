@@ -85,14 +85,13 @@ kubectl get ns # Output shows all namespace
 Output:
 ```
 NAME                       STATUS   AGE
-amazon-metrics             Active   4m31s
-aws-for-fluent-bit         Active   4m31s
-cert-manager               Active   4m31s
-default                    Active   24m
-kube-node-lease            Active   24m
-kube-public                Active   24m
-kube-system                Active   24m
-prometheus-node-exporter   Active   13m
+amazon-cloudwatch          Active   5h36m
+cert-manager               Active   5h36m
+default                    Active   5h46m
+kube-node-lease            Active   5h46m
+kube-public                Active   5h46m
+kube-system                Active   5h46m
+prometheus-node-exporter   Active   5h36m
 ```
 
 ## Visualization
