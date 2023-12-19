@@ -28,6 +28,16 @@ You will also need:
 
 ## Deploying
 
+!!! note If control plane logging is not enabled in the existing cluster, edit 
+`lib/existing-eks-opensource-observability-pattern/index.ts` to include `.enableControlPlaneLogging()` as shown below:
+```typescript
+    ObservabilityBuilder.builder()
+        // some properties
+        .enableControlPlaneLogging()
+        // other properties
+        .build(scope, stackId);
+```
+
 1. Edit `~/.cdk.json` by setting the name of your existing cluster:
 
 ```json

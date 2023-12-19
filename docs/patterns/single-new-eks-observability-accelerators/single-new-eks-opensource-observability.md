@@ -15,6 +15,7 @@ please read the [service documentation](https://docs.aws.amazon.com/eks/latest/u
 ## Objective
 
 - Deploys one production grade Amazon EKS cluster.
+- Enables Control Plane logging.
 - AWS Distro For OpenTelemetry Operator and Collector for Metrics and Traces
 - Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit)
 - Installs Grafana Operator to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.

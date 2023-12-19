@@ -21,6 +21,7 @@ Visit our [EKS Blueprints docs](https://github.com/aws-quickstart/cdk-eks-bluepr
 ## Objective
 
 - Deploys one production grade Amazon EKS cluster running on a Graviton3 Processor
+- Enables control plane logging
 - AWS Distro For OpenTelemetry Operator and Collector for Metrics and Traces
 - Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit)
 - Installs Grafana Operator to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.

@@ -106,6 +106,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             .version('auto')
             .withAmpProps(ampAddOnProps)
             .enableOpenSourcePatternAddOns()
+            .enableControlPlaneLogging()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .addOns(...addOns)

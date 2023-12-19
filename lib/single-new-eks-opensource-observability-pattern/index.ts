@@ -115,6 +115,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             .version('auto')
             .withAmpProps(ampAddOnProps)
             .enableOpenSourcePatternAddOns()
+            .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
     }

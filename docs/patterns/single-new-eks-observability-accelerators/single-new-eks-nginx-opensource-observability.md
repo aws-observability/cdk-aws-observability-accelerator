@@ -4,6 +4,8 @@
 
 This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with Nginx based workloads.
 
+It also enables control plane logging to provide comprehensive overview of cluster health.
+
 ## Prerequisites
 
 Ensure that you have installed the following tools on your machine.

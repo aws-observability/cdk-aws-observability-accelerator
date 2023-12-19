@@ -32,6 +32,7 @@ export default class SingleNewEksMixedobservabilityPattern {
             .region(region)
             .version('auto')
             .enableMixedPatternAddOns()
+            .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
     }

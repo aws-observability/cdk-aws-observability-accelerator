@@ -77,6 +77,7 @@ export default class SingleNewEksGpuOpenSourceObservabilityPattern {
             .version('auto')
             .withAmpProps(ampAddOnProps)
             .enableOpenSourcePatternAddOns()
+            .enableControlPlaneLogging()
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .clusterProvider(
                 new blueprints.GenericClusterProvider({
