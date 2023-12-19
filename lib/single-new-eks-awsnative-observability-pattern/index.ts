@@ -10,10 +10,6 @@ export default class SingleNewEksClusterAWSNativeobservabilityPattern {
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
         
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.XrayAddOn()
         ];
 
