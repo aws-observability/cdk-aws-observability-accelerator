@@ -1,16 +1,8 @@
-# Single Cluster Open Source Observability - NGINX Monitoring
+# Single Cluster Open Source Observability - OTEL Collector Monitoring
 
-## Architecture
+## Objective
 
-The following figure illustrates the architecture of the pattern we will be deploying for Existing EKS Cluster NGINX pattern, using Open Source tools such as AWS Distro for OpenTelemetry (ADOT), Amazon Managed Grafana workspace and Prometheus.
-
-
-The current example deploys the AWS Distro for OpenTelemetry Operator for Amazon EKS with its requirements and make use of an existing Amazon Managed Grafana workspace. It creates a new Amazon Managed Service for Prometheus workspace. And You will gain both visibility on the cluster and NGINX based applications.
-
-
-## Objective 
-
-This pattern aims to add Observability on top of an existing EKS cluster and NGINX workloads, with open source managed AWS services.
+This pattern aims to add Observability on top of an existing EKS cluster and adds monitoring for ADOT collector health, with open source managed AWS services.
 
 ## Prerequisites:
 
@@ -27,16 +19,6 @@ You will also need:
 2. An OpenID Connect (OIDC) provider, associated to the above EKS cluster (Note: Single EKS Cluster Pattern takes care of that for you)
 
 ## Deploying
-
-!!! note If control plane logging is not enabled in the existing cluster, edit 
-`lib/existing-eks-opensource-observability-pattern/index.ts` to include `.enableControlPlaneLogging()` as shown below:
-```typescript
-    ObservabilityBuilder.builder()
-        // some properties
-        .enableControlPlaneLogging()
-        // other properties
-        .build(scope, stackId);
-```
 
 1. Edit `~/.cdk.json` by setting the name of your existing cluster:
 
@@ -100,7 +82,7 @@ aws ssm put-parameter --name "/cdk-accelerator/grafana-api-key" \
 Example settings: Update the context in `cdk.json` file located in `cdk-eks-blueprints-patterns` directory
 
 ```typescript
-  "context": {
+   "context": {
     "fluxRepository": {
       "name": "grafana-dashboards",
       "namespace": "grafana-operator",
@@ -117,18 +99,18 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
         "GRAFANA_NODEEXP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodeexporter-nodes.json",
         "GRAFANA_NODES_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/nodes.json",
         "GRAFANA_WORKLOADS_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/workloads.json",
-        "GRAFANA_NGINX_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/nginx/nginx.json"
+        "GRAFANA_ADOTHEALTH_DASH_URL": "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/adot/adothealth.json"
       },
       "kustomizations": [
         {
           "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
         },
         {
-          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/nginx"
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/adot"
         }
       ]
     },
-    "nginx.pattern.enabled": true
+    "adotcollectormetrics.pattern.enabled": true
   }
 ```
 
@@ -139,90 +121,59 @@ make build
 make pattern existing-eks-opensource-observability deploy
 ```
 
-## Deploy an example Nginx application
-
-In this section we will deploy sample application and extract metrics using AWS OpenTelemetry collector.
-
-1. Add NGINX ingress controller add-on into [lib/existing-eks-opensource-observability-pattern/index.ts](../../../lib/existing-eks-opensource-observability-pattern/index.ts) in add-on array.
-```
-        const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
-            new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
-            new GrafanaOperatorSecretAddon(),
-            new blueprints.addons.NginxAddOn({
-                name: "ingress-nginx",
-                chart: "ingress-nginx",
-                repository: "https://kubernetes.github.io/ingress-nginx",
-                version: "4.7.2",
-                namespace: "nginx-ingress-sample",
-                values: {
-                    controller: { 
-                        metrics: {
-                            enabled: true,
-                            service: {
-                                annotations: {
-                                    "prometheus.io/port": "10254",
-                                    "prometheus.io/scrape": "true"
-                                }
-                            }
-                        }
-                    }
-                }
-            }),
-        ];
-```
-
-2. Deploy pattern again 
-```
-make pattern existing-eks-opensource-observability deploy
-```
-
-3. Verify if the application is running
-```
-kubectl get pods -n nginx-ingress-sample
-```
-
-4. Set an EXTERNAL-IP variable to the value of the EXTERNAL-IP column in the row of the NGINX ingress controller.
-```
-EXTERNAL_IP=$(kubectl get svc blueprints-addon-nginx-ingress-nginx-controller -n nginx-ingress-sample --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-```
-
-5. Start some sample NGINX traffic by entering the following command.
-```
-SAMPLE_TRAFFIC_NAMESPACE=nginx-sample-traffic
-curl https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/k8s-deployment-manifest-templates/nginx/nginx-traffic-sample.yaml |
-sed "s/{{external_ip}}/$EXTERNAL_IP/g" |
-sed "s/{{namespace}}/$SAMPLE_TRAFFIC_NAMESPACE/g" |
-kubectl apply -f -
-```
-
-## Verify the resources
-
-```
-kubectl get pod -n nginx-sample-traffic 
-```
-
 ## Visualization
-1. Prometheus datasource on Grafana
-- After a successful deployment, this will open the Prometheus datasource configuration on Grafana. You should see a notification confirming that the Amazon Managed Service for Prometheus workspace is ready to be used on Grafana.
 
-2. Grafana dashboards
-- Go to the Dashboards panel of your Grafana workspace. You should see a list of dashboards under the `Observability Accelerator Dashboards`.
+The OpenTelemetry collector produces metrics to monitor the entire pipeline. 
 
-![Dashboard](../images/nginx-dashboard.png) 
+Login to your Grafana workspace and navigate to the Dashboards panel. You should see three new dashboard named `OpenTelemetry Health Collector`, under `Observability Accelerator Dashboards`
 
-3. Amazon Managed Service for Prometheus rules and alerts
-- Open the Amazon Managed Service for Prometheus console and view the details of your workspace. Under the Rules management tab, you should find new rules deployed.
+This dashboard shows useful telemetry information about the ADOT collector itself which can be helpful when you want to troubleshoot any issues with the collector or understand how much resources the collector is consuming.
 
-To setup your alert receiver, with Amazon SNS, follow [this documentation](https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-alertmanager-receiver.html)
+Below diagram shows an example data flow and the components in an ADOT collector:
 
-## Verify the resources
+![ADOTCollectorComponents](../images/ADOTCollectorComponents.png)
 
-Please see [Single New Nginx Observability Accelerator](../single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md).
+
+In this dashboard, there are five sections. Each section has [metrics](https://aws-observability.github.io/observability-best-practices/guides/operational/adot-at-scale/operating-adot-collector/#collecting-health-metrics-from-the-collector) relevant to the various [components](https://opentelemetry.io/docs/demo/collector-data-flow-dashboard/#data-flow-overview) of the AWS Distro for OpenTelemetry (ADOT) collector :
+
+### Receivers
+Shows the receiver’s accepted and refused rate/count of spans and metric points that are pushed into the telemetry pipeline.
+
+### Processors
+Shows the accepted and refused rate/count of spans and metric points pushed into next component in the pipeline. The batch metrics can help to understand how often metrics are sent to exporter and the batch size.
+
+![receivers_processors](../images/ADOTReceiversProcessors.png)
+
+
+### Exporters
+Shows the exporter’s accepted and refused rate/count of spans and metric points that are pushed to any of the destinations. It also shows the size and capacity of the retry queue. These metrics can be used to understand if the collector is having issues in sending trace or metric data to the destination configured.
+
+![exporters](../images/ADOTExporters.png)
+
+
+### Collectors
+Shows the collector’s operational metrics (Memory, CPU, uptime). This can be used to understand how much resources the collector is consuming.
+
+![collectors](../images/ADOTCollectors.png)
+
+### Data Flow
+Shows the metrics and spans data flow through the collector’s components.
+
+![dataflow](../images/ADOTDataflow.png)
+
+Note:
+    To read more about the metrics and the dashboard used, visit the upstream documentation [here](https://opentelemetry.io/docs/demo/collector-data-flow-dashboard/).
+
+
+## Disable ADOT health monitoring
+
+Update the context in `cdk.json` file located in `cdk-eks-blueprints-patterns` directory
+
+```typescript
+   "context": {
+    "adotcollectormetrics.pattern.enabled": false
+  }
+```
 
 ## Teardown
 

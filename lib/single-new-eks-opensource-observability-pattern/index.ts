@@ -48,6 +48,18 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             "{{ end }}",
             jsonStringnew.context["apiserver.pattern.enabled"]
         );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ stop enableAdotMetricsCollectionJob }}",
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionTelemetry }}",
+            "{{ stop enableAdotMetricsCollectionTelemetry }}",
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
@@ -103,6 +115,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             .version('auto')
             .withAmpProps(ampAddOnProps)
             .enableOpenSourcePatternAddOns()
+            .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
     }

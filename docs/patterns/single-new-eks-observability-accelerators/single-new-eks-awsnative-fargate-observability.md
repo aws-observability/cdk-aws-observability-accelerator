@@ -20,7 +20,8 @@ please read the [service documentation](https://docs.aws.amazon.com/eks/latest/u
 
 ## Objective
 
-- Deploys one production grade Amazon EKS Fargate cluster.
+- Deploys one production grade Amazon EKS Fargate cluster
+- Enables Control Plane Logging. 
 - Logs with CloudWatch Logs
 - Enables CloudWatch Container Insights.
 - Installs Prometheus Node Exporter and Metrics Server for infrastructure metrics.

@@ -15,6 +15,7 @@ Utilizing CloudWatch and X-Ray as an aggregation layer allows for a fully-manage
 ## Objective
 
 - Deploys one production grade Amazon EKS cluster.
+- Enables Control Plane logging
 - AWS Distro For OpenTelemetry Operator and Collector configured to collect metrics and traces.
 - Logs with [AWS for FluentBit](https://github.com/aws/aws-for-fluent-bit) and CloudWatch Logs
 - Aggregate Metrics in CloudWatch

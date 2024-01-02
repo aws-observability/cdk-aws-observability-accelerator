@@ -8,7 +8,7 @@ The following figure illustrates the architecture of the pattern we will be depl
 
 ## Objective
 
-1. Deploying two production grade Amazon EKS cluster across two AWS Accounts (Prod1, Prod2 account) in two different regions through a Continuous Deployment infrastructure pipeline triggered upon a commit to the repository that holds the pipeline configuration in another AWS account (pipeline account).
+1. Deploying two production grade Amazon EKS cluster with control plane logging across two AWS Accounts (Prod1, Prod2 account) in two different regions through a Continuous Deployment infrastructure pipeline triggered upon a commit to the repository that holds the pipeline configuration in another AWS account (pipeline account).
 2. Deploying ADOT add-on, AMP add-on to Prod 1 Amazon EKS Cluster to remote-write metrics to AMP workspace in Prod 1 AWS Account.
 3. Deploying ADOT add-on, CloudWatch add-on to Prod 2 Amazon EKS Cluster to write metrics to CloudWatch in Prod 2 AWS Account.
 4. Configuring GitOps tooling (Argo CD add-on) to support deployment of [ho11y](https://github.com/aws-observability/aws-o11y-recipes/tree/main/sandbox/ho11y) and [yelb](https://github.com/mreferre/yelb) sample applications, in a way that restricts each application to be deployed only into the team namespace, by using Argo CD projects.

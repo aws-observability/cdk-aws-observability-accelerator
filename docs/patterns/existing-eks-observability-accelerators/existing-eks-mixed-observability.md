@@ -2,19 +2,29 @@
 
 ## Architecture
 
-The following figure illustrates the architecture of the pattern we will be deploying for Existing EKS Cluster AWS Mixed Observability pattern, using AWS native tools such as CloudWatch and X-Ray and Open Source tools such as AWS Distro for OpenTelemetry (ADOT) and Prometheus Node Exporter.
+The following figure illustrates the architecture of the pattern we will be deploying for Existing EKS Cluster AWS Mixed
+Observability pattern, using AWS native tools such as CloudWatch and X-Ray and Open Source tools such as AWS Distro for
+OpenTelemetry (ADOT) and Prometheus Node Exporter.
 
 ![Architecture](../images/mixed-diagram.png)
 
-This example makes use of CloudWatch, as a metric and log aggregation layer, while X-Ray is used as a trace-aggregation layer. In order to collect the metrics and traces, we use the Open Source ADOT collector. Fluent Bit is used to export the logs to CloudWatch Logs.
+This example makes use of CloudWatch, as a metric and log aggregation layer, while X-Ray is used as a trace-aggregation
+layer. In order to collect the metrics and traces, we use the Open Source ADOT collector. Fluent Bit is used to export
+the logs to CloudWatch Logs.
 
-In this architecture, AWS X-Ray provides a complete view of requests as they travel through your application and filters visual data across payloads, functions, traces, services, and APIs. X-Ray also allows you to perform analytics, to gain powerful insights about your distributed trace data.
+In this architecture, AWS X-Ray provides a complete view of requests as they travel through your application and filters
+visual data across payloads, functions, traces, services, and APIs. X-Ray also allows you to perform analytics, to gain
+powerful insights about your distributed trace data.
 
-Utilizing CloudWatch and X-Ray as an aggregation layer allows for a fully-managed scalable telemetry backend. In this example we get those benefits while still having the flexibility and rapid development of the Open Source collection tools.
+Utilizing CloudWatch and X-Ray as an aggregation layer allows for a fully-managed scalable telemetry backend. In this
+example we get those benefits while still having the flexibility and rapid development of the Open Source collection
+tools.
 
 ## Objective
 
-This pattern aims to add Observability on top of an existing EKS cluster, with a mixture of AWS native and open source managed AWS services.
+
+This pattern aims to add Observability on top of an existing EKS cluster, with a mixture of AWS native and open source
+managed AWS services.
 
 ## Prerequisites:
 
@@ -31,6 +41,16 @@ You will also need:
 2. An OpenID Connect (OIDC) provider, associated to the above EKS cluster (Note: Single EKS Cluster Pattern takes care of that for you)
 
 ## Deploying
+
+!!! note If control plane logging is not enabled in the existing cluster, edit `lib/existing-eks-mixed-observability-pattern/index.ts` to include `.enableControlPlaneLogging()` as shown below:
+```typescript
+    ObservabilityBuilder.builder()
+        // some properties
+        .enableControlPlaneLogging()
+        // other properties
+        .build(scope, stackId);
+```
+
 
 1. Edit `~/.cdk.json` by setting the name of your existing cluster:
 

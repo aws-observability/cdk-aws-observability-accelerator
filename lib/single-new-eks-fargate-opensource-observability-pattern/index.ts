@@ -1,19 +1,15 @@
-// import { Construct } from 'constructs';
-import { ImportClusterProvider, utils } from '@aws-quickstart/eks-blueprints';
+import { Construct } from 'constructs';
+import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
-import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
+import { GrafanaOperatorSecretAddon } from '../single-new-eks-opensource-observability-pattern/grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
-import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
 
-export default class ExistingEksOpenSourceobservabilityPattern {
-    async buildAsync(scope: cdk.App, id: string) {
-
+export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
+    constructor(scope: Construct, id: string) {
         const stackId = `${id}-observability-accelerator`;
-        const clusterName = utils.valueFromContext(scope, "existing.cluster.name", undefined);
-        const kubectlRoleName = utils.valueFromContext(scope, "existing.kubectl.rolename", undefined);
 
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
@@ -21,26 +17,9 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
         const ampWorkspaceArn = ampWorkspace.attrArn;
+
         const amgEndpointUrl = process.env.COA_AMG_ENDPOINT_URL;
-        const sdkCluster = await blueprints.describeCluster(clusterName, region); // get cluster information using EKS APIs
-        const vpcId = sdkCluster.resourcesVpcConfig?.vpcId;
-
-        /**
-         * Assumes the supplied role is registered in the target cluster for kubectl access.
-         */
-
-        const importClusterProvider = new ImportClusterProvider({
-            clusterName: sdkCluster.name!,
-            version: eks.KubernetesVersion.of(sdkCluster.version!),
-            clusterEndpoint: sdkCluster.endpoint,
-            openIdConnectProvider: blueprints.getResource(context =>
-                new blueprints.LookupOpenIdConnectProvider(sdkCluster.identity!.oidc!.issuer!).provide(context)),
-            clusterCertificateAuthorityData: sdkCluster.certificateAuthority?.data,
-            kubectlRoleArn: blueprints.getResource(context => new blueprints.LookupRoleProvider(kubectlRoleName).provide(context)).roleArn,
-            clusterSecurityGroupId: sdkCluster.resourcesVpcConfig?.clusterSecurityGroupId
-        });
-
-        // All Grafana Dashboard URLs from `cdk.json` if presentgi
+        // All Grafana Dashboard URLs from `cdk.json`
         const fluxRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxRepository", undefined);
         fluxRepository.values!.AMG_AWS_REGION = region;
         fluxRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
@@ -56,7 +35,6 @@ export default class ExistingEksOpenSourceobservabilityPattern {
                 ]
             }
         };
-
         const jsonString = fs.readFileSync(__dirname + '/../../cdk.json', 'utf-8');
         const jsonStringnew = JSON.parse(jsonString);
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
@@ -64,7 +42,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             doc,
             "{{ if enableAPIserverJob }}",
             "{{ end }}",
-            jsonStringnew.context["apiserver.pattern.enabled"]
+            true
         );
         doc = utils.changeTextBetweenTokens(
             doc,
@@ -76,10 +54,11 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             doc,
             "{{ start enableAdotMetricsCollectionTelemetry }}",
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
-            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+            true
         );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
@@ -94,7 +73,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
             );
         }
-
+        
         if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
             ampAddOnProps.enableAPIServerJob = true,
             ampAddOnProps.ampRules?.ruleFilePaths.push(
@@ -117,23 +96,60 @@ export default class ExistingEksOpenSourceobservabilityPattern {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
+            new blueprints.addons.VpcCniAddOn(),
+            new blueprints.addons.CoreDnsAddOn({
+                version: "v1.10.1-eksbuild.1",
+                configurationValues: { computeType: "Fargate" }
+            }),
+            new blueprints.addons.KubeProxyAddOn(),
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn({
+                installCRDs: true,
+                createNamespace: true,
+                namespace: "cert-manager",
+                values: { webhook: { securePort: 10260 } }
+            }),
+            new blueprints.addons.KubeStateMetricsAddOn(),
+            new blueprints.addons.MetricsServerAddOn(),
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.FluxCDAddOn({ "repositories": [fluxRepository] }),
+            new blueprints.addons.ExternalsSecretsAddOn({
+                namespace: "external-secrets",
+                values: { webhook: { port: 9443 } }
+            }),
+            new blueprints.addons.GrafanaOperatorAddon(),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
+            new blueprints.addons.AdotCollectorAddOn(),
+            new blueprints.addons.XrayAdotAddOn(),
+            new blueprints.addons.AmpAddOn(ampAddOnProps)
         ];
+
+
+        const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
+            ["MyProfile", {
+                selectors: [
+                    { namespace: "cert-manager" },
+                    { namespace: "opentelemetry-operator-system" },
+                    { namespace: "external-secrets" },
+                    { namespace: "grafana-operator" },
+                    { namespace: "flux-system" }
+                ]
+            }]
+        ]);
+
+        // Define fargate cluster provider and pass the profile options
+        const fargateClusterProvider: blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
+            fargateProfiles,
+            version: eks.KubernetesVersion.of("1.27")
+        });
 
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
-            .version('auto')
-            .withAmpProps(ampAddOnProps)
-            .enableOpenSourcePatternAddOns()
-            .clusterProvider(importClusterProvider)
-            .resourceProvider(blueprints.GlobalResources.Vpc, new blueprints.VpcProvider(vpcId)) // this is required with import cluster provider
+            .clusterProvider(fargateClusterProvider)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);

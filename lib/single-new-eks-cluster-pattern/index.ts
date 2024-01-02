@@ -17,6 +17,7 @@ export default class SingleNewEksPattern {
             .account(account)
             .region(region)
             .version('auto')
+            .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
     }
