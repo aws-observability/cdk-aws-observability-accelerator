@@ -98,7 +98,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.CoreDnsAddOn({
-                version: "v1.10.1-eksbuild.4",
+                version: "auto",
                 configurationValues: { computeType: "Fargate" }
             }),
             new blueprints.addons.KubeProxyAddOn(),
