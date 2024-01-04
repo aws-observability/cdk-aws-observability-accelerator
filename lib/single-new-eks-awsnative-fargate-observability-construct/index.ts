@@ -64,7 +64,6 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             .withCertManagerProps(certManagerAddOnProps)
             .withCoreDnsProps(coreDnsAddOnProps)
             .enableFargatePatternAddOns()
-            .enableControlPlaneLogging()
             .clusterProvider(fargateClusterProvider)
             .addOns(...addOns)
             .build(scope, stackId);
