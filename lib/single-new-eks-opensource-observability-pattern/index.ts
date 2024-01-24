@@ -2,6 +2,8 @@ import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
+import * as eks from 'aws-cdk-lib/aws-eks';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
@@ -97,6 +99,20 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    javaScrapeSampleLimit: 1000,
+                    javaPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/istio/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/istio/recording-rules.yml'
+            );
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -108,9 +124,28 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             new GrafanaOperatorSecretAddon()
         ];
 
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            const istioControlPlaneAddOnProps = {
+                version: "1.18.2",
+              }
+            addOns.push(new blueprints.addons.IstioBaseAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new blueprints.addons.IstioControlPlaneAddOn(istioControlPlaneAddOnProps));
+        }
+
+        const mngProps: blueprints.MngClusterProviderProps = {
+            version: eks.KubernetesVersion.of("1.28"),
+            instanceTypes: [new ec2.InstanceType("m5.2xlarge")],
+            amiType: eks.NodegroupAmiType.AL2_X86_64,
+            desiredSize: 2,
+            maxSize: 3, 
+        };
+
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .version('auto')
             .withAmpProps(ampAddOnProps)
