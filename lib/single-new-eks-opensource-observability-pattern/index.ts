@@ -127,7 +127,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
             const istioControlPlaneAddOnProps = {
                 version: "1.18.2",
-              }
+            };
             addOns.push(new blueprints.addons.IstioBaseAddOn({
                 version: "1.18.2"
             }));
