@@ -47,6 +47,15 @@
         }
       ]
     },
-    "istio.pattern.enabled": true
+    "istio.pattern.enabled": true,
+    "gpuNodeGroup": {
+      "instanceType": "g4dn.xlarge",
+      "desiredSize": 2, 
+      "minSize": 2, 
+      "maxSize": 3,
+      "ebsSize": 50
+    },
+    "existing.cluster.name": "single-new-eks-observability-accelerator",
+    "existing.kubectl.rolename": "YOUR_KUBECTL_ROLE"
   }
 }
