@@ -108,7 +108,11 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
 
         if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    nginxScrapeSampleLimit: 1000,
+                    nginxPrometheusMetricsEndpoint: "/metrics"
+                }
             };
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'

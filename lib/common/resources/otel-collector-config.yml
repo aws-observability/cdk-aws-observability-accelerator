@@ -1617,8 +1617,8 @@ spec:
                   target_label: nodename
             {{ start enableJavaMonJob }}
             - job_name: 'kubernetes-java-jmx'
-              sample_limit: {{ .Values.javaScrapeSampleLimit }}
-              metrics_path: {{ .Values.javaPrometheusMetricsEndpoint }}
+              sample_limit: {{javaScrapeSampleLimit}}
+              metrics_path: {{javaPrometheusMetricsEndpoint}}
               kubernetes_sd_configs:
                 - role: pod
               relabel_configs:
@@ -1650,8 +1650,8 @@ spec:
 
             {{ start enableNginxMonJob }}
             - job_name: 'kubernetes-nginx'
-              sample_limit: {{ .Values.nginxScrapeSampleLimit }}
-              metrics_path: {{ .Values.nginxPrometheusMetricsEndpoint }}
+              sample_limit: {{nginxScrapeSampleLimit}}
+              metrics_path: {{nginxPrometheusMetricsEndpoint}}
               kubernetes_sd_configs:
                 - role: pod
               relabel_configs:
