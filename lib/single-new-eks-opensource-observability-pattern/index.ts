@@ -60,6 +60,12 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsCollection }}",
+            "{{ stop enableAdotContainerLogsCollection }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
@@ -97,12 +103,20 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "adotcontainerlogs.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    logGroupName: `/aws/eks/${stackId}`,
+                    logStreamName: `/aws/eks/${stackId}`,
+                    logRetentionDays: 30,
+                    awsRegion: region 
+                }
+            };
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon()
