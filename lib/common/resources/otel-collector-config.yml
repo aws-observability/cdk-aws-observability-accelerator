@@ -68,7 +68,7 @@ spec:
                 regex: (.+)
                 target_label: __metrics_path__
                 replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
-            {{ if enableAPIserverJob }}  
+            {{ start enableAPIserverJob }}  
             - job_name: 'apiserver'
               scheme: https
               tls_config:
@@ -94,7 +94,7 @@ spec:
                 regex: apiserver_request_duration_seconds_bucket;(0.15|0.2|0.3|0.35|0.4|0.45|0.6|0.7|0.8|0.9|1.25|1.5|1.75|2|3|3.5|4|4.5|6|7|8|9|15|25|40|50)
                 replacement: $1
                 action: drop
-            {{ end }}
+            {{ stop enableAPIserverJob }}
             - job_name: serviceMonitor/default/kube-prometheus-stack-prometheus-node-exporter/0
               honor_timestamps: true
               scrape_interval: 30s
@@ -1607,6 +1607,15 @@ spec:
             - job_name: 'node-exporter'
               kubernetes_sd_configs:
                 - role: endpoints
+              ec2_sd_configs:
+              relabel_configs:
+                - source_labels: [ __address__ ]
+                  action: keep
+                  regex: '.*:9100$'
+                - action: replace
+                  source_labels: [__meta_kubernetes_endpoint_node_name]
+                  target_label: nodename
+            {{ start enableJavaMonJob }}
             - job_name: 'kubernetes-java-jmx'
               sample_limit: {{javaScrapeSampleLimit}}
               metrics_path: {{javaPrometheusMetricsEndpoint}}
@@ -1637,6 +1646,100 @@ spec:
                 - source_labels: [ __name__ ]
                   regex: 'jvm_gc_collection_seconds.*'
                   action: drop
+            {{ stop enableJavaMonJob }}
+
+            {{ start enableNginxMonJob }}
+            - job_name: 'kubernetes-nginx'
+              sample_limit: {{nginxScrapeSampleLimit}}
+              metrics_path: {{nginxPrometheusMetricsEndpoint}}
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [ __address__ ]
+                  action: keep
+                  regex: '.*:10254$'
+                - source_labels: [__meta_kubernetes_pod_container_name]
+                  target_label: container
+                  action: replace
+                - source_labels: [__meta_kubernetes_pod_node_name]
+                  target_label: host
+                  action: replace
+                - source_labels: [__meta_kubernetes_namespace]
+                  target_label: namespace
+                  action: replace
+              metric_relabel_configs:
+                - source_labels: [__name__]
+                  regex: 'go_memstats.*'
+                  action: drop
+                - source_labels: [__name__]
+                  regex: 'go_gc.*'
+                  action: drop
+                - source_labels: [__name__]
+                  regex: 'go_threads'
+                  action: drop
+                - regex: exported_host
+                  action: labeldrop
+            {{ stop enableNginxMonJob }}
+
+         {{ start enableIstioMonJob }}
+            - honor_labels: true
+              job_name: kubernetes-istio
+              kubernetes_sd_configs:
+              - role: pod
+              relabel_configs:
+              - action: keep
+                regex: true
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+              - action: drop
+                regex: true
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+              - action: replace
+                regex: (https?)
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+                target_label: __scheme__
+              - action: replace
+                regex: (.+)
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_path
+                target_label: __metrics_path__
+              - action: replace
+                regex: (\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})
+                replacement: '[$$2]:$$1'
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_port
+                - __meta_kubernetes_pod_ip
+                target_label: __address__
+              - action: replace
+                regex: (\d+);((([0-9]+?)(\.|$)){4})
+                replacement: $$2:$$1
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_port
+                - __meta_kubernetes_pod_ip
+                target_label: __address__
+              - action: labelmap
+                regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+                replacement: __param_$1
+              - action: labelmap
+                regex: __meta_kubernetes_pod_label_(.+)
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_namespace
+                target_label: namespace
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_pod_name
+                target_label: pod
+              - action: keep
+                source_labels: [ __address__ ]
+                regex: '.*:15020$$'
+              - action: drop
+                regex: Pending|Succeeded|Failed|Completed
+                source_labels:
+                - __meta_kubernetes_pod_phase
+            {{ stop enableIstioMonJob }}
     exporters:
       prometheusremotewrite:
         endpoint: "{{remoteWriteEndpoint}}"
