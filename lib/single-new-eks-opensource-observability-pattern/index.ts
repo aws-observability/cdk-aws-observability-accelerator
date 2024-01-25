@@ -7,6 +7,8 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
+import { IstioIngressGatewayHelmAddon } from './istio/istioIngressGatewayAddon';
+import { IstioCniHelmAddon } from './istio/istiocniAddon';
 
 export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -46,8 +48,26 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ if enableAPIserverJob }}",
-            "{{ end }}",
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            jsonStringnew.context["java.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            jsonStringnew.context["nginx.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableIstioMonJob }}",
+            "{{ stop enableIstioMonJob }}",
+            jsonStringnew.context["istio.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
             jsonStringnew.context["apiserver.pattern.enabled"]
         );
         doc = utils.changeTextBetweenTokens(
@@ -88,11 +108,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
 
         if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
-                manifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
-                }
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
             };
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
@@ -101,11 +117,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
 
         if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
-                manifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
-                }
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
             };
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/istio/alerting-rules.yml',
@@ -125,13 +137,14 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         ];
 
         if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
-            const istioControlPlaneAddOnProps = {
-                version: "1.18.2",
-            };
             addOns.push(new blueprints.addons.IstioBaseAddOn({
                 version: "1.18.2"
             }));
-            addOns.push(new blueprints.addons.IstioControlPlaneAddOn(istioControlPlaneAddOnProps));
+            addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new IstioIngressGatewayHelmAddon);
+            addOns.push(new IstioCniHelmAddon);
         }
 
         const mngProps: blueprints.MngClusterProviderProps = {
