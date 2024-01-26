@@ -7,6 +7,8 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
+import { IstioIngressGatewayHelmAddon } from './istio/istioIngressGatewayAddon';
+import { IstioCniHelmAddon } from './istio/istiocniAddon';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -43,8 +45,26 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ if enableAPIserverJob }}",
-            "{{ end }}",
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            jsonStringnew.context["java.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            jsonStringnew.context["nginx.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableIstioMonJob }}",
+            "{{ stop enableIstioMonJob }}",
+            jsonStringnew.context["istio.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
             jsonStringnew.context["apiserver.pattern.enabled"]
         );
         doc = utils.changeTextBetweenTokens(
@@ -107,6 +127,29 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    nginxScrapeSampleLimit: 1000,
+                    nginxPrometheusMetricsEndpoint: "/metrics"
+                }
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
+        }
+
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/istio/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/istio/recording-rules.yml'
+            );
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.XrayAdotAddOn(),
@@ -114,10 +157,23 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             new GrafanaOperatorSecretAddon(),
         ];
 
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            addOns.push(new blueprints.addons.IstioBaseAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new IstioIngressGatewayHelmAddon);
+            addOns.push(new IstioCniHelmAddon);
+        }
+
         const mngProps: blueprints.MngClusterProviderProps = {
             version: eks.KubernetesVersion.of("1.27"),
             instanceTypes: [new ec2.InstanceType("m7g.large")],
             amiType: eks.NodegroupAmiType.AL2_ARM_64,
+            desiredSize: 2,
+            maxSize: 3,
         };
 
         ObservabilityBuilder.builder()
