@@ -62,8 +62,14 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotContainerLogsCollection }}",
-            "{{ stop enableAdotContainerLogsCollection }}",
+            "{{ start enableAdotContainerLogsReceiver }}",
+            "{{ stop enableAdotContainerLogsReceiver }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsExporter }}",
+            "{{ stop enableAdotContainerLogsExporter }}",
             jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
         );
         console.log(doc);

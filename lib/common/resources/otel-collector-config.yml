@@ -1637,7 +1637,7 @@ spec:
                 - source_labels: [ __name__ ]
                   regex: 'jvm_gc_collection_seconds.*'
                   action: drop
-      {{ start enableAdotContainerLogsCollection }}
+      {{ start enableAdotContainerLogsReceiver }}
       filelog:
         include: 
         - /var/log/pods/*/*/*.log 
@@ -1700,7 +1700,7 @@ spec:
           to: body
           type: move
         start_at: beginning
-      {{ stop enableAdotContainerLogsCollection }}
+      {{ stop enableAdotContainerLogsReceiver }}
     exporters:
       prometheusremotewrite:
         endpoint: "{{remoteWriteEndpoint}}"
@@ -1708,7 +1708,7 @@ spec:
           authenticator: sigv4auth
       logging:
         loglevel: info
-      {{ start enableAdotContainerLogsCollection }}
+      {{ start enableAdotContainerLogsExporter }}
       awscloudwatchlogs:
         log_group_name: "{{logGroupName}}"
         log_stream_name: "{{logStreamName}}"
@@ -1716,7 +1716,7 @@ spec:
         endpoint: "logs.{{awsRegion}}.amazonaws.com"
         log_retention: {{logRetentionDays}}
         raw_log: false
-      {{ stop enableAdotContainerLogsCollection }}
+      {{ stop enableAdotContainerLogsExporter }}
     extensions:
       sigv4auth:
         region: "{{awsRegion}}"
