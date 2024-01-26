@@ -85,6 +85,12 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
+        if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+        }
+
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
