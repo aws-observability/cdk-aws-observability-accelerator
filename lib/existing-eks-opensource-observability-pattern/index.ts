@@ -7,6 +7,8 @@ import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
+import { IstioIngressGatewayHelmAddon } from './istio/istioIngressGatewayAddon';
+import { IstioCniHelmAddon } from './istio/istiocniAddon';
 
 export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
@@ -80,6 +82,12 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
+        if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+        }
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
