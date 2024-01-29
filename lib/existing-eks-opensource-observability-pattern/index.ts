@@ -7,6 +7,8 @@ import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
+import { IstioIngressGatewayHelmAddon } from '../single-new-eks-opensource-observability-pattern/istio/istioIngressGatewayAddon';
+import { IstioCniHelmAddon } from '../single-new-eks-opensource-observability-pattern/istio/istiocniAddon';
 
 export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
@@ -62,8 +64,26 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ if enableAPIserverJob }}",
-            "{{ end }}",
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            jsonStringnew.context["java.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            jsonStringnew.context["nginx.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableIstioMonJob }}",
+            "{{ stop enableIstioMonJob }}",
+            jsonStringnew.context["istio.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
             jsonStringnew.context["apiserver.pattern.enabled"]
         );
         doc = utils.changeTextBetweenTokens(
@@ -80,6 +100,12 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
+        if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+        }
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
@@ -106,12 +132,22 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             ampAddOnProps.openTelemetryCollector = {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
+                    nginxScrapeSampleLimit: 1000,
+                    nginxPrometheusMetricsEndpoint: "/metrics"
                 }
             };
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
+        }
+
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/istio/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/istio/recording-rules.yml'
             );
         }
 
@@ -125,6 +161,17 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             new blueprints.addons.FluxCDAddOn({ "repositories": [fluxRepository] }),
             new GrafanaOperatorSecretAddon(),
         ];
+
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            addOns.push(new blueprints.addons.IstioBaseAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new IstioIngressGatewayHelmAddon);
+            addOns.push(new IstioCniHelmAddon);
+        }
 
         ObservabilityBuilder.builder()
             .account(account)
