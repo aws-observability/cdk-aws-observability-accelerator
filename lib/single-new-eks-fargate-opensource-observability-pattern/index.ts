@@ -68,6 +68,18 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsReceiver }}",
+            "{{ stop enableAdotContainerLogsReceiver }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsExporter }}",
+            "{{ stop enableAdotContainerLogsExporter }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
@@ -111,6 +123,18 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             );
         }
 
+        if (utils.valueFromContext(scope, "adotcontainerlogs.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    logGroupName: `/aws/eks/${stackId}`,
+                    logStreamName: `/aws/eks/${stackId}`,
+                    logRetentionDays: 30,
+                    awsRegion: region 
+                }
+            };
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
@@ -128,10 +152,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             }),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.MetricsServerAddOn(),
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.ExternalsSecretsAddOn({
                 namespace: "external-secrets",
                 values: { webhook: { port: 9443 } }
