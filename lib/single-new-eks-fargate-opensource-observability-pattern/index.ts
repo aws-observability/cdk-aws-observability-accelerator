@@ -40,9 +40,21 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ if enableAPIserverJob }}",
-            "{{ end }}",
-            true
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            jsonStringnew.context["java.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            jsonStringnew.context["nginx.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
+            jsonStringnew.context["apiserver.pattern.enabled"]
         );
         doc = utils.changeTextBetweenTokens(
             doc,
@@ -54,11 +66,28 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             doc,
             "{{ start enableAdotMetricsCollectionTelemetry }}",
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
-            true
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsReceiver }}",
+            "{{ stop enableAdotContainerLogsReceiver }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsExporter }}",
+            "{{ stop enableAdotContainerLogsExporter }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
         );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
+        if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+        }
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
@@ -73,13 +102,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
             );
         }
-        
-        if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
-            ampAddOnProps.enableAPIServerJob = true,
-            ampAddOnProps.ampRules?.ruleFilePaths.push(
-                __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
-            );
-        }  
 
         if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
@@ -94,11 +116,30 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             );
         }
 
+        if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
+            ampAddOnProps.enableAPIServerJob = true,
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
+            );
+        }
+        
+        if (utils.valueFromContext(scope, "adotcontainerlogs.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    logGroupName: `/aws/eks/${stackId}`,
+                    logStreamName: `/aws/eks/${stackId}`,
+                    logRetentionDays: 30,
+                    awsRegion: region 
+                }
+            };
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.CoreDnsAddOn({
-                version: "auto",
+                version: "v1.10.1-eksbuild.6",
                 configurationValues: { computeType: "Fargate" }
             }),
             new blueprints.addons.KubeProxyAddOn(),
@@ -135,7 +176,18 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                     { namespace: "opentelemetry-operator-system" },
                     { namespace: "external-secrets" },
                     { namespace: "grafana-operator" },
-                    { namespace: "flux-system" }
+                    { namespace: "flux-system" },
+                ]
+            }],
+            ["Nginx", {
+                selectors: [
+                    { namespace: "nginx-ingress-sample" },
+                    { namespace: "nginx-sample-traffic" }
+                ]
+            }], 
+            ["Java", {
+                selectors:[
+                    { namespace: "javajmx-sample" }
                 ]
             }]
         ]);

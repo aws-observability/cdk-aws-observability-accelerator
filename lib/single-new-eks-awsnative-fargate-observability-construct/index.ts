@@ -50,7 +50,7 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
         };
 
         const coreDnsAddOnProps : blueprints.CoreDnsAddOnProps = {
-            version:"auto",
+            version:"v1.10.1-eksbuild.6",
             configurationValues:{
                 computeType: "Fargate" 
             }
@@ -64,7 +64,6 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             .withCertManagerProps(certManagerAddOnProps)
             .withCoreDnsProps(coreDnsAddOnProps)
             .enableFargatePatternAddOns()
-            .enableControlPlaneLogging()
             .clusterProvider(fargateClusterProvider)
             .addOns(...addOns)
             .build(scope, stackId);
