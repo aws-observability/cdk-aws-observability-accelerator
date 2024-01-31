@@ -39,7 +39,7 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
         // Define fargate cluster provider and pass the profile options
         const fargateClusterProvider : blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
             fargateProfiles,
-            version: eks.KubernetesVersion.of("1.27")
+            version: eks.KubernetesVersion.of("1.28")
         });
 
         const certManagerAddOnProps : blueprints.CertManagerAddOnProps = {
@@ -64,7 +64,6 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
             .withCertManagerProps(certManagerAddOnProps)
             .withCoreDnsProps(coreDnsAddOnProps)
             .enableFargatePatternAddOns()
-            .enableControlPlaneLogging()
             .clusterProvider(fargateClusterProvider)
             .addOns(...addOns)
             .build(scope, stackId);
