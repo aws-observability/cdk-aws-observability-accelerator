@@ -2,10 +2,12 @@ import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from '../single-new-eks-opensource-observability-pattern/grafanaoperatorsecretaddon';
+import { FluentBitConfigMap } from './fluentbitconfigmap';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
+import { ManagedPolicy,Role,ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -68,18 +70,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
-        doc = utils.changeTextBetweenTokens(
-            doc,
-            "{{ start enableAdotContainerLogsReceiver }}",
-            "{{ stop enableAdotContainerLogsReceiver }}",
-            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
-        );
-        doc = utils.changeTextBetweenTokens(
-            doc,
-            "{{ start enableAdotContainerLogsExporter }}",
-            "{{ stop enableAdotContainerLogsExporter }}",
-            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
-        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
@@ -103,36 +93,24 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             );
         }
 
-        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
-            ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
-                manifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
-                }
-            };
-            ampAddOnProps.ampRules?.ruleFilePaths.push(
-                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
-            );
-        }
-
         if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
             ampAddOnProps.enableAPIServerJob = true,
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
             );
         }
-        
-        if (utils.valueFromContext(scope, "adotcontainerlogs.pattern.enabled", false)) {
+
+        if (utils.valueFromContext(scope, "nginx.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
-                    logGroupName: `/aws/eks/${stackId}`,
-                    logStreamName: `/aws/eks/${stackId}`,
-                    logRetentionDays: 30,
-                    awsRegion: region 
+                    nginxScrapeSampleLimit: 1000,
+                    nginxPrometheusMetricsEndpoint: "/metrics"
                 }
             };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/nginx/alerting-rules.yml'
+            );
         }
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
@@ -152,10 +130,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             }),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.MetricsServerAddOn(),
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.ExternalsSecretsAddOn({
                 namespace: "external-secrets",
                 values: { webhook: { port: 9443 } }
@@ -165,43 +139,42 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             new GrafanaOperatorSecretAddon(),
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.AmpAddOn(ampAddOnProps)
+            new blueprints.addons.AmpAddOn(ampAddOnProps),
+            new FluentBitConfigMap()
         ];
 
+        const nodeRole = new blueprints.CreateRoleProvider("blueprint-fargate-pod-role", new ServicePrincipal("eks-fargate-pods.amazonaws.com"),
+            [
+                ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSFargatePodExecutionRolePolicy"),
+                ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
+            ]);
+
+        const fargateProfileOptions: eks.FargateProfileOptions = {
+            selectors: [
+                { namespace: "cert-manager"},
+                { namespace: "opentelemetry-operator-system" },
+                { namespace: "external-secrets" },
+                { namespace: "grafana-operator" },
+                { namespace: "flux-system" }
+            ],podExecutionRole: blueprints.getNamedResource("blueprint-fargate-pod-role") as Role
+        };
 
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
-            ["MyProfile", {
-                selectors: [
-                    { namespace: "cert-manager" },
-                    { namespace: "opentelemetry-operator-system" },
-                    { namespace: "external-secrets" },
-                    { namespace: "grafana-operator" },
-                    { namespace: "flux-system" },
-                ]
-            }],
-            ["Nginx", {
-                selectors: [
-                    { namespace: "nginx-ingress-sample" },
-                    { namespace: "nginx-sample-traffic" }
-                ]
-            }], 
-            ["Java", {
-                selectors:[
-                    { namespace: "javajmx-sample" }
-                ]
-            }]
+            ["MyProfile", fargateProfileOptions],
         ]);
 
         // Define fargate cluster provider and pass the profile options
         const fargateClusterProvider: blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
             fargateProfiles,
-            version: eks.KubernetesVersion.of("1.28")
+            version: eks.KubernetesVersion.of("1.28"),
         });
+
 
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
             .clusterProvider(fargateClusterProvider)
+            .resourceProvider("blueprint-fargate-pod-role", nodeRole)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);
