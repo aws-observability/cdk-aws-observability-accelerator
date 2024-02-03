@@ -149,18 +149,18 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
             ]);
 
-        const fargateProfileOptions: eks.FargateProfileOptions = {
-            selectors: [
-                { namespace: "cert-manager"},
-                { namespace: "opentelemetry-operator-system" },
-                { namespace: "external-secrets" },
-                { namespace: "grafana-operator" },
-                { namespace: "flux-system" }
-            ],podExecutionRole: blueprints.getNamedResource("blueprint-fargate-pod-role") as Role
-        };
+        const podExecutionRole = blueprints.getNamedResource("blueprint-fargate-pod-role") as Role;
 
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
-            ["MyProfile", fargateProfileOptions],
+            ["MyProfile", {
+                selectors: [
+                    { namespace: "cert-manager" },
+                    { namespace: "opentelemetry-operator-system" },
+                    { namespace: "external-secrets" },
+                    { namespace: "grafana-operator" },
+                    { namespace: "flux-system" }
+                ],  podExecutionRole : podExecutionRole
+            }],
         ]);
 
         // Define fargate cluster provider and pass the profile options

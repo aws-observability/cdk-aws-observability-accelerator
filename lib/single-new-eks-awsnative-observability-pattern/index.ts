@@ -18,6 +18,7 @@ export default class SingleNewEksClusterAWSNativeobservabilityPattern {
             .region(region)
             .version('auto')
             .enableNativePatternAddOns()
+            .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
     }
