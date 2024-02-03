@@ -40,9 +40,21 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ if enableAPIserverJob }}",
-            "{{ end }}",
-            true
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            jsonStringnew.context["java.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            jsonStringnew.context["nginx.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
+            jsonStringnew.context["apiserver.pattern.enabled"]
         );
         doc = utils.changeTextBetweenTokens(
             doc,
@@ -54,11 +66,16 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             doc,
             "{{ start enableAdotMetricsCollectionTelemetry }}",
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
-            true
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
+        if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+        }
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
@@ -73,7 +90,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
             );
         }
-        
+
         if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
             ampAddOnProps.enableAPIServerJob = true,
             ampAddOnProps.ampRules?.ruleFilePaths.push(
@@ -85,8 +102,8 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             ampAddOnProps.openTelemetryCollector = {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
+                    nginxScrapeSampleLimit: 1000,
+                    nginxPrometheusMetricsEndpoint: "/metrics"
                 }
             };
             ampAddOnProps.ampRules?.ruleFilePaths.push(
