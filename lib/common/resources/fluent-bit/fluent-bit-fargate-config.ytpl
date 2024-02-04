@@ -11,7 +11,7 @@ metadata:
   name: aws-logging
   namespace: aws-observability
 data:
-  flb_log_cw: "true"  # Set to true to ship Fluent Bit process logs to CloudWatch.
+  flb_log_cw: "{{enableFlbProcessLogs}}"  # Set to true to ship Fluent Bit process logs to CloudWatch.
   filters.conf: |
     [FILTER]
         Name parser
@@ -29,9 +29,9 @@ data:
     [OUTPUT]
         Name cloudwatch_logs
         Match   kube.*
-        region us-east-1
-        log_group_name fargate-observability
-        log_stream_prefix from-fluent-bit-
+        region {{awsRegion}}
+        log_group_name {{logGroupName}}
+        log_stream_prefix {{log_stream_prefix}}
         auto_create_group true
   parsers.conf: |
     [PARSER]

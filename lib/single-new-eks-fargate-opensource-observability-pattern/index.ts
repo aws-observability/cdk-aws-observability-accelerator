@@ -2,13 +2,12 @@ import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from '../single-new-eks-opensource-observability-pattern/grafanaoperatorsecretaddon';
+import { FluentBitConfigMap, FluentBitConfigMapProps } from './fluentbitconfigmap';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
 import { ManagedPolicy,Role,ServicePrincipal } from "aws-cdk-lib/aws-iam";
-import { FluentBitConfigMap } from './fluentbitconfigmap';
-
 
 export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -114,6 +113,12 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             );
         }
 
+        const fluentBitConfigMapProps = {
+            awsRegion: region,
+            logGroupName: "fargate-observability",
+            log_stream_prefix: "from-fluent-bit-",
+        } as FluentBitConfigMapProps;
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
@@ -141,7 +146,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.AmpAddOn(ampAddOnProps),
-            new FluentBitConfigMap()
+            new FluentBitConfigMap(fluentBitConfigMapProps)
         ];
 
         const nodeRole = new blueprints.CreateRoleProvider("blueprint-fargate-pod-role", new ServicePrincipal("eks-fargate-pods.amazonaws.com"),
