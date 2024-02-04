@@ -116,7 +116,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         const fluentBitConfigMapProps = {
             awsRegion: region,
             logGroupName: "fargate-observability",
-            log_stream_prefix: "from-fluent-bit-",
+            logStreamPrefix: "from-fluent-bit-",
         } as FluentBitConfigMapProps;
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);

@@ -21,7 +21,7 @@ export interface FluentBitConfigMapProps {
     /**
      * Prefix for logs stream
      */
-    log_stream_prefix: string;
+    logStreamPrefix: string;
 
     /**
      * Enable logs from fluentBit process
@@ -35,7 +35,7 @@ export interface FluentBitConfigMapProps {
 const defaultProps: FluentBitConfigMapProps = {
     awsRegion: "us-east-1",
     logGroupName: "fargate-observability",
-    log_stream_prefix: "from-fluent-bit-",
+    logStreamPrefix: "from-fluent-bit-",
     enableFlbProcessLogs: false
 };
 
@@ -61,7 +61,7 @@ export class FluentBitConfigMap implements blueprints.ClusterAddOn {
         const values: blueprints.Values = {
             awsRegion: this.props.awsRegion,
             logGroupName: this.props.logGroupName,
-            log_stream_prefix: this.props.log_stream_prefix,
+            log_stream_prefix: this.props.logStreamPrefix,
             enableFlbProcessLogs: this.props.enableFlbProcessLogs,
         };
 
