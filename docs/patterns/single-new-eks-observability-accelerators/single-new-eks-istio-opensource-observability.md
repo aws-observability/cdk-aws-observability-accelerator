@@ -41,7 +41,7 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
           "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
         },
         {
-          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/Istio"
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/istio"
         }
       ]
     },
@@ -51,65 +51,74 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
 
 Once completed the rest of the _Deploying_ steps, you can move on with the deployment of the Istio workload.
 
-## Deploy an example Istio application
-
-In this section we will reuse an example from the AWS OpenTelemetry collector [repository](https://github.com/aws-observability/aws-otel-collector/blob/main/docs/developers/container-insights-eks-jmx.md). For convenience, the steps can be found below.
-
-1. Clone [this repository](https://github.com/aws-observability/aws-otel-test-framework) and navigate to the `sample-apps/jmx/` directory.
-
-2. Authenticate to Amazon ECR (_AWS_REGION_ was set during the deployment stage)
-
-```bash
-export AWS_ACCOUNT_ID=`aws sts get-caller-identity --query Account --output text`
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-```
-
-3. Create an Amazon ECR repository
-
-```bash
-aws ecr create-repository --repository-name prometheus-sample-tomcat-jmx \
-  --image-scanning-configuration scanOnPush=true \
-  --region $AWS_REGION 
-```
-
-4. Build Docker image and push to ECR.
-
-```bash
-docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/prometheus-sample-tomcat-jmx:latest .
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/prometheus-sample-tomcat-jmx:latest 
-```
-
-5. Install the sample application in the cluster
-
-```bash
-SAMPLE_TRAFFIC_NAMESPACE=Istiojmx-sample
-curl https://raw.githubusercontent.com/aws-observability/aws-otel-test-framework/terraform/sample-apps/jmx/examples/prometheus-metrics-sample.yaml | 
-sed "s/{{aws_account_id}}/$AWS_ACCOUNT_ID/g" |
-sed "s/{{region}}/$AWS_REGION/g" |
-sed "s/{{namespace}}/$SAMPLE_TRAFFIC_NAMESPACE/g" | 
-kubectl apply -f -
-```
-
-## Verify the resources
-
-```bash
-kubectl get pods -n $SAMPLE_TRAFFIC_NAMESPACE
-
-NAME                              READY   STATUS    RESTARTS   AGE
-tomcat-bad-traffic-generator      1/1     Running   0          90m
-tomcat-example-77b46cc546-z22jf   1/1     Running   0          25m
-tomcat-traffic-generator          1/1     Running   0          90m
-```
-
 ## Visualization
 
-Login to your Grafana workspace and navigate to the Dashboards panel. You should see a new dashboard named `Istio/JMX`, under `Observability Accelerator Dashboards`:
+### 1. Grafana dashboards
 
-![Dashboard](../images/all-dashboards-Istio.png)
+Go to the Dashboards panel of your Grafana workspace. You will see a list of Istio dashboards under the `Observability Accelerator Dashboards`
 
-Open the `Istio/JMX` dashboard and you should be able to view its visualization as shown below:
+<img width="1208" alt="image" src="https://github.com/aws-observability/terraform-aws-observability-accelerator/assets/34757337/19b589b4-00f6-465d-a562-1da39e8b9b8c">
 
-![NodeExporter_Dashboard](../images/Istio-dashboard.png)
+Open one of the Istio dasbhoards and you will be able to view its visualization
+
+<img width="1850" alt="image" src="https://user-images.githubusercontent.com/47993564/236842708-72225322-4f97-44cc-aac0-40a3356e50c6.jpeg">
+
+### 2. Amazon Managed Service for Prometheus rules and alerts
+
+Open the Amazon Managed Service for Prometheus console and view the details of your workspace. Under the `Rules management` tab, you will find new rules deployed.
+
+<img width="1054" alt="image" src="https://user-images.githubusercontent.com/47993564/236844084-80c754e3-4fe1-45bb-8361-181432675469.jpeg">
+
+!!! note
+    To setup your alert receiver, with Amazon SNS, follow [this documentation](https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-alertmanager-receiver.html)
+
+## Deploy an example application to visualize metrics
+
+In this section we will deploy Istio's Bookinfo sample application and extract metrics using the AWS OpenTelemetry collector. When downloading and configuring `istioctl`, there are samples included in the Istio package directory. The deployment files for Bookinfo are found in the `samples` folder. Additional details can be found on Istio's [Getting Started](https://istio.io/latest/docs/setup/getting-started/) documentation
+
+### 1. Deploy the Bookinfo Application
+
+1. Using the AWS CLI, configure kubectl so you can connect to your EKS cluster. Update for your region and EKS cluster name
+```sh
+aws eks update-kubeconfig --region <enter-your-region> --name <cluster-name>
+```
+2. Label the default namespace for automatic Istio sidecar injection
+```sh
+kubectl label namespace default istio-injection=enabled
+```
+3. Navigate to the Istio folder location. For example, if using Istio v1.18.2 in Downloads folder:
+```sh
+cd ~/Downloads/istio-1.18.2
+```
+4. Deploy the Bookinfo sample application
+```sh
+kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+```
+5. Connect the Bookinfo application with the Istio gateway
+```sh
+kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+```
+6. Validate that there are no issues with the Istio configuration
+```sh
+istioctl analyze
+```
+7. Get the DNS name of the load balancer for the Istio gateway
+```sh
+GATEWAY_URL=$(kubectl get svc istio-ingressgateway -n istio-system -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+```
+
+### 2. Generate traffic for the Istio Bookinfo sample application
+
+For the Bookinfo sample application, visit `http://$GATEWAY_URL/productpage` in your web browser. To see trace data, you must send requests to your service. The number of requests depends on Istio’s sampling rate and can be configured using the Telemetry API. With the default sampling rate of 1%, you need to send at least 100 requests before the first trace is visible. To send a 100 requests to the productpage service, use the following command:
+```sh
+for i in $(seq 1 100); do curl -s -o /dev/null "http://$GATEWAY_URL/productpage"; done
+```
+
+### 3. Explore the Istio dashboards
+
+Log back into your Amazon Managed Grafana workspace and navigate to the dashboard side panel. Click on the `Observability Accelerator Dashboards` folder and open the `Istio Service` Dashboard. Use the Service dropdown menu to select the `reviews.default.svc.cluster.local` service. This gives details about metrics for the service, client workloads (workloads that are calling this service), and service workloads (workloads that are providing this service).
+
+Explore the Istio Control Plane, Mesh, and Performance dashboards as well.
 
 ## Teardown
 
