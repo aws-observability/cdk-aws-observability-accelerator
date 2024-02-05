@@ -2,10 +2,12 @@ import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from '../single-new-eks-opensource-observability-pattern/grafanaoperatorsecretaddon';
+import { FluentBitConfigMap, FluentBitConfigMapProps } from './fluentbitconfigmap';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
+import { ManagedPolicy,Role,ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
     constructor(scope: Construct, id: string) {
@@ -111,11 +113,17 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             );
         }
 
+        const fluentBitConfigMapProps = {
+            awsRegion: region,
+            logGroupName: "fargate-observability",
+            logStreamPrefix: "from-fluent-bit-",
+        } as FluentBitConfigMapProps;
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.CoreDnsAddOn({
-                version: "v1.10.1-eksbuild.1",
+                version: "v1.10.1-eksbuild.6",
                 configurationValues: { computeType: "Fargate" }
             }),
             new blueprints.addons.KubeProxyAddOn(),
@@ -128,10 +136,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             }),
             new blueprints.addons.KubeStateMetricsAddOn(),
             new blueprints.addons.MetricsServerAddOn(),
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.ExternalsSecretsAddOn({
                 namespace: "external-secrets",
                 values: { webhook: { port: 9443 } }
@@ -141,9 +145,17 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             new GrafanaOperatorSecretAddon(),
             new blueprints.addons.AdotCollectorAddOn(),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.AmpAddOn(ampAddOnProps)
+            new blueprints.addons.AmpAddOn(ampAddOnProps),
+            new FluentBitConfigMap(fluentBitConfigMapProps)
         ];
 
+        const nodeRole = new blueprints.CreateRoleProvider("blueprint-fargate-pod-role", new ServicePrincipal("eks-fargate-pods.amazonaws.com"),
+            [
+                ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSFargatePodExecutionRolePolicy"),
+                ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
+            ]);
+
+        const podExecutionRole = blueprints.getNamedResource("blueprint-fargate-pod-role") as Role;
 
         const fargateProfiles: Map<string, eks.FargateProfileOptions> = new Map([
             ["MyProfile", {
@@ -153,20 +165,22 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
                     { namespace: "external-secrets" },
                     { namespace: "grafana-operator" },
                     { namespace: "flux-system" }
-                ]
-            }]
+                ],  podExecutionRole : podExecutionRole
+            }],
         ]);
 
         // Define fargate cluster provider and pass the profile options
         const fargateClusterProvider: blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
             fargateProfiles,
-            version: eks.KubernetesVersion.of("1.27")
+            version: eks.KubernetesVersion.of("1.28"),
         });
+
 
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
             .clusterProvider(fargateClusterProvider)
+            .resourceProvider("blueprint-fargate-pod-role", nodeRole)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .addOns(...addOns)
             .build(scope, stackId);

@@ -194,8 +194,10 @@ You should now see a new dashboard named `Java/JMX`, under `Observability Accele
 
 ## Viewing Logs
 
-By default, we deploy a FluentBit daemon set in the cluster to collect worker logs for all namespaces. Logs are collected and exported to Amazon CloudWatch Logs, which enables you to centralize the logs from all of your systems, applications,
-and AWS services that you use, in a single, highly scalable service.
+Amazon EKS on Fargate offers a built-in log router based on Fluent Bit. This means that you don't explicitly run a Fluent Bit container as a sidecar, but Amazon runs it for you. All that you have to do is configure the log router. The configuration happens through a dedicated [`ConfigMap`](../../../lib/common/resources/fluent-bit/fluent-bit-fargate-config.ytpl). Logs are collected and exported to Amazon CloudWatch Logs, which enables you to centralize the logs from all of your systems, applications,
+and AWS services that you use, in a single, highly scalable service. By default, the logs are exported to us-east-1 region but you can modify the `ConfigMap` for your region of choice. At least one supported `OUTPUT` plugin has to be provided in the `ConfigMap` to enable logging. You can also modify the destination from cloudwatch to Cloudwatch (default), Amazon OpenSearch Service or Kinesis Data Firehose. Read more about [EKS Fargate logging](https://docs.aws.amazon.com/eks/latest/userguide/fargate-logging.html).
+
+![fargate-fluentbit](../images/logs-fargate-fluentbit.png)
 
 ## Teardown
 
