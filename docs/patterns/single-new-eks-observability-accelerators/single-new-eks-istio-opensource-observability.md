@@ -2,9 +2,6 @@
 
 ## Objective
 
-This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ with Istio based workloads.
-
-It also enables control plane logging for comprehensive monitoring on the EKS cluster.
 
 ## Prerequisites
 
