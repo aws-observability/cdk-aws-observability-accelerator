@@ -46,6 +46,7 @@ nav:
       - OSS Java Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md
       - OSS Nginx Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md
       - OSS ADOT Collector Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-adotmetrics-collection-opensource-observability.md
+      - OSS ADOT Container Logs: patterns/single-new-eks-observability-accelerators/single-new-eks-container-logs-opensource-observability.md
     - Logs: logs.md
     - Tracing: tracing.md
   - Supporting Examples:
