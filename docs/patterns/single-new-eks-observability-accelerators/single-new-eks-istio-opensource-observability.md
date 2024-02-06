@@ -140,10 +140,9 @@ Explore the Istio Control Plane, Mesh, and Performance dashboards as well.
 Control Plane 
 ![68AC86D7-4959-4527-A723-A19E8FD9E8F5_1_105_c](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/7c0fa04d-beed-45f4-a5dc-97418323b4a9)
 
-Mesh 
 ![AD2E46A3-4BC0-4F5A-BEA0-27D2136E6C06](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/3c913641-8101-459d-87c1-d418433c1960)
 
-Performance 
+Mesh 
 ![9B04E4D9-6A47-4E4F-AF42-E3A2426B344C](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/366e33f5-5a54-4bef-afa6-c218aa31bdab)
 
 ## Teardown
