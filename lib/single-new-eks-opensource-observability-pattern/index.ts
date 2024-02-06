@@ -152,7 +152,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     logGroupName: `/aws/eks/${stackId}`,
-                    logStreamName: `/aws/eks/${stackId}`,
+                    logStreamName: `$NODE_NAME`,
                     logRetentionDays: 30,
                     awsRegion: region 
                 }
