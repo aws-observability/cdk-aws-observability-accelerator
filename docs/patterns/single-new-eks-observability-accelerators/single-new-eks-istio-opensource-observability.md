@@ -60,17 +60,20 @@ Once completed the rest of the _Deploying_ steps, you can move on with the deplo
 
 Go to the Dashboards panel of your Grafana workspace. You will see a list of Istio dashboards under the `Observability Accelerator Dashboards`
 
-<img width="1208" alt="image" src="https://github.com/aws-observability/terraform-aws-observability-accelerator/assets/34757337/19b589b4-00f6-465d-a562-1da39e8b9b8c">
+![image](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/75c98c21-58f0-4876-8e6f-d88e625ea400)
+
 
 Open one of the Istio dasbhoards and you will be able to view its visualization
 
-<img width="1850" alt="image" src="https://user-images.githubusercontent.com/47993564/236842708-72225322-4f97-44cc-aac0-40a3356e50c6.jpeg">
+![image](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/4cd23a12-70ec-43a6-8410-3c1191530a82)
+
 
 ### 2. Amazon Managed Service for Prometheus rules and alerts
 
 Open the Amazon Managed Service for Prometheus console and view the details of your workspace. Under the `Rules management` tab, you will find new rules deployed.
 
-<img width="1054" alt="image" src="https://user-images.githubusercontent.com/47993564/236844084-80c754e3-4fe1-45bb-8361-181432675469.jpeg">
+![image](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/33c89dcb-853a-479c-a210-3870144161e5)
+
 
 !!! note
     To setup your alert receiver, with Amazon SNS, follow [this documentation](https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-alertmanager-receiver.html)
