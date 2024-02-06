@@ -145,7 +145,10 @@ Control Plane
 Mesh 
 ![9B04E4D9-6A47-4E4F-AF42-E3A2426B344C](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/366e33f5-5a54-4bef-afa6-c218aa31bdab)
 
-## Teardown
+Performance
+
+## Teardown![9429081E-E4CC-4674-81BD-DB7F0B15BC87](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/5a08bb92-27a5-4cfe-9a52-e6fb6b8210fc)
+
 
 You can teardown the whole CDK stack with the following command:
 
