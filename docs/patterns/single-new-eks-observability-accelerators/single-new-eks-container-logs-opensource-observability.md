@@ -1,8 +1,8 @@
-# Single Cluster Open Source Observability - NGINX Monitoring
+# Single Cluster Open Source Observability - Container Logs Collection
 
 ## Objective
 
-This pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ forward container logs to cloud watch using ADOT containers log collector.
+Following the [announcement](https://aws.amazon.com/about-aws/whats-new/2023/11/logs-support-aws-distro-opentelemetry/) of logs support in AWS Distro for OpenTelemetry, this pattern demonstrates how to use the _New EKS Cluster Open Source Observability Accelerator_ to forward container logs to cloud watch using ADOT containers log collector.
 
 ## Prerequisites
 
@@ -55,26 +55,29 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
 
 Once completed the rest of the _Deploying_ steps, you can move on with the deployment of the Nginx workload.
 
-## Viewing Logs in CloudWatch Logs Insights
+## Viewing Logs in CloudWatch Log Groups and Logs Insights
+
+Navigate to CloudWatch, then go to "Log groups"
+
+Search for log group with the name "/aws/eks/single-new-eks-mixed-observability-accelerator" and open it
+
+You will see log streams created using the node name
+
+![ADOT_container_logs_group](../images/ADOT_container_logs_group.png)
+
+Open the log stream and you view the logs forwarded by the container logs collector to CloudWatch
+
+![ADOT_container_logs](../images/ADOT_container_logs.png)
 
 Navigate to CloudWatch, then go to "Logs Insights"
 
-In the dropdown, select any of the logs that begin with "/aws/eks/single-new-eks-mixed-observability-accelerator" and run a query.
+In the dropdown, select log group with name "/aws/eks/single-new-eks-mixed-observability-accelerator" and run a query.
 
-Example with "kubesystem" log group:
-
-![logs-query](../images/mixed-query.png)
+![ADOT_container_logs_insights](../images/ADOT_container_logs_insights.png)
 
 Then you can view the results of your query:
 
-![logs-results](../images/mixed-log-results.png)
-
-You can also find control plane logs in CloudWatch with Control Plane logs visible under the `/cluster` log group:
-
-![control-plane-logs](../images/control-plane-logs.png)
-
-You can then filter by patterns within the logs to find specific events like so:
-![control-plane-insights](../images/control-plane-insights.png)
+![ADOT_container_logs_insights](../images/ADOT_container_logs_insights_results.png)
 
 ## Teardown
 
