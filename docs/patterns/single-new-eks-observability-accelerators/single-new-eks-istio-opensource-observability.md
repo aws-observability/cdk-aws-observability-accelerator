@@ -135,6 +135,10 @@ Log back into your Amazon Managed Grafana workspace and navigate to the dashboar
 ![04CBB260-EE0E-405E-BD23-EBCF8333A29D](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/60b9e537-4e69-476e-861d-7969bf1b91ef)
 
 
+![04CBB260-EE0E-405E-BD23-EBCF8333A29D](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/ba85e89b-a9ab-4b80-bf4a-c597b2bfd4c7)
+![AD2E46A3-4BC0-4F5A-BEA0-27D2136E6C06](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/3c913641-8101-459d-87c1-d418433c1960)
+![9B04E4D9-6A47-4E4F-AF42-E3A2426B344C](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/366e33f5-5a54-4bef-afa6-c218aa31bdab)
+
 Explore the Istio Control Plane, Mesh, and Performance dashboards as well.
 
 ## Teardown
