@@ -147,8 +147,10 @@ Mesh
 
 Performance
 
-## Teardown![9429081E-E4CC-4674-81BD-DB7F0B15BC87](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/5a08bb92-27a5-4cfe-9a52-e6fb6b8210fc)
 
+![9429081E-E4CC-4674-81BD-DB7F0B15BC87](https://github.com/preddy727/cdk-aws-observability-accelerator/assets/47993564/5a797d88-06b5-4063-91b0-28c7647f0c9d)
+
+## Teardown
 
 You can teardown the whole CDK stack with the following command:
 
