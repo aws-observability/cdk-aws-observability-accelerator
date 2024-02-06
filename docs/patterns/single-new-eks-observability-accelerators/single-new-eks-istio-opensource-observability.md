@@ -2,6 +2,14 @@
 
 ## Objective
 
+Service Meshes are an integral part of the Kubernetes environment that enables secure, reliable, and observable communication. Istio is an open-source service mesh that provides advanced network features without requiring any changes to the application code. These capabilities include service-to-service authentication, monitoring, and more.
+
+Istio generates detailed telemetry for all service communications within a mesh. This telemetry provides observability of service behavior, thereby empowering operators to troubleshoot, maintain, and optimize their applications. These features don’t impose additional burdens on service developers. To monitor service behavior, Istio generates metrics for all service traffic in, out, and within an Istio service mesh. These metrics provide information on behaviors, like traffic volume, traffic error rates, and request-response latency.
+
+In addition to monitoring the behavior of services within a mesh, it’s essential to monitor the behavior of the mesh itself. Istio components export metrics which provides insights into the health and function of the mesh control plane.
+
+This pattern configures an Amazon Elastic Kubernetes Service (Amazon EKS) cluster with Istio as a service mesh,  Amazon Managed service for Prometheus, and Amazon Managed Grafana for monitoring your Istio Control and Data plane metrics
+
 
 ## Prerequisites
 
