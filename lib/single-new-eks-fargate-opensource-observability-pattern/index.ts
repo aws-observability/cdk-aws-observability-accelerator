@@ -70,18 +70,6 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
-        doc = utils.changeTextBetweenTokens(
-            doc,
-            "{{ start enableAdotContainerLogsReceiver }}",
-            "{{ stop enableAdotContainerLogsReceiver }}",
-            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
-        );
-        doc = utils.changeTextBetweenTokens(
-            doc,
-            "{{ start enableAdotContainerLogsExporter }}",
-            "{{ stop enableAdotContainerLogsExporter }}",
-            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
-        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
