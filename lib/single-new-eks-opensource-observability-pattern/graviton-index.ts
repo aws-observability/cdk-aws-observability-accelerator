@@ -79,6 +79,18 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             "{{ stop enableAdotMetricsCollectionTelemetry }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsReceiver }}",
+            "{{ stop enableAdotContainerLogsReceiver }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsExporter }}",
+            "{{ stop enableAdotContainerLogsExporter }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
@@ -100,6 +112,18 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
                 __dirname + '/../common/resources/amp-config/java/alerting-rules.yml',
                 __dirname + '/../common/resources/amp-config/java/recording-rules.yml'
             );
+        }
+
+        if (utils.valueFromContext(scope, "adotcontainerlogs.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    logGroupName: `/aws/eks/${stackId}`,
+                    logStreamName: `/aws/eks/${stackId}`,
+                    logRetentionDays: 30,
+                    awsRegion: region 
+                }
+            };
         }
 
         if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
@@ -134,10 +158,6 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
 
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon(),
