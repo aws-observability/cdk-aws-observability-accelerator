@@ -37,7 +37,7 @@ Highlighting code sections
 ## Deploying on Amazon EKS
 
 Using the sample application, we will build a container image, create and push
-an image on Amazon ECR. We will use a Kubernetes manifest to deploy to an EKS
+an image to Amazon ECR. We will use the go-sample-app Kubernetes manifest to deploy to EKS
 cluster.
 
 !!! warning
@@ -97,7 +97,7 @@ spec:
           imagePullPolicy: Always
           env:
           - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-            value: adot-collector.adot-collector-kubeprometheus.svc.cluster.local:4317
+            value: 'http://adot-collector.adot-collector-kubeprometheus.svc.cluster.local:4317'
           resources:
             limits:
               cpu:  300m
@@ -122,20 +122,7 @@ spec:
       targetPort: 8080
   selector:
     app: go-sample-app
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: go-sample-app
-  namespace: default
-spec:
-  type: ClusterIP
-  selector:
-    app: go-sample-app
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
+
 ```
 
 ### Deploying and testing
@@ -185,8 +172,8 @@ of traces occured in the selected timeframe.
 
 <img width="1721" alt="Screenshot 2023-07-20 at 21 42 30" src="https://github.com/aws-observability/terraform-aws-observability-accelerator/assets/10175027/bd992a77-05fb-47d2-8ed4-af05d96e951d">
 
-You can add the service map to a dashbaord, for example a service focused
-dashbaord. You can click on any of the traces to view a node map and the traces
+You can add the service map to a dashboard, for example a service focused
+dashboard. You can click on any of the traces to view a node map and the traces
 details.
 
 There is a button that can take you the CloudWatch console to view the same
@@ -198,7 +185,7 @@ Read more about this in our [One Observability Workshop](https://catalog.worksho
 ![CloudWatch service map](https://user-images.githubusercontent.com/10175027/254973349-1028f428-c2ef-4bd2-8114-0d0961d7cdd8.png)
 
 
-## Resoures
+## Resources
 
 - [AWS Observability Best Practices](https://aws-observability.github.io/observability-best-practices/)
 - [One Observability Workshop](https://catalog.workshops.aws/observability/en-US/)
