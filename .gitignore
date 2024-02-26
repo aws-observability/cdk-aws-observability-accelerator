@@ -22,3 +22,6 @@ yarn.lock
 site
 # macOS extraneous file
 .DS_STORE
+
+#OTEL-collector-config
+lib/common/resources/otel-collector-config-new.yml

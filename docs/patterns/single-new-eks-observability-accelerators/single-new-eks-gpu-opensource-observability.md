@@ -12,7 +12,7 @@ Amazon Managed Grafana is a managed service for Grafana, a popular open-source a
 
 ## Objective
 
-This pattern deploys an Amazon EKS cluster with a node group that includes instance types featuring NVIDIA GPUs.
+This pattern deploys an Amazon EKS cluster and a node group that includes instance types featuring NVIDIA GPUs.
 
 The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized Linux AMI with GPU support](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the GPU AMI includes the NVIDIA drivers.
 
@@ -24,6 +24,8 @@ The pattern deploys the [NVIDIA GPU Operator add-on](https://aws-quickstart.gith
 Data is visualised in Amazon Managed Grafana by the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard).
 
 The rest of the setup to collect and visualise metrics with Amazon Managed Service for Prometheus and Amazon Managed Grafana, is similar to that used in other open-source based patterns included in this repository.
+
+It also enables control plane logging on the EKS cluster for a comprehensive overview of cluster health.
 
 ## Prerequisites:
 

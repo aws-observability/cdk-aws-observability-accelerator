@@ -2,9 +2,13 @@ import { Construct } from 'constructs';
 import { utils } from '@aws-quickstart/eks-blueprints';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
+import * as eks from 'aws-cdk-lib/aws-eks';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
+import { IstioIngressGatewayHelmAddon } from './istio/istioIngressGatewayAddon';
+import { IstioCniHelmAddon } from './istio/istiocniAddon';
 
 export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -44,12 +48,60 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         let doc = utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ if enableAPIserverJob }}",
-            "{{ end }}",
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            jsonStringnew.context["java.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            jsonStringnew.context["nginx.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableIstioMonJob }}",
+            "{{ stop enableIstioMonJob }}",
+            jsonStringnew.context["istio.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
             jsonStringnew.context["apiserver.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ stop enableAdotMetricsCollectionJob }}",
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionTelemetry }}",
+            "{{ stop enableAdotMetricsCollectionTelemetry }}",
+            jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsReceiver }}",
+            "{{ stop enableAdotContainerLogsReceiver }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsExporter }}",
+            "{{ stop enableAdotContainerLogsExporter }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
         );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
+        if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+        }
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
@@ -76,8 +128,8 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             ampAddOnProps.openTelemetryCollector = {
                 manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
-                    javaScrapeSampleLimit: 1000,
-                    javaPrometheusMetricsEndpoint: "/metrics"
+                    nginxScrapeSampleLimit: 1000,
+                    nginxPrometheusMetricsEndpoint: "/metrics"
                 }
             };
             ampAddOnProps.ampRules?.ruleFilePaths.push(
@@ -85,24 +137,63 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             );
         }
 
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml'
+            };
+            ampAddOnProps.ampRules?.ruleFilePaths.push(
+                __dirname + '/../common/resources/amp-config/istio/alerting-rules.yml',
+                __dirname + '/../common/resources/amp-config/istio/recording-rules.yml'
+            );
+        }
+
+        if (utils.valueFromContext(scope, "adotcontainerlogs.pattern.enabled", false)) {
+            ampAddOnProps.openTelemetryCollector = {
+                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestParameterMap: {
+                    logGroupName: `/aws/eks/${stackId}`,
+                    logStreamName: `$NODE_NAME`,
+                    logRetentionDays: 30,
+                    awsRegion: region 
+                }
+            };
+        }
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
-            new blueprints.addons.CloudWatchLogsAddon({
-                logGroupPrefix: `/aws/eks/${stackId}`,
-                logRetentionDays: 30
-            }),
             new blueprints.addons.XrayAdotAddOn(),
             new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
             new GrafanaOperatorSecretAddon()
         ];
 
+        if (utils.valueFromContext(scope, "istio.pattern.enabled", false)) {
+            addOns.push(new blueprints.addons.IstioBaseAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
+                version: "1.18.2"
+            }));
+            addOns.push(new IstioIngressGatewayHelmAddon);
+            addOns.push(new IstioCniHelmAddon);
+        }
+
+        const mngProps: blueprints.MngClusterProviderProps = {
+            version: eks.KubernetesVersion.of("1.28"),
+            instanceTypes: [new ec2.InstanceType("m5.2xlarge")],
+            amiType: eks.NodegroupAmiType.AL2_X86_64,
+            desiredSize: 2,
+            maxSize: 3, 
+        };
+
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
             .version('auto')
             .withAmpProps(ampAddOnProps)
             .enableOpenSourcePatternAddOns()
+            .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
     }
