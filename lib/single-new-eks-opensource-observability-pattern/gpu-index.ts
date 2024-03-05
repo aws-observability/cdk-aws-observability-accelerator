@@ -114,7 +114,7 @@ function addGpuNodeGroup(gpuNodeGroupProps: GpuNodeGroupProps): blueprints.Manag
             requireImdsv2: false,
             blockDevices: [
                 {
-                    deviceName: gpuNodeGroupProps.ebsDeviceName ?? "/dev/xvda",
+                    deviceName: gpuNodeGroupProps.ebsDeviceName,
                     volume: ec2.BlockDeviceVolume.ebs(gpuNodeGroupProps.ebsSize),
                 }
             ]
