@@ -124,12 +124,13 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
       "desiredSize": 2, 
       "minSize": 2, 
       "maxSize": 3,
-      "ebsSize": 50
+      "ebsSize": 50,
+      "ebsDeviceName": "/dev/xvda"
     },
   }
 ```
 
-**Note**: insure your selected instance type is available in your region. To check that, you can run the following command (amend `Values` below as you see fit):
+**Note**: ensure your selected instance type is available in your region. To check that, you can run the following command (amend `Values` below as you see fit):
 
 ```bash
 aws ec2 describe-instance-type-offerings \
@@ -137,6 +138,8 @@ aws ec2 describe-instance-type-offerings \
     --query "InstanceTypeOfferings[].InstanceType" \
     --region us-east-2
 ```
+
+**Note**: ensure `ebsDeviceName` [reflects the name of the root device name of your AMI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html).
 
 8. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
 
