@@ -136,7 +136,7 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
 aws ec2 describe-instance-type-offerings \
     --filters Name=instance-type,Values="g4*" \
     --query "InstanceTypeOfferings[].InstanceType" \
-    --region us-east-2
+    --region $AWS_REGION
 ```
 
 **Note**: ensure `ebsDeviceName` [reflects the name of the root device name of your AMI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html).
