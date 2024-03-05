@@ -97,10 +97,6 @@ export default class SingleNewEksGpuOpenSourceObservabilityPattern {
 }
 
 function addGpuNodeGroup(gpuNodeGroupProps: GpuNodeGroupProps): blueprints.ManagedNodeGroup {
-    if (gpuNodeGroupProps === undefined) {
-        throw new Error("Missing node group configuration");
-    }
-
     return {
         id: "mng-linux-gpu-01",
         amiType: eks.NodegroupAmiType.AL2_X86_64_GPU,
@@ -118,7 +114,7 @@ function addGpuNodeGroup(gpuNodeGroupProps: GpuNodeGroupProps): blueprints.Manag
             requireImdsv2: false,
             blockDevices: [
                 {
-                    deviceName: gpuNodeGroupProps.ebsDeviceName,
+                    deviceName: gpuNodeGroupProps.ebsDeviceName ?? "/dev/xvda",
                     volume: ec2.BlockDeviceVolume.ebs(gpuNodeGroupProps.ebsSize),
                 }
             ]
