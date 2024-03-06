@@ -4,7 +4,9 @@ import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import { KubecostAddOn, KubecostAddOnProps } from '@kubecost/kubecost-eks-blueprints-addon';
 import * as amp from 'aws-cdk-lib/aws-aps';
-import { dependable, setPath } from '@aws-quickstart/eks-blueprints/dist/utils';
+import * as eks from 'aws-cdk-lib/aws-eks';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { setPath } from '@aws-quickstart/eks-blueprints/dist/utils';
 
 export default class SingleNewEksCostMonitoringPattern {
     constructor(scope: Construct, id: string) {
@@ -17,8 +19,6 @@ export default class SingleNewEksCostMonitoringPattern {
         const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
         const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
         const ampWorkspaceArn = ampWorkspace.attrArn;
-
-        //const queryUrl = `${ampEndpoint}api/v1/query`;
 
         const ampAddOnProps: blueprints.AmpAddOnProps = {
             ampPrometheusEndpoint: ampEndpoint,
@@ -46,9 +46,8 @@ export default class SingleNewEksCostMonitoringPattern {
                 values: {
                     global: {
                         amp: {
+                            prometheusServerEndpoint: ampWorkspace.attrWorkspaceId,
                             enabled: true,
-                            prometheusServerEndpoint: ampEndpoint,
-                            //remoteWriteService: `${ampEndpoint}api/v1/remote_write`,
                             sigv4: {
                                 region: region
                             }
@@ -89,9 +88,18 @@ export default class SingleNewEksCostMonitoringPattern {
             new GrafanaOperatorSecretAddon()
         ];
 
+        const mngProps: blueprints.MngClusterProviderProps = {
+            version: eks.KubernetesVersion.of("1.28"),
+            instanceTypes: [new ec2.InstanceType("m5.2xlarge")],
+            amiType: eks.NodegroupAmiType.AL2_X86_64,
+            desiredSize: 2,
+            maxSize: 3, 
+        };
+
         ObservabilityBuilder.builder()
             .account(account)
             .region(region)
+            .clusterProvider(new blueprints.MngClusterProvider(mngProps))
             .version('auto')
             .withAmpProps(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
@@ -107,10 +115,11 @@ class KubeCostExtensionAddon extends KubecostAddOn {
     }
 
     deploy(clusterInfo: blueprints.ClusterInfo): Promise<Construct> {
-        const ampWorkspaceName = process.env.COA_AMP_WORKSPACE_NAME! || 'observability-amp-workspace';
-        const ampWorkspace = blueprints.getNamedResource(ampWorkspaceName) as unknown as amp.CfnWorkspace;
-        const ampEndpoint = ampWorkspace.attrPrometheusEndpoint;
-        const remoteWriteEndpoint = `${ampEndpoint}api/v1/remote_write`;
+        const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
+        const ampWorkspaceId = this.options.values!.global.amp.prometheusServerEndpoint;
+        const prometheusServerEndpoint = 'http://localhost:8005/workspaces/' + ampWorkspaceId;
+        const remoteWriteEndpoint = `https://aps-workspaces.${region}.amazonaws.com/workspaces/${ampWorkspaceId}/api/v1/remote_write`;
+        setPath(this.options!.values, "global.amp.prometheusServerEndpoint", prometheusServerEndpoint);
         setPath(this.options!.values, "global.amp.remoteWriteService", remoteWriteEndpoint);
         return super.deploy(clusterInfo);
     } 
