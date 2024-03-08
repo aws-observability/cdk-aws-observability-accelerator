@@ -58,6 +58,14 @@ export default class SingleNewEksCostMonitoringPattern {
                         projectID: account
                     },
                     prometheus: {
+                        nodeExporter: {
+                            enabled: false
+                        },
+                        serviceAccounts:{
+                            nodeExporter:{
+                                create: false
+                            }
+                        },
                         server: {
                             global: {
                                 external_labels: {
