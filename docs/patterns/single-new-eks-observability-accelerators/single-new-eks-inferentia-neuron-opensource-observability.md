@@ -1,12 +1,12 @@
-# Single Cluster Open Source Observability - Neuron-based cluster
+# Single Cluster Open Source Observability - Inferentia-based cluster
 
-[AWS Trainium](https://aws.amazon.com/machine-learning/trainium/) and [AWS Inferentia](https://aws.amazon.com/machine-learning/inferentia/) are accelerated Machine Learning (ML) chips (or ML accelerators), designed and built by AWS. They are also referred to as Neuron Devices. Each Neuron device includes multiple NeuronCores, the machine learning compute cores.
+[AWS Trainium](https://aws.amazon.com/machine-learning/trainium/) and [AWS Inferentia](https://aws.amazon.com/machine-learning/inferentia/) are accelerated Machine Learning (ML) chips (or ML accelerators), designed by AWS. They are also referred to as Neuron chips. Each Neuron chip includes multiple NeuronCores, the machine learning compute cores.
 
 Amazon EC2 ML instances belong to the [Trn1/Trn1n](https://aws.amazon.com/ec2/instance-types/trn1/), [Inf1](https://aws.amazon.com/ec2/instance-types/inf1/) and [Inf2](https://aws.amazon.com/ec2/instance-types/inf2/) families. Trn1/Trn1n instances feature multiple AWS Trainium accelerators and support high-performance training. Inf1 and Inf2 instances feature multiple AWS Inferentia accelerators and support high-performance and low-latency inference.
 
 [AWS Neuron](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/) is an SDK with a compiler, runtime, and profiling tools that helps developers deploy models on both AWS Inferentia accelerators and train them on AWS Trainium accelerators. It integrates natively with popular ML frameworks, such as PyTorch and TensorFlow.
 
-This pattern shows you how to monitor the performance of ML accelerators, used in an Amazon EKS cluster leveraging Inferentia-based Amazon EC2 Inf1 instances. The pattern will also be applicable to Inf2 and Trn1/Trn1n instances soon, when AWS Cloud Development Kit (CDK) completes support for Inf2 and Trn1/Trn1n (in progress, at the time of writing).
+This pattern shows you how to monitor the performance of ML accelerators, used in an Amazon EKS cluster leveraging Inferentia-based Amazon EC2 Inf1/Inf2 instances.
 
 Amazon Managed Service for Prometheus and Amazon Managed Grafana are open source tools used in this pattern to collect and visualise metrics respectively.
 
@@ -16,7 +16,7 @@ Amazon Managed Grafana is a managed service for Grafana, a popular open-source a
 
 ## Objective
 
-This pattern deploys an Amazon EKS cluster with a node group that includes Inf1 instances.
+This pattern deploys an Amazon EKS cluster with a node group that includes Inf1/Inf2 instances.
 
 The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized accelerated AMI](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the accelerated AMI includes the AWS Neuron container runtime.
 
@@ -142,13 +142,13 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
   }
 ```
 
-**Note**: insure your selected instance type is available in your selected region. To check that, you can run the following command (amend `Values` below as you see fit):
+**Note**: you can replace the inf1 instance type with inf2 and the size as you prefer; to check availability in your selected Region, you can run the following command (amend `Values` below as you see fit):
 
 ```bash
 aws ec2 describe-instance-type-offerings \
     --filters Name=instance-type,Values="inf1*" \
     --query "InstanceTypeOfferings[].InstanceType" \
-    --region us-east-2
+    --region $AWS_REGION
 ```
 
 8. For the `neuron-monitor` DaemonSet, you can either use the image already referenced into the manifest, or build your own using the Dockerfile at location `cdk-aws-observability-accelerator/lib/common/resources/neuron/neuron-monitor.dockerfile`, [push it to an ECR repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html) of your choice and update the image URL in the manifest at location `cdk-aws-observability-accelerator/lib/single-new-eks-opensource-observability-pattern/neuron/neuron-monitor.yaml`.
