@@ -50,6 +50,10 @@ nav:
       - OSS ADOT Container Logs: patterns/single-new-eks-observability-accelerators/single-new-eks-container-logs-opensource-observability.md
       - OSS Neuron with Inferentia Inf1: patterns/single-new-eks-observability-accelerators/single-new-eks-inferentia-neuron-opensource-observability.md
     - Logs: logs.md
+      - OSS Java Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md
+      - OSS Nginx Mon : patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability.md
+      - OSS Neuron with Inferentia Inf1: patterns/single-new-eks-observability-accelerators/single-new-eks-inferentia-opensource-observability.md
+    - Logs: logs.md  
     - Tracing: tracing.md
   - Supporting Examples:
     - EKS Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
