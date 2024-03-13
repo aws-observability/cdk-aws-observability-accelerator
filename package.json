@@ -33,11 +33,7 @@
   },
   "overrides": {
     "@aws-quickstart/eks-blueprints": "^1.14.0",
-<<<<<<< HEAD
-    "aws-cdk": "2.114.1",
-=======
     "aws-cdk": "2.130.0",
->>>>>>> 0f4a727 (new blueprints version and core addon deps fixes)
     "xml2js": "0.5.0"
   }
 }

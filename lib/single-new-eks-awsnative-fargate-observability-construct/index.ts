@@ -12,12 +12,6 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
         const account = process.env.COA_ACCOUNT_ID! || process.env.CDK_DEFAULT_ACCOUNT!;
         const region = process.env.COA_AWS_REGION! || process.env.CDK_DEFAULT_REGION!;
 
-        const versionMap: Map<eks.KubernetesVersion, string> = new Map([
-            [eks.KubernetesVersion.V1_28, "v1.10.1-eksbuild.6"],
-            [eks.KubernetesVersion.V1_27, "v1.10.1-eksbuild.6"],
-            [eks.KubernetesVersion.V1_26, "v1.10.1-eksbuild.6"],
-        ]);
-
         const cloudWatchAdotAddOn = new blueprints.addons.CloudWatchAdotAddOn({
             deploymentMode: blueprints.cloudWatchDeploymentMode.DEPLOYMENT,
             namespace: 'default',
@@ -56,7 +50,6 @@ export default class SingleNewEksAWSNativeFargateobservabilityConstruct {
         };
 
         const coreDnsAddOnProps : blueprints.CoreDnsAddOnProps = {
-            versionMap,
             configurationValues:{
                 computeType: "Fargate" 
             }
