@@ -122,7 +122,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
-            new blueprints.addons.CoreDnsAddOn("v1.10.1-eksbuild.6", {
+            new blueprints.addons.CoreDnsAddOn("auto", {
                 configurationValues: { computeType: "Fargate" }
             }),
             new blueprints.addons.KubeProxyAddOn(),
