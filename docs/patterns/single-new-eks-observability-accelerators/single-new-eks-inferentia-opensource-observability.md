@@ -1,12 +1,12 @@
 # Single Cluster Open Source Observability - Inferentia-based cluster
 
-[AWS Inferentia](https://aws.amazon.com/machine-learning/inferentia/) is an accelerated Machine Learning (ML) chip (or ML accelerators), designed and built by AWS. It is also referred to as Neuron Device. Each Neuron device includes multiple NeuronCores, the machine learning compute cores.
+[AWS Inferentia](https://aws.amazon.com/machine-learning/inferentia/) is an accelerated Machine Learning (ML) chip, designed by AWS.
 
-Amazon EC2 ML instances belong to the [Inf1](https://aws.amazon.com/ec2/instance-types/inf1/) and [Inf2](https://aws.amazon.com/ec2/instance-types/inf2/) families. Inf1 and Inf2 instances feature multiple AWS Inferentia accelerators and support high-performance and low-latency inference.
+Amazon Elastic Compute Cloud (Amazon EC2) [Inf1](https://aws.amazon.com/ec2/instance-types/inf1/) and [Inf2](https://aws.amazon.com/ec2/instance-types/inf2/) instances feature AWS Inferentia chips and support high-performance and low-latency inference.
 
-[AWS Neuron](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/) is an SDK with a compiler, runtime, and profiling tools that helps developers deploy models on both AWS Inferentia accelerators and train them on AWS Trainium accelerators. It integrates natively with popular ML frameworks, such as PyTorch and TensorFlow.
+[AWS Neuron](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/) is an SDK with a compiler, runtime, and profiling tools that helps developers deploy models on both AWS Inferentia accelerators and train them on [AWS Trainium](https://aws.amazon.com/machine-learning/trainium/) chips. It integrates natively with popular ML frameworks, such as PyTorch and TensorFlow.
 
-This pattern shows you how to monitor the performance of ML accelerators, used in an Amazon EKS cluster leveraging Inferentia-based Amazon EC2 Inf1 and Inf2 instances.
+This pattern shows you how to monitor the performance of ML chips, used in an Amazon EKS cluster running on Amazon EC2 Inf1 and Inf2 instances.
 
 Amazon Managed Service for Prometheus and Amazon Managed Grafana are open source tools used in this pattern to collect and visualise metrics respectively.
 
@@ -16,15 +16,13 @@ Amazon Managed Grafana is a managed service for Grafana, a popular open-source a
 
 ## Objective
 
-This pattern deploys an Amazon EKS cluster with a node group that includes Inf1 instances.
+This pattern deploys an Amazon EKS cluster with a node group that includes Inf1/Inf2 instances.
 
-The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized accelerated AMI](https://aws.amazon.com/marketplace/pp/prodview-nwwwodawoxndm). In addition to the standard Amazon EKS-optimized AMI configuration, the accelerated AMI includes the AWS Neuron container runtime.
+The AMI type of the node group is `AL2_x86_64_GPU AMI`, which uses the [Amazon EKS-optimized accelerated AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html). In addition to the standard Amazon EKS-optimized AMI configuration, the accelerated AMI includes the [NeuronX container runtime](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/neuron-runtime/index.html).
 
-The Neuron container runtime consists of kernel driver and C/C++ libraries which provide APIs to access Inferentia and Trainium Neuron devices. The Neuron ML frameworks plugins for TensorFlow, PyTorch and Apache MXNet use the Neuron runtime to load and run models on the NeuronCores.
+To access the ML chips from Kubernetes, the pattern deploys the Neuron device plugin.
 
-To access Neuron cores & devices from Kubernetes, the pattern deploys the Neuron device plugin, which exposes Neuron cores & devices to Kubernetes, as resources.
-
-Neuron metrics are exposed to Amazon Managed Service for Prometheus by the `neuron-monitor` DaemonSet, which deploys a minimal container, with the [Neuron Tools](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/index.html) installed. Specifically, the `neuron-monitor` DaemonSet runs the [`neuron-monitor`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-monitor-user-guide.html#neuron-monitor-ug) command piped into the `neuron-monitor-prometheus.py` companion script (both commands are part of the container):
+Metrics are exposed to Amazon Managed Service for Prometheus by the `neuron-monitor` DaemonSet, which deploys a minimal container, with the [Neuron Tools](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/index.html) installed. Specifically, the `neuron-monitor` DaemonSet runs the [`neuron-monitor`](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-sys-tools/neuron-monitor-user-guide.html#neuron-monitor-ug) command piped into the `neuron-monitor-prometheus.py` companion script (both commands are part of the container):
 
 ```bash
 neuron-monitor | neuron-monitor-prometheus.py --port <port>
@@ -142,13 +140,13 @@ Example settings: Update the context in `cdk.json` file located in `cdk-eks-blue
   }
 ```
 
-**Note**: insure your selected instance type is available in your selected region. To check that, you can run the following command (amend `Values` below as you see fit):
+**Note**: you can replace the inf1 instance type with inf2 and the size as you prefer; to check availability in your selected Region, you can run the following command (amend `Values` below as you see fit):
 
 ```bash
 aws ec2 describe-instance-type-offerings \
     --filters Name=instance-type,Values="inf1*" \
     --query "InstanceTypeOfferings[].InstanceType" \
-    --region us-east-2
+    --region $AWS_REGION
 ```
 
 8. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
@@ -163,7 +161,7 @@ make pattern single-new-eks-inferentia-opensource-observability deploy
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
 
 ```bash
-aws eks update-kubeconfig --name single-new-eks-neuron-opensource-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-neuron-opensource-singleneweksgpuopensourc...
+aws eks update-kubeconfig --name single-new-eks-inferentia-opensource... --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-inferentia-opensource-singleneweksgpuopensourc...
 ```
 
 Let’s verify the resources created by steps above:
@@ -176,7 +174,7 @@ Output:
 
 ![Neuron_Pods](../images/neuron/inferentia-inf1-pods.png)
 
-Specifically, insure `neuron-device-plugin-daemonset` DaemonSet is running:
+Specifically, ensure `neuron-device-plugin-daemonset` DaemonSet is running:
 
 ```bash
 kubectl get ds neuron-device-plugin-daemonset --namespace kube-system
