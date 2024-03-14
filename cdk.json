@@ -37,9 +37,6 @@
       "kustomizations": [
         {
           "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/infrastructure"
-        },
-        {
-          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/neuron"
         }
       ]
     },
