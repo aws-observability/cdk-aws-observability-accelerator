@@ -151,9 +151,7 @@ aws ec2 describe-instance-type-offerings \
     --region us-east-2
 ```
 
-8. For the `neuron-monitor` DaemonSet, you can either use the image already referenced into the manifest, or build your own using the Dockerfile at location `cdk-aws-observability-accelerator/lib/common/resources/neuron/neuron-monitor.dockerfile`, [push it to an ECR repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html) of your choice and update the image URL in the manifest at location `cdk-aws-observability-accelerator/lib/single-new-eks-opensource-observability-pattern/neuron/neuron-monitor.yaml`.
-
-9. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
+8. Once all pre-requisites are set you are ready to deploy the pipeline. Run the following command from the root of this repository to deploy the pipeline stack:
 
 ```bash
 make build
@@ -234,7 +232,7 @@ Login to your Amazon Managed Grafana workspace and navigate to the Dashboards pa
 To actually see some interesting metrics on the Grafana dashboard, we will apply the following manifest:
 
 ```bash
-kubectl apply -f ./lib/common/resources/neuron/pytorch-inference-resnet50.yml
+curl https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/k8s-deployment-manifest-templates/neuron/pytorch-inference-resnet50.yml | kubectl apply -f -
 ```
 
 This is just a sample workload that compiles the [torchvision ResNet50 model](https://docs.aws.amazon.com/dlami/latest/devguide/tutorial-inferentia-pytorch-neuron.html) and runs repetitive inference in a loop to generate telemetry data.
