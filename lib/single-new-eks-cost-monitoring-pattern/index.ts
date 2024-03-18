@@ -103,11 +103,6 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
                             create: false,
                             name: "kubecost-prometheus-server-amp"
                         }
-                    },
-                    federatedETL:{
-                        federator: {
-                            useMultiClusterDB : true
-                        }
                     }
                 }                
 
@@ -171,8 +166,13 @@ class KubeCostExtensionAddon extends KubecostAddOn {
         const ampWorkspaceId = this.options.values!.global.amp.prometheusServerEndpoint;
         const prometheusServerEndpoint = 'http://localhost:8005/workspaces/' + ampWorkspaceId;
         const remoteWriteEndpoint = `https://aps-workspaces.${region}.amazonaws.com/workspaces/${ampWorkspaceId}/api/v1/remote_write`;
+        const sigV4ProxyHost = `aps-workspaces.${region}.amazonaws.com`
         setPath(this.options!.values, "global.amp.prometheusServerEndpoint", prometheusServerEndpoint);
         setPath(this.options!.values, "global.amp.remoteWriteService", remoteWriteEndpoint);
+        setPath(this.options!.values, "global.amp.sigv4.region", region);
+        setPath(this.options!.values, "global.amp.enabled", true);
+        setPath(this.options!.values, "sigV4Proxy.region", region);
+        setPath(this.options!.values, "sigV4Proxy.host", sigV4ProxyHost);
         return super.deploy(clusterInfo);
     } 
 }
