@@ -81,7 +81,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
 
         if (utils.valueFromContext(scope, "java.pattern.enabled", false)) {
             ampAddOnProps.openTelemetryCollector = {
-                manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+                manifestPath: __ + '/../common/resources/otel-collector-config-new.yml',
                 manifestParameterMap: {
                     javaScrapeSampleLimit: 1000,
                     javaPrometheusMetricsEndpoint: "/metrics"

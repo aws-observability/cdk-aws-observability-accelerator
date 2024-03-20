@@ -20,8 +20,8 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
 
         await prevalidateSecrets(SingleNewEksCostMonitoringPattern.name, undefined, SECRET_ARGO_ADMIN_PWD);
 
-        const subdomain: string = blueprints.utils.valueFromContext(scope, "dev.subzone.name", "dev.mycompany.a2z.com");
-        const parentDomain = blueprints.utils.valueFromContext(scope, "parent.hostedzone.name", "mycompany.a2z.com");
+        const subdomain: string = blueprints.utils.valueFromContext(scope, "dev.subzone.name", "dashboard.kubecost.avt.eks.aws.dev");
+        const parentDomain = blueprints.utils.valueFromContext(scope, "parent.hostedzone.name", "kubecost.avt.eks.aws.dev");
         const certificate: ICertificate = blueprints.getNamedResource(GlobalResources.Certificate);
 
         const cognitoIdpStackOut = new CognitoIdpStack (scope,'cognito-idp-stack', subdomain,
@@ -65,6 +65,8 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             new blueprints.SSMAgentAddOn(),
             new KubeCostExtensionAddon({
                 namespace:"kubecost",
+                version:"1.108.1",
+                kubecostToken: "Z2dvZDk5OUBnbWFpbC5jb20=xm343yadf98",
                 values: {
                     global: {
                         amp: {
