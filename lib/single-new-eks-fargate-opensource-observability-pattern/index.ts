@@ -121,7 +121,8 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
 
         const coreDnsAddOnProps : blueprints.CoreDnsAddOnProps = {
             configurationValues: { computeType: "Fargate" }
-        }
+        };
+        
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
