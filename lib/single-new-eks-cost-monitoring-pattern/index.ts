@@ -11,6 +11,7 @@ import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { setPath } from '@aws-quickstart/eks-blueprints/dist/utils';
 import { prevalidateSecrets } from '../common/construct-utils';
 import CognitoIdpStack from './cognito-idp-stack';
+import * as fs from 'fs';
 
 const SECRET_ARGO_ADMIN_PWD = 'argo-admin-secret';
 const gitUrl = 'https://github.com/aws-samples/eks-blueprints-workloads.git';
@@ -53,6 +54,69 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             }
         };
 
+        let doc = blueprints.utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableJavaMonJob }}",
+            "{{ stop enableJavaMonJob }}",
+            false
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableNginxMonJob }}",
+            "{{ stop enableNginxMonJob }}",
+            false
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableIstioMonJob }}",
+            "{{ stop enableIstioMonJob }}",
+            false
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAPIserverJob }}",
+            "{{ stop enableAPIserverJob }}",
+            false
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ stop enableAdotMetricsCollectionJob }}",
+            false
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotMetricsCollectionTelemetry }}",
+            "{{ stop enableAdotMetricsCollectionTelemetry }}",
+            true
+        );
+
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsReceiver }}",
+            "{{ stop enableAdotContainerLogsReceiver }}",
+            true
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
+            "{{ start enableAdotContainerLogsE dxporter }}",
+            "{{ stop enableAdotContainerLogsExporter }}",
+            true
+        );
+
+        fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
+
+        ampAddOnProps.openTelemetryCollector = {
+            manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
+            manifestParameterMap: {
+                logGroupName: `/aws/eks/costmonitoring/${ampWorkspaceName}`,
+                logStreamName: `$NODE_NAME`,
+                logRetentionDays: 30,
+                awsRegion: region 
+            }
+        };
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
@@ -63,12 +127,16 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             new blueprints.addons.ExternalsSecretsAddOn(),
             new blueprints.SecretsStoreAddOn({ rotationPollInterval: "120s" }),
             new blueprints.SSMAgentAddOn(),
+            new blueprints.AdotCollectorAddOn(),
             new KubeCostExtensionAddon({
                 namespace:"kubecost",
                 version:"1.108.1",
                 kubecostToken: "Z2dvZDk5OUBnbWFpbC5jb20=xm343yadf98",
                 values: {
                     global: {
+                        prometheus: {
+                            enabled: false,
+                        },
                         amp: {
                             prometheusServerEndpoint: ampWorkspace.attrWorkspaceId,
                             enabled: true,
@@ -152,7 +220,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             .resourceProvider(GlobalResources.Certificate, new blueprints.CreateCertificateProvider('secure-ingress-cert', `${subdomain}`, GlobalResources.HostedZone))
             .withAmpProps(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
-            .enableNativePatternAddOns()
+            .enableOpenSourcePatternAddOns()
             .addOns(...addOns)
             .buildAsync(scope, stackId);
     }
@@ -172,7 +240,7 @@ class KubeCostExtensionAddon extends KubecostAddOn {
         setPath(this.options!.values, "global.amp.prometheusServerEndpoint", prometheusServerEndpoint);
         setPath(this.options!.values, "global.amp.remoteWriteService", remoteWriteEndpoint);
         setPath(this.options!.values, "global.amp.sigv4.region", region);
-        setPath(this.options!.values, "global.amp.enabled", true);
+        setPath(this.options!.values, "global.prometheus.fqdn", remoteWriteEndpoint);
         setPath(this.options!.values, "sigV4Proxy.region", region);
         setPath(this.options!.values, "sigV4Proxy.host", sigV4ProxyHost);
         return super.deploy(clusterInfo);
