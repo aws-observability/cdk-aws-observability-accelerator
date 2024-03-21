@@ -3,11 +3,11 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as eks from "aws-cdk-lib/aws-eks";
 import { ManagedPolicy } from "aws-cdk-lib/aws-iam";
 import { Construct } from 'constructs';
-import { createNamespace, dependable } from '@aws-quickstart/eks-blueprints/dist/utils';
 
-export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
+
+export class KubecostServiceAccountsAddon implements blueprints.ClusterAddOn {
     id?: string | undefined;
-    @dependable(blueprints.addons.ExternalsSecretsAddOn.name)
+    @blueprints.utils.dependable(blueprints.addons.ExternalsSecretsAddOn.name)
     deploy(clusterInfo: blueprints.ClusterInfo): void | Promise<Construct> {
         const cluster = clusterInfo.cluster;
 
@@ -31,7 +31,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
         serviceAccount2.role.addManagedPolicy(policyRead);
         serviceAccount2.role.addManagedPolicy(policyWrite);
 
-        const namespace = createNamespace("kubecost",cluster);
+        const namespace = blueprints.utils.createNamespace("kubecost",cluster);
 
         serviceAccount1.node.addDependency(namespace);
         serviceAccount2.node.addDependency(namespace);
@@ -66,37 +66,7 @@ export class GrafanaOperatorSecretAddon implements blueprints.ClusterAddOn {
             ],
         });
 
-        // const externalSecret = new eks.KubernetesManifest(clusterInfo.cluster.stack, "ExternalSecret", {
-        //     cluster: cluster,
-        //     manifest: [
-        //         {
-        //             apiVersion: "external-secrets.io/v1beta1",
-        //             kind: "ExternalSecret",
-        //             metadata: {
-        //                 name: "external-grafana-admin-credentials",
-        //                 namespace: "grafana-operator"
-        //             },
-        //             spec: {
-        //                 secretStoreRef: {
-        //                     name: "ssm-parameter-store",
-        //                     kind: "ClusterSecretStore",
-        //                 },
-        //                 target: {
-        //                     name: "grafana-admin-credentials"
-        //                 },
-        //                 data: [
-        //                     {
-        //                         secretKey: "GF_SECURITY_ADMIN_APIKEY",
-        //                         remoteRef: {
-        //                             key: "/cdk-accelerator/grafana-api-key"
-        //                         },
-        //                     },
-        //                 ],
-        //             },
-        //         },
-        //     ],
-        // });
-        // externalSecret.node.addDependency(secretStore);
+
         return Promise.resolve(secretStore);
     }
 } 

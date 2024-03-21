@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import * as cdk from "aws-cdk-lib";
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GlobalResources, LookupHostedZoneProvider, ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
-import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
+import { KubecostServiceAccountsAddon } from './kubecostserviceaccountsaddon';
 import { KubecostAddOn, KubecostAddOnProps } from '@kubecost/kubecost-eks-blueprints-addon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import * as eks from 'aws-cdk-lib/aws-eks';
@@ -148,7 +148,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             new KubeCostExtensionAddon({
                 namespace:"kubecost",
                 version:"1.108.1",
-                kubecostToken: "Z2dvZDk5OUBnbWFpbC5jb20=xm343yadf98",
+                kubecostToken: blueprints.utils.valueFromContext(scope, "dev.subzone.name", "get token from kubecost.com/install"),
                 values: {
                     global: {
                         amp: {
@@ -215,7 +215,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
                 },
                 adminPasswordSecretName: SECRET_ARGO_ADMIN_PWD,
             }),
-            new GrafanaOperatorSecretAddon()
+            new KubecostServiceAccountsAddon()
         ];
 
         const mngProps: blueprints.MngClusterProviderProps = {
