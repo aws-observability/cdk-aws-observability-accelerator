@@ -27,7 +27,7 @@ export default class CognitoIdpStack extends cdk.Stack {
             handler: 'lambda_function.lambda_handler',
             role: lambdaExecutionRole,
             environment: {
-                "ALLOWED_DOMAINS_LIST": blueprints.utils.valueFromContext(scope, "allowed.domains.list", "example.com")
+                "ALLOWED_DOMAINS_LIST": blueprints.utils.valueFromContext(scope, "allowed.domains.list", "amazon.com")
             }
         });
 
@@ -112,7 +112,7 @@ export default class CognitoIdpStack extends cdk.Stack {
         const randomText = (Math.random() + 1).toString(36).substring(7);
         const userPoolDomain = userPool.addDomain('CognitoDomain', {
             cognitoDomain: {
-                domainPrefix: `my-cdk-blueprint-${randomText}`,
+                domainPrefix: `my-cdk-blueprint-o6jws`,
             },
         });
 

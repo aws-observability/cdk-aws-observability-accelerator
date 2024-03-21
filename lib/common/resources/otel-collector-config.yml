@@ -44,17 +44,19 @@ spec:
             external_labels:
               cluster: "{{clusterName}}"
           scrape_configs:
+            {{ start kubecostJob }}
             - job_name: kubecost
-                honor_labels: true
-                scrape_interval: 1m
-                scrape_timeout: 10s
-                metrics_path: /metrics
-                scheme: http
-                dns_sd_configs:
-                - names:
-                  - dashboard.kubecost.avt.eks.aws.dev
-                  type: 'A'
-                  port: 9003
+              honor_labels: true
+              scrape_interval: 1m
+              scrape_timeout: 10s
+              metrics_path: /metrics
+              scheme: http
+              dns_sd_configs:
+              - names:
+                - dashboard.kubecost.avt.eks.aws.dev
+                type: 'A'
+                port: 9003
+            {{ stop kubecostJob }}
             {{ start enableAdotMetricsCollectionJob}}
             - job_name: otel-collector-metrics
               scrape_interval: 10s

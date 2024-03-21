@@ -57,6 +57,12 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
         let doc = blueprints.utils.readYamlDocument(__dirname + '/../common/resources/otel-collector-config.yml');
         doc = blueprints.utils.changeTextBetweenTokens(
             doc,
+            "{{ start kubecostJob }}",
+            "{{ stop kubecostJob }}",
+            true
+        );
+        doc = blueprints.utils.changeTextBetweenTokens(
+            doc,
             "{{ start enableJavaMonJob }}",
             "{{ stop enableJavaMonJob }}",
             false
@@ -100,7 +106,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
         );
         doc = blueprints.utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotContainerLogsE dxporter }}",
+            "{{ start enableAdotContainerLogsExporter }}",
             "{{ stop enableAdotContainerLogsExporter }}",
             true
         );
@@ -123,26 +129,38 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
                 logGroupPrefix: `/aws/eks/${stackId}`,
                 logRetentionDays: 30
             }),
-            new blueprints.addons.EbsCsiDriverAddOn(),
+            new blueprints.addons.AwsLoadBalancerControllerAddOn(),
+            new blueprints.addons.CertManagerAddOn(),
+            new blueprints.addons.AdotCollectorAddOn(),
+            new blueprints.addons.CoreDnsAddOn(),
+            new blueprints.addons.ExternalDnsAddOn({
+                hostedZoneResources: [GlobalResources.HostedZone]
+            }),
             new blueprints.addons.ExternalsSecretsAddOn(),
+            new blueprints.addons.KubeProxyAddOn(),
+            new blueprints.addons.KubeStateMetricsAddOn(),
+            new blueprints.addons.MetricsServerAddOn(),
+            new blueprints.addons.EbsCsiDriverAddOn(),
+            new blueprints.addons.AmpAddOn(ampAddOnProps),
+            new blueprints.addons.PrometheusNodeExporterAddOn(),
             new blueprints.SecretsStoreAddOn({ rotationPollInterval: "120s" }),
             new blueprints.SSMAgentAddOn(),
-            new blueprints.AdotCollectorAddOn(),
             new KubeCostExtensionAddon({
                 namespace:"kubecost",
                 version:"1.108.1",
                 kubecostToken: "Z2dvZDk5OUBnbWFpbC5jb20=xm343yadf98",
                 values: {
                     global: {
-                        prometheus: {
-                            enabled: false,
-                        },
                         amp: {
                             prometheusServerEndpoint: ampWorkspace.attrWorkspaceId,
                             enabled: true,
                             sigv4: {
                                 region: region
                             }
+                        },
+                        grafana: {
+                            enabled: false,
+                            proxy: false
                         }
                     },
                     kubecostProductConfigs: {
@@ -176,9 +194,6 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
                     }
                 }                
 
-            }),
-            new blueprints.addons.GrafanaOperatorAddon({
-                createNamespace: true,
             }),
             new blueprints.ArgoCDAddOn({
                 bootstrapRepo: {
@@ -218,9 +233,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             .version('auto')
             .resourceProvider(GlobalResources.HostedZone, new LookupHostedZoneProvider(parentDomain))
             .resourceProvider(GlobalResources.Certificate, new blueprints.CreateCertificateProvider('secure-ingress-cert', `${subdomain}`, GlobalResources.HostedZone))
-            .withAmpProps(ampAddOnProps)
             .resourceProvider(ampWorkspaceName, new blueprints.CreateAmpProvider(ampWorkspaceName, ampWorkspaceName))
-            .enableOpenSourcePatternAddOns()
             .addOns(...addOns)
             .buildAsync(scope, stackId);
     }
@@ -236,7 +249,7 @@ class KubeCostExtensionAddon extends KubecostAddOn {
         const ampWorkspaceId = this.options.values!.global.amp.prometheusServerEndpoint;
         const prometheusServerEndpoint = 'http://localhost:8005/workspaces/' + ampWorkspaceId;
         const remoteWriteEndpoint = `https://aps-workspaces.${region}.amazonaws.com/workspaces/${ampWorkspaceId}/api/v1/remote_write`;
-        const sigV4ProxyHost = `aps-workspaces.${region}.amazonaws.com`
+        const sigV4ProxyHost = `aps-workspaces.${region}.amazonaws.com`;
         setPath(this.options!.values, "global.amp.prometheusServerEndpoint", prometheusServerEndpoint);
         setPath(this.options!.values, "global.amp.remoteWriteService", remoteWriteEndpoint);
         setPath(this.options!.values, "global.amp.sigv4.region", region);
