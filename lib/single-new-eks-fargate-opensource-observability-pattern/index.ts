@@ -60,7 +60,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ start enableAdotMetricsCollectionJob }}",
             "{{ stop enableAdotMetricsCollectionJob }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
@@ -122,8 +122,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.VpcCniAddOn(),
-            new blueprints.addons.CoreDnsAddOn({
-                version: "v1.10.1-eksbuild.6",
+            new blueprints.addons.CoreDnsAddOn("auto",{
                 configurationValues: { computeType: "Fargate" }
             }),
             new blueprints.addons.KubeProxyAddOn(),
@@ -172,7 +171,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         // Define fargate cluster provider and pass the profile options
         const fargateClusterProvider: blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
             fargateProfiles,
-            version: eks.KubernetesVersion.of("1.28"),
+            version: eks.KubernetesVersion.V1_29
         });
 
 

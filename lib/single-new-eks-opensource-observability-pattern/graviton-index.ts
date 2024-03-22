@@ -7,8 +7,6 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
-import { IstioIngressGatewayHelmAddon } from './istio/istioIngressGatewayAddon';
-import { IstioCniHelmAddon } from './istio/istiocniAddon';
 
 export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -69,7 +67,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ start enableAdotMetricsCollectionJob }}",
             "{{ stop enableAdotMetricsCollectionJob }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
@@ -170,12 +168,17 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
             addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
                 version: "1.18.2"
             }));
-            addOns.push(new IstioIngressGatewayHelmAddon);
-            addOns.push(new IstioCniHelmAddon);
+            addOns.push(new blueprints.addons.IstioIngressGatewayAddon({
+                version: "1.18.2"
+            }));
+            
+            addOns.push(new blueprints.addons.IstioCniAddon({
+                version: "1.18.2"
+            }));
         }
 
         const mngProps: blueprints.MngClusterProviderProps = {
-            version: eks.KubernetesVersion.of("1.27"),
+            version: eks.KubernetesVersion.V1_29,
             instanceTypes: [new ec2.InstanceType("m7g.large")],
             amiType: eks.NodegroupAmiType.AL2_ARM_64,
             desiredSize: 2,
