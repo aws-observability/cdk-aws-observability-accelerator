@@ -60,7 +60,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ start enableAdotMetricsCollectionJob }}",
             "{{ stop enableAdotMetricsCollectionJob }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );

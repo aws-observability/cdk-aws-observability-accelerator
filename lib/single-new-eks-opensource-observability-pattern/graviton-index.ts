@@ -67,7 +67,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ start enableAdotMetricsCollectionJob }}",
             "{{ stop enableAdotMetricsCollectionJob }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
