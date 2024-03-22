@@ -7,8 +7,6 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
-import { IstioIngressGatewayHelmAddon } from './istio/istioIngressGatewayAddon';
-import { IstioCniHelmAddon } from './istio/istiocniAddon';
 
 export default class SingleNewEksOpenSourceobservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -173,12 +171,17 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
                 version: "1.18.2"
             }));
-            addOns.push(new IstioIngressGatewayHelmAddon);
-            addOns.push(new IstioCniHelmAddon);
+            addOns.push(new blueprints.addons.IstioIngressGatewayAddon({
+                version: "1.18.2"
+            }));
+            
+            addOns.push(new blueprints.addons.IstioCniAddon({
+                version: "1.18.2"
+            }));
         }
 
         const mngProps: blueprints.MngClusterProviderProps = {
-            version: eks.KubernetesVersion.of("1.28"),
+            version: eks.KubernetesVersion.of("1.29"),
             instanceTypes: [new ec2.InstanceType("m5.2xlarge")],
             amiType: eks.NodegroupAmiType.AL2_X86_64,
             desiredSize: 2,
