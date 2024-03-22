@@ -53,7 +53,7 @@ spec:
               scheme: http
               dns_sd_configs:
               - names:
-                - dashboard.kubecost.avt.eks.aws.dev
+                - "{{subdomain}}"
                 type: 'A'
                 port: 9003
             {{ stop kubecostJob }}

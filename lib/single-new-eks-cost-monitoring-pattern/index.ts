@@ -21,8 +21,8 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
 
         await prevalidateSecrets(SingleNewEksCostMonitoringPattern.name, undefined, SECRET_ARGO_ADMIN_PWD);
 
-        const subdomain: string = blueprints.utils.valueFromContext(scope, "dev.subzone.name", "dashboard.kubecost.avt.eks.aws.dev");
-        const parentDomain = blueprints.utils.valueFromContext(scope, "parent.hostedzone.name", "kubecost.avt.eks.aws.dev");
+        const subdomain: string = blueprints.utils.valueFromContext(scope, "dev.subzone.name", "dev.mycompany.a2z.com");
+        const parentDomain = blueprints.utils.valueFromContext(scope, "parent.hostedzone.name", "mycompany.a2z.com");
         const certificate: ICertificate = blueprints.getNamedResource(GlobalResources.Certificate);
 
         const cognitoIdpStackOut = new CognitoIdpStack (scope,'cognito-idp-stack', subdomain,
@@ -116,6 +116,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
         ampAddOnProps.openTelemetryCollector = {
             manifestPath: __dirname + '/../common/resources/otel-collector-config-new.yml',
             manifestParameterMap: {
+                subdomain: subdomain,
                 logGroupName: `/aws/eks/costmonitoring/${ampWorkspaceName}`,
                 logStreamName: `$NODE_NAME`,
                 logRetentionDays: 30,
@@ -148,7 +149,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             new KubeCostExtensionAddon({
                 namespace:"kubecost",
                 version:"1.108.1",
-                kubecostToken: blueprints.utils.valueFromContext(scope, "dev.subzone.name", "get token from kubecost.com/install"),
+                // kubecostToken: blueprints.utils.valueFromContext(scope, "kubecost.token", "tokenValue"),
                 values: {
                     global: {
                         amp: {
