@@ -181,7 +181,7 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         }
 
         const mngProps: blueprints.MngClusterProviderProps = {
-            version: eks.KubernetesVersion.of("1.29"),
+            version: eks.KubernetesVersion.V1_29,
             instanceTypes: [new ec2.InstanceType("m5.2xlarge")],
             amiType: eks.NodegroupAmiType.AL2_X86_64,
             desiredSize: 2,

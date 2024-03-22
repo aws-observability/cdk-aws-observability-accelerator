@@ -171,7 +171,7 @@ export default class SingleNewEksFargateOpenSourceObservabilityConstruct {
         // Define fargate cluster provider and pass the profile options
         const fargateClusterProvider: blueprints.FargateClusterProvider = new blueprints.FargateClusterProvider({
             fargateProfiles,
-            version: eks.KubernetesVersion.of("1.29")
+            version: eks.KubernetesVersion.V1_29
         });
 
 

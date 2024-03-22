@@ -178,7 +178,7 @@ export default class SingleNewEksGravitonOpenSourceObservabilityPattern {
         }
 
         const mngProps: blueprints.MngClusterProviderProps = {
-            version: eks.KubernetesVersion.of("1.29"),
+            version: eks.KubernetesVersion.V1_29,
             instanceTypes: [new ec2.InstanceType("m7g.large")],
             amiType: eks.NodegroupAmiType.AL2_ARM_64,
             desiredSize: 2,
