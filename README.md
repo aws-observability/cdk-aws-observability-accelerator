@@ -1,19 +1,38 @@
 # AWS Observability Accelerator for CDK
 
-Welcome to the AWS Observability Accelerator for CDK!
+Welcome to the `AWS Observability Accelerator for CDK`!
+
+![GitHub](https://img.shields.io/github/license/aws-quickstart/cdk-eks-blueprints)
+![Build](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiTWxBQzVUcTBvdSsvbE9mR0ZWeTJjbi96OUpBREorSG51UjMzQ1UyNXdmUzZ2dUJoTkhIODFJWjN2QjRGcnhWS0pYLzFQRU5uOThiUEp1WjEzS0htbUpVPSIsIml2UGFyYW1ldGVyU3BlYyI6IlRkUFRoTWtjdElBMkR5NEMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
 
 The AWS Observability Accelerator for CDK is a set of opinionated modules
 to help you set up observability for your AWS environments with AWS Native services and AWS-managed observability services such as Amazon Managed Service for Prometheus,Amazon Managed Grafana, AWS Distro for OpenTelemetry (ADOT) and Amazon CloudWatch.
 
-We provide curated metrics, logs, traces collection, cloudwatch dashboard, alerting rules and Grafana dashboards for your EKS infrastructure, Java/JMX, NGINX based workloads and your custom applications.
+AWS Observability Accelerator for CDK provides patterns with:
+
+- [x] Curated metrics with CloudWatch Container Insights
+- [x] Curated metrics with ADOT and Amazon Service for Prometheus Exporter
+- [x] Logs using FluentBit and ADOT Exporter
+- [x] Traces collection with XRAY Daemon
+- [x] Traces collection with ADOT XRAY Exporter
+- [x] Amazon Cloudwatch dashboards
+- [x] Amazon Managed Grafana Dashboards
+- [x] Amazon Managed Service for Prometheus - Alerting rules
+- [x] Amazon Managed Service for Prometheus - Recording rules
+- [x] GPU Infrastructure and Workload monitoring
+- [x] Java/JMX Workload monitoring
+- [x] NGINX monitoring
+- [x] Istio Service Mesh monitoring
+- [x] ADOT Collector monitoring
+- [x] Cost monitoring (Coming Soon!)
 
 ## Single EKS Cluster AWS Native Observability Accelerator
 
-![AWSNative-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/cloud-native-arch.png?raw=true)
+![AWSNative-Architecture](./docs/images/cloud-native-arch.png)
 
 ## Single EKS Cluster Open Source Observability Accelerator
 
-![OpenSource-Architecture](https://raw.githubusercontent.com/aws-observability/cdk-aws-observability-accelerator/811ec42307d41f35f2fec95f2f2b8a20bddc7646/docs/images/CDK_Architecture_diagram.png)
+![OpenSource-Architecture](./docs/images/oss-architecture.png)
 
 ## Patterns
 
