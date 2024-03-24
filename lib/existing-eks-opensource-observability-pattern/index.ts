@@ -7,8 +7,6 @@ import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as cdk from "aws-cdk-lib";
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as fs from 'fs';
-import { IstioIngressGatewayHelmAddon } from '../single-new-eks-opensource-observability-pattern/istio/istioIngressGatewayAddon';
-import { IstioCniHelmAddon } from '../single-new-eks-opensource-observability-pattern/istio/istiocniAddon';
 
 export default class ExistingEksOpenSourceobservabilityPattern {
     async buildAsync(scope: cdk.App, id: string) {
@@ -88,7 +86,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ start enableAdotMetricsCollectionJob }}",
             "{{ stop enableAdotMetricsCollectionJob }}",
             jsonStringnew.context["adotcollectormetrics.pattern.enabled"]
         );
@@ -169,8 +167,13 @@ export default class ExistingEksOpenSourceobservabilityPattern {
             addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
                 version: "1.18.2"
             }));
-            addOns.push(new IstioIngressGatewayHelmAddon);
-            addOns.push(new IstioCniHelmAddon);
+            addOns.push(new blueprints.addons.IstioIngressGatewayAddon({
+                version: "1.18.2"
+            }));
+            
+            addOns.push(new blueprints.addons.IstioCniAddon({
+                version: "1.18.2"
+            }));
         }
 
         ObservabilityBuilder.builder()
