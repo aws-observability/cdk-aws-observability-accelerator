@@ -205,6 +205,7 @@ Patterns:
 	single-new-eks-fargate-opensource-observability
 	single-new-eks-gpu-opensource-observability
 	single-new-eks-graviton-opensource-observability
+	single-new-eks-inferentia-opensource-observability
 	single-new-eks-mixed-observability
 	single-new-eks-opensource-observability
 ```
