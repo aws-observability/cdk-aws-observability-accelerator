@@ -28,11 +28,11 @@ AWS Observability Accelerator for CDK provides patterns with:
 
 ## Single EKS Cluster AWS Native Observability Accelerator
 
-![AWSNative-Architecture](./docs/images/cloud-native-architecture.png)
+![AWSNative-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/cloud-native-architecture.png?raw=true)
 
 ## Single EKS Cluster Open Source Observability Accelerator
 
-![OpenSource-Architecture](./docs/images/oss-architecture.png)
+![OpenSource-Architecture](https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/oss-architecture.png?raw=true)
 
 ## Patterns
 
