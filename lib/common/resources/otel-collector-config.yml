@@ -57,7 +57,7 @@ spec:
                 type: 'A'
                 port: 9003
             {{ stop kubecostJob }}
-            {{ start enableAdotMetricsCollectionJob}}
+            {{ start enableAdotMetricsCollectionJob }}
             - job_name: otel-collector-metrics
               scrape_interval: 10s
               static_configs:
