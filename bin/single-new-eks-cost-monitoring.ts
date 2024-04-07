@@ -6,6 +6,6 @@ const app = configureApp();
 new SingleNewEksCostMonitoringPattern()
     .buildAsync(app, 'single-new-eks-cost-monitoring')
     .catch((e) => {
-        errorHandler(app, "Secure Ingress Cost monitoring Pattern is not setup due to missing secrets for ArgoCD admin pwd. \
-            See Secure Ingress Cost monitroing pattern in the readme for instructions", e);
+        errorHandler(app, "Secure Ingress Cost monitoring Pattern could not be deployed. \
+            See Secure Ingress Cost monitoring pattern in the readme for instructions", e);
     });

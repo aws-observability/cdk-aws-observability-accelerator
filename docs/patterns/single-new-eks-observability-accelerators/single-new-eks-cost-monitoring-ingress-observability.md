@@ -1,5 +1,7 @@
 # Single Cluster Observability - Kubecost Cost Monitoring with Secure Ingress using Cognito
 
+Implementing Kubecost for monitoring EKS clusters provides invaluable insights into resource utilization and cost management. Kubecost offers granular visibility into the cost breakdown of Kubernetes workloads, enabling efficient allocation of resources and optimization of infrastructure spending. By integrating with Amazon Managed Prometheus (AMP) and AWS services such as Application Load Balancer, Amazon Cognito, and Amazon Route 53, Kubecost ensures a comprehensive monitoring solution with secure access control mechanisms. With alerts and recording rules provided by Amazon Managed Service for Prometheus, teams can proactively identify and address potential issues, ensuring optimal performance and cost-effectiveness of EKS deployments. Kubecost's user-friendly dashboard and reporting capabilities empower organizations to make informed decisions, maximize resource efficiency, and maintain cost predictability in their EKS environments, ultimately enhancing operational excellence and driving business growth.
+
 ## Architecture
 
 The following figure illustrates the architecture of the pattern we will be deploying for Single EKS cost monitoring (Kubecost) pattern with Application Load Balancer, Amazon Cognito, and a Transport Layer Security (TLS) Certificate on AWS Certificate Manager (ACM) with Amazon Route 53 hosted zone to authenticate users to Kubecost
@@ -31,17 +33,21 @@ The CDK code expects the allowed domain and subdomain names in the CDK context f
 
 Create two environment variables. The PARENT_HOSTED_ZONE variable contains the name of your Route 53 public hosted zone. The DEV_SUBZONE_NAME will be the address for your Kubecost dashboard.
 
+When users register to cognito they will have to provide an email address, using the `allowed.domains.list` you can specify you enterprise's email domain to only allow your employees to sign up for the service
+
 Generate the cdk.json file:
 
 ```bash
 PARENT_HOSTED_ZONE=mycompany.a2z.com
 DEV_SUBZONE_NAME=kubecost.mycompany.a2z.com
+ALLOWED_DOMAIN_LIST=amazon.com
 cat << EOF > cdk.json
 {
     "app": "npx ts-node dist/lib/common/default-main.js",
     "context": {
         "parent.hostedzone.name": "${PARENT_HOSTED_ZONE}",
-        "dev.subzone.name": "${DEV_SUBZONE_NAME}"
+        "dev.subzone.name": "${DEV_SUBZONE_NAME}",
+        "allowed.domains.list": "${ALLOWED_DOMAIN_LIST}"
       }
 }
 EOF
@@ -83,7 +89,7 @@ kubectl get pods -o wide -A
 ```
 
 Now, lets navigate to the URL described as our dev.subzone.name in the cdk.json file and signup with a new cognito user profile.
- 
+
 ## Teardown
 
 You can teardown the whole CDK stack with the following command:

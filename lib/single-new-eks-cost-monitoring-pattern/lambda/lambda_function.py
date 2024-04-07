@@ -18,7 +18,6 @@ def lambda_handler(event, context):
     # Split the email address so we can compare domains
     emailId = event['request']['userAttributes']['email']
     address = emailId.split('@')
-    #print("address={} allowed_domains_list={} auto_approved_domains_list={} email_allow_list={}".format(address,  allowed_domains_list, auto_approved_domains_list, email_white_list))
     
     emailDomain = address[1]    
     
