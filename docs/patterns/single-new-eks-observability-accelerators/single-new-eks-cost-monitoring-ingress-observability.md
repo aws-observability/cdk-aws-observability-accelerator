@@ -63,15 +63,12 @@ At step 8, execute the following
 make build
 make pattern single-new-eks-cost-monitoring deploy single-new-eks-cost-monitoring-observability-accelerator
 ```
-
-## Updating CNAME record for Route53
+## Verifying A record for Route53
 
 Open the AWS console once the deployment is complete. 
 Navigate to EC2>AWS Load Balancer. Select the newly created load balancer and copy to the DNS A Record to your clipboard.
 Navigate to Route53 in AWS console and select the hosted zone you want to use for the deployment. 
-Add new CNAME record type. 
-Set name as the DEV_SUBZONE_NAME defined previously and value as the load balancer DNS A record copied to your clipboard.
-Wait 60 seconds for DNS to get propogated.
+Verify the entry of the DEV_SUBZONE_NAME defined previously and value as the load balancer DNS A record copied to your clipboard.
 
 ## Verify the resources
 

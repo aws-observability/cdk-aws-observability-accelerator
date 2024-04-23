@@ -124,7 +124,6 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             }
         };
 
-        Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.addons.CloudWatchLogsAddon({
                 logGroupPrefix: `/aws/eks/${stackId}`,
@@ -149,7 +148,6 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
             new KubeCostExtensionAddon({
                 namespace:"kubecost",
                 version:"1.108.1",
-                // kubecostToken: blueprints.utils.valueFromContext(scope, "kubecost.token", "tokenValue"),
                 values: {
                     global: {
                         amp: {
