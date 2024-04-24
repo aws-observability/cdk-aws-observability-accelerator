@@ -48,7 +48,7 @@ To use this solution, you must have [Node.js](https://nodejs.org/en/) and [npm](
 
 ### DevContainer Setup
 
-Users can choose this option, if you dont want to run this solution on a mac or ubuntu machine. Please use the dev container configuration in the `.devcontainer` folder with [devpod](devpod.sh) or any other dev container environment to creat an environment with dependencies such as Node, NPM, aws-cli, aws-cdk, kubectl, helm dependencies for your local development with `cdk-aws-observability` accelerator repo. 
+Users can choose this option, if you dont want to run this solution on a mac or ubuntu machine. Please use the dev container configuration in the `.devcontainer` folder with [devpod](devpod.sh) or any other dev container environment to create a development environment with dependencies such as Node, NPM, aws-cli, aws-cdk, kubectl, helm dependencies for your local development with `cdk-aws-observability-accelerator` solution. 
 
 ### Ubuntu Setup
 
