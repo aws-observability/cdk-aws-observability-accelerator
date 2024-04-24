@@ -44,7 +44,6 @@ Before proceeding, make sure [AWS CLI](https://docs.aws.amazon.com/cli/latest/us
 
 To use this solution, you must have [Node.js](https://nodejs.org/en/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. You will also use `make` and `brew` to simplify build and other common actions.
 
-
 ## Workstation Setup Options
 
 ### DevContainer Setup
