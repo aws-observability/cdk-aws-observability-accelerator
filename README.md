@@ -42,7 +42,13 @@ The individual patterns can be found in the [`lib`](https://github.com/aws-obser
 
 Before proceeding, make sure [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) is installed on your machine.
 
-To use the eks-blueprints and patterns module, you must have [Node.js](https://nodejs.org/en/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. You will also use `make` and `brew` to simplify build and other common actions.
+To use this solution, you must have [Node.js](https://nodejs.org/en/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. You will also use `make` and `brew` to simplify build and other common actions.
+
+## Workstation Setup Options
+
+### DevContainer Setup
+
+Users can choose this option, if you dont want to run this solution on a mac or ubuntu machine. Please use the dev container configuration in the `.devcontainer` folder with [devpod](devpod.sh) or any other dev container environment to create a development environment with dependencies such as Node, NPM, aws-cli, aws-cdk, kubectl, helm dependencies for your local development with `cdk-aws-observability-accelerator` solution. 
 
 ### Ubuntu Setup
 
@@ -155,7 +161,7 @@ $ npm -v
 
 Updating npm: `sudo n stable` where stable can also be a specific version above 10.1. May require `sudo`.
 
-### Repo setup
+## Repo setup
 
 1. Clone the `cdk-aws-observability-accelerator` repository
 
