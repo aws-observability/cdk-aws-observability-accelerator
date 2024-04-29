@@ -13,6 +13,7 @@ export class KubecostServiceAccountsAddon implements blueprints.ClusterAddOn {
 
         const policyRead = ManagedPolicy.fromAwsManagedPolicyName("AmazonPrometheusQueryAccess");
         const policyWrite = ManagedPolicy.fromAwsManagedPolicyName("AmazonPrometheusRemoteWriteAccess");
+        const policyEC2 = ManagedPolicy.fromAwsManagedPolicyName("AmazonEC2ReadOnlyAccess"); // Needed since kubecost cost analyzer needs to access ec2:DescribeVolumes
 
         const serviceAccount1 = cluster.addServiceAccount("kubecost-cost-analyzer-amp", {
             name: "kubecost-cost-analyzer-amp",
@@ -22,6 +23,7 @@ export class KubecostServiceAccountsAddon implements blueprints.ClusterAddOn {
 
         serviceAccount1.role.addManagedPolicy(policyRead);
         serviceAccount1.role.addManagedPolicy(policyWrite);
+        serviceAccount1.role.addManagedPolicy(policyEC2);
 
         const serviceAccount2 = cluster.addServiceAccount("kubecost-prometheus-server-amp", {
             name: "kubecost-prometheus-server-amp",

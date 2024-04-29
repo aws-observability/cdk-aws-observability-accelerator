@@ -9,17 +9,13 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { setPath } from '@aws-quickstart/eks-blueprints/dist/utils';
-import { prevalidateSecrets } from '../common/construct-utils';
 import CognitoIdpStack from './cognito-idp-stack';
 import * as fs from 'fs';
 
-// const SECRET_ARGO_ADMIN_PWD = 'argo-admin-secret';
 const gitUrl = 'https://github.com/aws-samples/eks-blueprints-workloads.git';
 
 export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
     async buildAsync(scope: Construct, id: string) {
-
-        // await prevalidateSecrets(SingleNewEksCostMonitoringPattern.name, undefined, SECRET_ARGO_ADMIN_PWD);
 
         const subdomain: string = blueprints.utils.valueFromContext(scope, "dev.subzone.name", "dev.mycompany.a2z.com");
         const parentDomain = blueprints.utils.valueFromContext(scope, "parent.hostedzone.name", "mycompany.a2z.com");
@@ -87,7 +83,7 @@ export default class SingleNewEksCostMonitoringPattern extends cdk.Stack {
         );
         doc = blueprints.utils.changeTextBetweenTokens(
             doc,
-            "{{ start enableAdotMetricsCollectionJob}}",
+            "{{ start enableAdotMetricsCollectionJob }}",
             "{{ stop enableAdotMetricsCollectionJob }}",
             false
         );
