@@ -61,7 +61,7 @@ At step 8, execute the following
 
 ```bash
 make build
-make pattern single-new-eks-cost-monitoring deploy single-new-eks-cost-monitoring-observability-accelerator
+make pattern single-new-eks-cost-monitoring deploy
 ```
 ## Verifying A record for Route53
 
@@ -147,5 +147,5 @@ Now, lets navigate to the URL described as our dev.subzone.name in the cdk.json 
 You can teardown the whole CDK stack with the following command:
 
 ```bash
-make pattern single-new-eks-cost-monitoring destroy single-new-eks-cost-monitoring-observability-accelerator   
+make pattern single-new-eks-cost-monitoring destroy 
 ```
