@@ -53,7 +53,6 @@ export class FluentBitConfigMap implements blueprints.ClusterAddOn {
     }
 
     deploy(clusterInfo: blueprints.ClusterInfo): void {
-        const cluster = clusterInfo.cluster;
         
         const doc = readYamlDocument(__dirname + '/../common/resources/fluent-bit/fluent-bit-fargate-config.ytpl');
         const manifest = doc.split("---").map(e => loadYaml(e));
