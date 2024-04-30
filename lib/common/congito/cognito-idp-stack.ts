@@ -23,7 +23,7 @@ export default class CognitoIdpStack extends cdk.Stack {
         
         const authChallengeFn = new lambda.Function(this, 'authChallengeFn', {
             runtime: lambda.Runtime.PYTHON_3_12,
-            code: lambda.Code.fromAsset('./lib/single-new-eks-cost-monitoring-pattern/lambda'),
+            code: lambda.Code.fromAsset('./lib/common/cognito/lambda'),
             handler: 'lambda_function.lambda_handler',
             role: lambdaExecutionRole,
             environment: {
