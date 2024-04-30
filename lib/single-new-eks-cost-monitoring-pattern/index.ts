@@ -9,7 +9,7 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { setPath } from '@aws-quickstart/eks-blueprints/dist/utils';
-import CognitoIdpStack from '../common/congito/cognito-idp-stack';
+import CognitoIdpStack from '../common/cognito/cognito-idp-stack';
 import * as fs from 'fs';
 
 const gitUrl = 'https://github.com/aws-samples/eks-blueprints-workloads.git';
