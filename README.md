@@ -1,5 +1,10 @@
 # AWS Observability Accelerator for CDK
 
+![GitHub](https://img.shields.io/github/license/aws-observability/cdk-aws-observability-accelerator)
+[![Tests](https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml/badge.svg)](https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml)
+[![go-github release (latest SemVer)](https://img.shields.io/github/v/release/aws-observability/cdk-aws-observability-accelerator?sort=semver)](https://github.com/aws-observability/cdk-aws-observability-accelerator/releases)
+
+https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml
 Welcome to the `AWS Observability Accelerator for CDK`!
 
 ![GitHub](https://img.shields.io/github/license/aws-quickstart/cdk-eks-blueprints)
