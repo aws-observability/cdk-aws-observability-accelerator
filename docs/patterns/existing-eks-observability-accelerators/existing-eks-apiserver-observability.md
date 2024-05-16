@@ -65,17 +65,40 @@ export COA_AMG_ENDPOINT_URL=https://g-xyz.grafana-workspace.us-east-1.amazonaws.
 !!! warning
 Setting up environment variables `COA_AMG_ENDPOINT_URL` and `AWS_REGION` is mandatory for successful execution of this pattern.
 
-4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys.
+4. GRAFANA API KEY: Amazon Managed Grafana provides a control plane API for generating Grafana API keys or Service Account Tokens.
 
-```bash
-export AMG_API_KEY=$(aws grafana create-workspace-api-key \
-  --key-name "grafana-operator-key" \
-  --key-role "ADMIN" \
-  --seconds-to-live 432000 \
-  --workspace-id $COA_AMG_WORKSPACE_ID \
-  --query key \
-  --output text)
-```
+=== "v10.4 & v9.4 workspaces"
+
+    ```bash
+    # IMPORTANT NOTE: skip this command if you already have a service token
+    GRAFANA_SA_ID=$(aws grafana create-workspace-service-account \
+      --workspace-id $COA_AMG_WORKSPACE_ID \
+      --grafana-role ADMIN \
+      --name cdk-accelerator-eks \
+      --query 'id' \
+      --output text)
+
+    # creates a new token
+    export AMG_API_KEY=$(aws grafana create-workspace-service-account-token \
+      --workspace-id $COA_AMG_WORKSPACE_ID \
+      -name "grafana-operator-key" \
+      --seconds-to-live 432000 \
+      --service-account-id $GRAFANA_SA_ID \
+      --query 'serviceAccountToken.key' \
+      --output text)
+    ```
+
+=== "v8.4 workspaces"
+
+    ```bash
+    export AMG_API_KEY=$(aws grafana create-workspace-api-key \
+      --key-name "grafana-operator-key" \
+      --key-role "ADMIN" \
+      --seconds-to-live 432000 \
+      --workspace-id $COA_AMG_WORKSPACE_ID \
+      --query key \
+      --output text)
+    ```
 
 5. AWS SSM Parameter Store for GRAFANA API KEY: Update the Grafana API key secret in AWS SSM Parameter Store using the above new Grafana API key. This will be referenced by Grafana Operator deployment of our solution to access Amazon Managed Grafana from Amazon EKS Cluster
 
