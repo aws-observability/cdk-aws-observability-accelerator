@@ -4,11 +4,7 @@
 [![Tests](https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml/badge.svg)](https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml)
 [![go-github release (latest SemVer)](https://img.shields.io/github/v/release/aws-observability/cdk-aws-observability-accelerator?sort=semver)](https://github.com/aws-observability/cdk-aws-observability-accelerator/releases)
 
-https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml
 Welcome to the `AWS Observability Accelerator for CDK`!
-
-![GitHub](https://img.shields.io/github/license/aws-quickstart/cdk-eks-blueprints)
-![Build](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiTWxBQzVUcTBvdSsvbE9mR0ZWeTJjbi96OUpBREorSG51UjMzQ1UyNXdmUzZ2dUJoTkhIODFJWjN2QjRGcnhWS0pYLzFQRU5uOThiUEp1WjEzS0htbUpVPSIsIml2UGFyYW1ldGVyU3BlYyI6IlRkUFRoTWtjdElBMkR5NEMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
 
 The AWS Observability Accelerator for CDK is a set of opinionated modules
 to help you set up observability for your AWS environments with AWS Native services and AWS-managed observability services such as Amazon Managed Service for Prometheus,Amazon Managed Grafana, AWS Distro for OpenTelemetry (ADOT) and Amazon CloudWatch.
