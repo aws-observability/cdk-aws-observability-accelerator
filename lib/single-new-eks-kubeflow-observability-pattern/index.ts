@@ -135,26 +135,12 @@ export default class SingleNewEksKubeflowbservabilityPattern {
             //new KubeflowAddOn()
         ];
 
-        addOns.push(new blueprints.addons.IstioBaseAddOn({
-            version: "1.18.2"
-        }));
-        addOns.push(new blueprints.addons.IstioControlPlaneAddOn({
-            version: "1.18.2"
-        }));
-        addOns.push(new blueprints.addons.IstioIngressGatewayAddon({
-            version: "1.18.2"
-        }));
-        
-        addOns.push(new blueprints.addons.IstioCniAddon({
-            version: "1.18.2"
-        }));
-
         const mngProps: blueprints.MngClusterProviderProps = {
             version: eks.KubernetesVersion.V1_29,
             instanceTypes: [new ec2.InstanceType("m5.2xlarge")],
             amiType: eks.NodegroupAmiType.AL2_X86_64,
-            desiredSize: 3,
-            maxSize: 5, 
+            desiredSize: 5,
+            maxSize: 10, 
         };
 
         ObservabilityBuilder.builder()
