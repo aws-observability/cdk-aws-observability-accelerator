@@ -28,6 +28,11 @@ export default class SingleNewEksKubeflowbservabilityPattern {
         fluxRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
         fluxRepository.values!.AMG_ENDPOINT_URL = amgEndpointUrl;
 
+        const fluxIstioRepository: blueprints.FluxGitRepo = utils.valueFromContext(scope, "fluxIstioRepository", undefined);
+        fluxIstioRepository.values!.AMG_AWS_REGION = region;
+        fluxIstioRepository.values!.AMP_ENDPOINT_URL = ampEndpoint;
+        fluxIstioRepository.values!.AMG_ENDPOINT_URL = amgEndpointUrl;
+
         const ampAddOnProps: blueprints.AmpAddOnProps = {
             ampPrometheusEndpoint: ampEndpoint,
             deploymentMode: blueprints.DeploymentMode.DAEMONSET,
@@ -121,7 +126,7 @@ export default class SingleNewEksKubeflowbservabilityPattern {
             new blueprints.VpcCniAddOn(),
             new blueprints.EbsCsiDriverAddOn(),
             new blueprints.addons.XrayAdotAddOn(),
-            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository]}),
+            new blueprints.addons.FluxCDAddOn({"repositories": [fluxRepository, fluxIstioRepository]}),
             new GrafanaOperatorSecretAddon(),
             new blueprints.ArgoCDAddOn(
                 {
