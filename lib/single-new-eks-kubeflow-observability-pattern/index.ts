@@ -137,7 +137,6 @@ export default class SingleNewEksKubeflowbservabilityPattern {
                     }
                 }
             )
-            //new KubeflowAddOn()
         ];
 
         const mngProps: blueprints.MngClusterProviderProps = {
