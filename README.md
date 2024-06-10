@@ -9,6 +9,8 @@ Welcome to the `AWS Observability Accelerator for CDK`!
 The AWS Observability Accelerator for CDK is a set of opinionated modules
 to help you set up observability for your AWS environments with AWS Native services and AWS-managed observability services such as Amazon Managed Service for Prometheus,Amazon Managed Grafana, AWS Distro for OpenTelemetry (ADOT) and Amazon CloudWatch.
 
+One of the fallacies of distributed computing is that observability is optional. It's a prevalent but wrong assumption. To have a reliable and changeable system, you need to have proper observability in place. And this project aims to help you.
+
 AWS Observability Accelerator for CDK provides patterns with:
 
 - [x] Curated metrics with CloudWatch Container Insights
