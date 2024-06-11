@@ -48,8 +48,9 @@ nav:
       - OSS ADOT Collector Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-adotmetrics-collection-opensource-observability.md
       - OSS Istio Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-istio-opensource-observability.md
       - OSS ADOT Container Logs: patterns/single-new-eks-observability-accelerators/single-new-eks-container-logs-opensource-observability.md
+      - Cost Monitoring: patterns/single-new-eks-observability-accelerators/single-new-eks-cost-monitoring-ingress-observability.md
       - OSS Neuron with Inferentia: patterns/single-new-eks-observability-accelerators/single-new-eks-inferentia-opensource-observability.md
-    - Logs: logs.md  
+    - Logs: logs.md
     - Tracing: tracing.md
   - Supporting Examples:
     - EKS Cluster: patterns/single-new-eks-observability-accelerators/single-new-eks-cluster.md
