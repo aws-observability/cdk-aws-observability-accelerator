@@ -92,7 +92,12 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
             "{{ stop enableAdotContainerLogsExporter }}",
             jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
         );
-        console.log(doc);
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start kubecostJob }}",
+            "{{ stop kubecostJob }}",
+            false
+        );
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
         if (utils.valueFromContext(scope, "adotcollectormetrics.pattern.enabled", false)) {
