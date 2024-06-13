@@ -1879,10 +1879,12 @@ spec:
         metrics:
           receivers: [prometheus]
           exporters: [logging, prometheusremotewrite]
+        {{ start enableAdotContainerLogsPipeline }}
         logs:
           receivers: [filelog]
           processors: [batch,k8sattributes]
           exporters: [awscloudwatchlogs]
+        {{ stop enableAdotContainerLogsPipeline }}
       {{ start enableAdotMetricsCollectionTelemetry }}
       telemetry:
         metrics:
