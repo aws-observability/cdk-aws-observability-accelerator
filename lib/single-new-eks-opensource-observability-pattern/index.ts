@@ -94,6 +94,12 @@ export default class SingleNewEksOpenSourceobservabilityPattern {
         );
         doc = utils.changeTextBetweenTokens(
             doc,
+            "{{ start enableAdotContainerLogsPipeline }}",
+            "{{ stop enableAdotContainerLogsPipeline }}",
+            jsonStringnew.context["adotcontainerlogs.pattern.enabled"]
+        );
+        doc = utils.changeTextBetweenTokens(
+            doc,
             "{{ start kubecostJob }}",
             "{{ stop kubecostJob }}",
             false
