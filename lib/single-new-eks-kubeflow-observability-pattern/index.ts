@@ -139,8 +139,20 @@ export default class SingleNewEksKubeflowbservabilityPattern {
                     bootstrapRepo: {
                         repoUrl: 'https://github.com/arunvthangaraj/eks-blueprints-workloads.git',
                         targetRevision: 'main',
-                        path: 'kubeflow-monitoring/envs/prod',
-                    }
+                        path: 'kubeflow-monitoring/argoConfig',
+                    },
+                    workloadApplications: [
+                        {
+                            name: 'kubeflow-monitoring',
+                            repository: {
+                                repoUrl: 'https://github.com/arunvthangaraj/eks-blueprints-workloads.git',
+                                targetRevision: 'main',
+                                path: 'kubeflow-monitoring/envs/prod',
+                            },
+                            values: {},
+                            namespace: undefined
+                        }
+                    ]
                 }
             )
         ];
