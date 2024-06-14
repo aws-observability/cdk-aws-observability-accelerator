@@ -96,6 +96,12 @@ export default class SingleNewEksKubeflowbservabilityPattern {
             "{{ stop enableAdotContainerLogsExporter }}",
             true
         );
+        doc = utils.changeTextBetweenTokens(
+            doc,
+            "{{ start kubecostJob }}",
+            "{{ stop kubecostJob }}",
+            false
+        );
         console.log(doc);
         fs.writeFileSync(__dirname + '/../common/resources/otel-collector-config-new.yml', doc);
 
