@@ -240,4 +240,6 @@ Using the Amazon Managed Grafana, we can show the resource utilization from our 
 
 You can teardown the whole CDK stack with the following command:
 
-make pattern single-new-eks-kubeflow-observability destroy 
+```
+make pattern single-new-eks-kubeflow-observability destroy
+``` 
