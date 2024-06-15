@@ -40,7 +40,25 @@ Run update-kubeconfig command. You should be able to get the command from CDK ou
 aws eks update-kubeconfig --name single-new-eks-kubeflow-observability-accelerator --region <Your Region> --role-arn arn:aws:iam::xxxxxxxxxxxx:role/single-new-eks-kubeflow-o-singlenewekskubeflowobser-xxxxxxxxxxxx
 ```
 
-Let’s verify the resources created by steps above and make sure all the pods are in Running status.
+Its going to take at least 15 minutes for all kubeflow components to get installed and become healthy. ArgoCD installs the kubeflow applications in a specific order and makes sure an application is fully healthy before installing the next application. Lets verify the Argo applications installed by ArgoCD by following the steps below. We should see a total of 30 Argo applications marked as healthy.
+
+Get the default passwrod for ArgoCD
+
+```
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
+
+Run the port forwarding command to access the ArgoCD dashboard on PORT 8080.
+
+```
+kubectl -n argocd port-forward svc/blueprints-addon-argocd-server -n argocd 8080:80
+```
+
+Open your browser and visit http://localhost:8080. Use the user name as `admin` and password from the previous step to log into the ArgoCD dashboard.
+
+![Kubeflow-Argo-Apps](../images/Kubeflow-Argo-Apps.png)
+
+Let’s also verify the kubernetes pods created by steps above and make sure all the pods are in Running status.
 
 ```
 kubectl get pods -o wide -A
@@ -153,24 +171,6 @@ prometheus-node-exporter        prometheus-node-exporter-xnn2j                  
 prometheus-node-exporter        prometheus-node-exporter-z9zbs                                    1/1     Running   0            3d      10.0.170.58    ip-10-0-170-58.ec2.internal    <none>           <none>
 ```
 
-We can also verify the Argo applications installed by ArgoCD by following the steps below.
-
-Get the default passwrod for ArgoCD
-
-```
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
-```
-
-Run the port forwarding command to access the ArgoCD dashboard on PORT 8080.
-
-```
-kubectl -n argocd port-forward svc/blueprints-addon-argocd-server -n argocd 8080:80
-```
-
-Open your browser and visit http://localhost:8080. Use the user name as `admin` and password from the previous step to log into the ArgoCD dashboard.
-
-![Kubeflow-Argo-Apps](../images/Kubeflow-Argo-Apps.png)
-
 ## Accessing Kubeflow Central Dashboard
 
 Kubeflow can be accessed via port-forward and this enables you to get started quickly without imposing any requirements on your environment. Run the following to port-forward Istio's Ingress-Gateway to local port 8000:
@@ -208,10 +208,10 @@ kubectl get pods -n kubeflow-user-example-com --field-selector=status.phase==Run
 ```
 
 ```
-NAME                                               READY   STATUS     RESTARTS   AGE
-ml-pipeline-ui-artifact-5b7794c7b5-5hkqf           2/2     Running   0          100m
-ml-pipeline-visualizationserver-85c6d6cc9f-vs24x   2/2     Running   0          100m
-ml-training-notebook-0                             2/2     Running   0          11m
+NAME                                              READY   STATUS    RESTARTS   AGE
+ml-pipeline-ui-artifact-6d4f744767-h4jtm          2/2     Running   0          4h45m
+ml-pipeline-visualizationserver-b889679b5-7kr88   2/2     Running   0          4h45m
+ml-training-notebook-0                            2/2     Running   0          14m
 ```
 
 You will be able to access the JupyterLab notebook by clicking CONNECT. This will open up a new JupyterLab window:
@@ -234,7 +234,27 @@ Using the Amazon Managed Grafana, we can show the resource utilization from our 
 * Namespace: kubeflow-user-example-com
 * Workload: ml-training-notebook
 
-![Kubefloe IstioDashboard](../images/Kubeflow-IstioDashboard.png)
+![Kubeflow IstioDashboard](../images/Kubeflow-IstioDashboard.png)
+
+## Viewing Logs in CloudWatch
+
+Navigate to CloudWatch, then go to "Log groups"
+
+Search for log group with the name `/aws/eks/single-new-eks-kubeflow-observability-accelerator` and open it
+
+You will see log streams created using the node name
+
+![Kubeflow LogGroups](../images/Kubeflow-log-groups.png)
+
+Navigate to CloudWatch, then go to "Logs Insights"
+
+In the dropdown, select log group with name `/aws/eks/single-new-eks-kubeflow-observability-accelerator` and run a query.
+
+![Kubeflow LogInsights](../images/kubeflow-log-insights.png)
+
+Then you can view the results of your query:
+
+![Kubeflow LogsResults](../images/kubeflow-log-results.png)
 
 ## Teardown
 
