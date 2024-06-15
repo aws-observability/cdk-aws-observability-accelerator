@@ -7,6 +7,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
+import { loadYaml, readYamlDocument } from '@aws-quickstart/eks-blueprints/dist/utils';
 
 export default class SingleNewEksKubeflowbservabilityPattern {
     constructor(scope: Construct, id: string) {
@@ -127,6 +128,8 @@ export default class SingleNewEksKubeflowbservabilityPattern {
             __dirname + '/../common/resources/amp-config/istio/recording-rules.yml'
         );
 
+        const argocdCmConfigData = loadYaml(readYamlDocument(__dirname + '/argocd-cm.yml'));
+
         Reflect.defineMetadata("ordered", true, blueprints.addons.GrafanaOperatorAddon);
         const addOns: Array<blueprints.ClusterAddOn> = [
             new blueprints.VpcCniAddOn(),
@@ -136,23 +139,16 @@ export default class SingleNewEksKubeflowbservabilityPattern {
             new GrafanaOperatorSecretAddon(),
             new blueprints.ArgoCDAddOn(
                 {
+                    values: {
+                        "configs": {
+                            "cm": argocdCmConfigData
+                        }
+                    },
                     bootstrapRepo: {
                         repoUrl: 'https://github.com/arunvthangaraj/eks-blueprints-workloads.git',
                         targetRevision: 'main',
-                        path: 'kubeflow-monitoring/argoConfig',
-                    },
-                    workloadApplications: [
-                        {
-                            name: 'kubeflow-monitoring',
-                            repository: {
-                                repoUrl: 'https://github.com/arunvthangaraj/eks-blueprints-workloads.git',
-                                targetRevision: 'main',
-                                path: 'kubeflow-monitoring/envs/prod',
-                            },
-                            values: {},
-                            namespace: undefined
-                        }
-                    ]
+                        path: 'kubeflow-monitoring/envs/prod',
+                    }
                 }
             )
         ];
