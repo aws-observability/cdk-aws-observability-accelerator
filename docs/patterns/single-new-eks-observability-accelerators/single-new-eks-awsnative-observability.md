@@ -115,6 +115,64 @@ View the Performance Monitoring Dashboard:
 
 Refer to "Using CloudWatch Logs Insights to Query Logs in [Logging](../../logs.md).
 
+## Enabling Application Signals for your services
+
+Amazon CloudWatch Application Signals is a new integrated native APM experience
+in AWS. CloudWatch Application Signals supports **Java** and **Python** applications
+running on your Amazon EKS cluster.
+
+If you haven't enabled Application Signals in this account yet, follow steps 1 - 4 in our [AWS documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Application-Signals-Enable-EKS-Console.html).
+
+Next, you have to update your Application to
+`Configure application metrics and trace sampling`. For this, you must add an
+annotation to a manifest YAML in your cluster. Adding this annotation
+auto-instruments the application to send metrics, traces, and logs to
+Application Signals. You have two options for the annotation:
+
+1. **Annotate Workload** auto-instruments a single workload in the cluster.
+    - Paste the below line into the PodTemplate section of the workload manifest.
+    ```
+    apiVersion: apps/v1
+    kind: Deployment
+    spec:
+      template:
+        metadata:
+          # add this annotation under the pod template metadata of the services deployment YAML you want to monitor
+          annotations:
+            instrumentation.opentelemetry.io/inject-java: "true"
+            instrumentation.opentelemetry.io/inject-python: "true"
+    ...
+    ```
+    - In your terminal, enter `kubectl apply -f your_deployment_yaml` to apply the change.
+
+2. **Annotate Namespace** auto-instruments all workloads deployed in the selected namespace.
+    - Paste the below line into the metadata section of the namespace manifest.
+    ```
+    annotations: instrumentation.opentelemetry.io/inject-java: "true"
+    apiVersion: apps/v1
+    kind: Namespace
+    metadata:
+        name: <your_namespace>
+        # add this annotation under metadata of the namespace manifest you want to monitor
+        annotations:
+          instrumentation.opentelemetry.io/inject-java: "true"
+          instrumentation.opentelemetry.io/inject-python: "true"
+    ...
+    ```
+    - In your terminal, enter `kubectl apply -f your_namespace_yaml` to apply the change.
+    - In your terminal, enter a command to restart all pods in the namespace. An example command to restart deployment workloads is `kubectl rollout restart deployment -n namespace_name`
+
+## Visualization of CloudWatch Application Signals data
+
+After enabling your Application to pass metrics and traces by following
+[the steps provided above](#enabling-application-signals-for-your-services),
+open your Amazon CloudWatch console in the same region as your EKS cluster,
+then from the left hand side choose `Application Signals -> Services` and you
+will see the metrics shown on the sample dashboard below:
+
+![APP_Signals_Services](../images/App-signals/app-signal-services.png)
+
+![APP_Signals_Dependencies](../images/App-signals/app-signal-ops-deps.png)
 
 ## Teardown
 
