@@ -13,21 +13,22 @@ One of the fallacies of distributed computing is that observability is optional.
 
 AWS Observability Accelerator for CDK provides patterns with:
 
-- [x] Curated metrics with CloudWatch Container Insights
-- [x] Curated metrics with ADOT and Amazon Service for Prometheus Exporter
-- [x] Logs using FluentBit and ADOT Exporter
-- [x] Traces collection with XRAY Daemon
-- [x] Traces collection with ADOT XRAY Exporter
+- [x] ADOT Collector monitoring
 - [x] Amazon Cloudwatch dashboards
 - [x] Amazon Managed Grafana Dashboards
 - [x] Amazon Managed Service for Prometheus - Alerting rules
 - [x] Amazon Managed Service for Prometheus - Recording rules
+- [x] Cost monitoring
+- [x] Curated metrics with CloudWatch Container Insights
+- [x] Curated metrics with ADOT and Amazon Service for Prometheus Exporter
 - [x] GPU Infrastructure and Workload monitoring
-- [x] Java/JMX Workload monitoring
-- [x] NGINX monitoring
+- [x] Inferentia Infrastructure and Workload monitoring
 - [x] Istio Service Mesh monitoring
-- [x] ADOT Collector monitoring
-- [x] Cost monitoring (Coming Soon!)
+- [x] NGINX monitoring
+- [x] Java/JMX Workload monitoring
+- [x] Logs using FluentBit and ADOT Exporter
+- [x] Traces collection with ADOT XRAY Exporter
+- [x] Traces collection with XRAY Daemon
 
 ## Single EKS Cluster AWS Native Observability Accelerator
 
