@@ -173,15 +173,15 @@ prometheus-node-exporter        prometheus-node-exporter-z9zbs                  
 
 ## Accessing Kubeflow Central Dashboard
 
-Kubeflow can be accessed via port-forward and this enables you to get started quickly without imposing any requirements on your environment. Run the following to port-forward Istio's Ingress-Gateway to local port 8000:
+Kubeflow can be accessed via port-forward and this enables you to get started quickly without imposing any requirements on your environment. Run the following to port-forward Istio's Ingress-Gateway to local port 8080:
 
 ```
-kubectl port-forward svc/istio-ingressgateway -n istio-system 8000:80
+kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
 ```
 
 After running the command, you can access the Kubeflow Central Dashboard by doing the following:
 
-1. Dex is an OpenID Connect Identity (OIDC) with multiple authentication backends. Open your browser and visit http://localhost:8000 and You should get the Dex login screen.
+1. Dex is an OpenID Connect Identity (OIDC) with multiple authentication backends. Open your browser and visit http://localhost:8080 and You should get the Dex login screen.
 2. Login with the default user's credential. The default email address is user@example.com and the default password is 12341234.
 
 ![Kubeflow Dashboard](../images/kubeflow-dashboard.png)
