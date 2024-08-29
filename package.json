@@ -27,6 +27,7 @@
     "@kubecost/kubecost-eks-blueprints-addon": "^0.1.8",
     "@aws-quickstart/eks-blueprints": "1.15.1",
     "aws-cdk": "2.147.3",
+    "aws-cdk-lib": "2.147.3",
     "aws-sdk": "^2.1455.0",
     "constructs": "^10.3.0",
     "eks-blueprints-cdk-kubeflow-ext": "0.1.9",
@@ -35,6 +36,7 @@
   "overrides": {
     "@aws-quickstart/eks-blueprints": "1.15.1",
     "aws-cdk": "2.147.3",
+    "aws-cdk-lib": "2.147.3",
     "xml2js": "0.5.0"
   }
 }
