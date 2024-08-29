@@ -203,21 +203,23 @@ To work with patterns use:
 Example:
 	$ make pattern single-new-eks-opensource-observability deploy
 
-Patterns:
+Patterns: 
 
-	existing-eks-awsnative-observability
-	existing-eks-mixed-observability
-	existing-eks-opensource-observability
-	multi-acc-new-eks-mixed-observability
-	single-new-eks-awsnative-fargate-observability
-	single-new-eks-awsnative-observability
-	single-new-eks-cluster
-	single-new-eks-fargate-opensource-observability
-	single-new-eks-gpu-opensource-observability
-	single-new-eks-graviton-opensource-observability
-	single-new-eks-inferentia-opensource-observability
-	single-new-eks-mixed-observability
-	single-new-eks-opensource-observability
+        existing-eks-awsnative-observability
+        existing-eks-mixed-observability
+        existing-eks-opensource-observability
+        multi-acc-new-eks-mixed-observability
+        single-new-eks-awsnative-fargate-observability
+        single-new-eks-awsnative-observability
+        single-new-eks-cluster
+        single-new-eks-cost-monitoring
+        single-new-eks-fargate-opensource-observability
+        single-new-eks-gpu-opensource-observability
+        single-new-eks-graviton-opensource-observability
+        single-new-eks-inferentia-opensource-observability
+        single-new-eks-mixed-observability
+        single-new-eks-opensource-observability
+
 ```
 
 - Bootstrap your CDK environment.
