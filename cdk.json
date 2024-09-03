@@ -40,6 +40,28 @@
         }
       ]
     },
+    "fluxIstioRepository": {
+      "name": "grafana-istio-dashboards",
+      "namespace": "grafana-operator",
+      "repository": {
+        "repoUrl": "https://github.com/arunvthangaraj/aws-observability-accelerator",
+        "name": "grafana-istio-dashboards",
+        "targetRevision": "main",
+        "path": "./artifacts/grafana-operator-manifests/eks/istio"
+      },
+      "values": {
+        "GRAFANA_ISTIO_CP_DASH_URL" : "https://raw.githubusercontent.com/arunvthangaraj/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/istio/istio-control-plane-dashboard.json",
+        "GRAFANA_ISTIO_MESH_DASH_URL" : "https://raw.githubusercontent.com/arunvthangaraj/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/istio/istio-mesh-dashboard.json",
+        "GRAFANA_ISTIO_PERF_DASH_URL" : "https://raw.githubusercontent.com/arunvthangaraj/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/istio/istio-performance-dashboard.json",
+        "GRAFANA_ISTIO_SERVICE_DASH_URL" : "https://raw.githubusercontent.com/arunvthangaraj/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/istio/istio-service-dashboard.json",
+        "GRAFANA_ISTIO_WORKLOAD_DASH_URL" : "https://raw.githubusercontent.com/arunvthangaraj/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/istio/istio-workload-dashboard.json"
+      },
+      "kustomizations": [
+        {
+          "kustomizationPath": "./artifacts/grafana-operator-manifests/eks/istio"
+        }
+      ]
+    },
     "gpuNodeGroup": {
       "instanceType": "g4dn.xlarge",
       "desiredSize": 2,
