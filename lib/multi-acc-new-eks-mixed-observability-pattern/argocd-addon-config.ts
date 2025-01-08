@@ -16,6 +16,8 @@ export interface GrafanaOperatorProps {
     nodeExporterDashUrl: string;
     nodesDashUrl: string;
     workloadsDashUrl: string;
+    kshDashUrl: string;
+    kcmDashUrl: string;
 
 }
 
@@ -71,7 +73,9 @@ export function createArgoCDAddonConfig(props: ArgoCDAddOnConfigProps) : bluepri
             GRAFANA_NSWRKLDS_DASH_URL: props.goProps.namespaceWorkloadsDashUrl,
             GRAFANA_NODEEXP_DASH_URL: props.goProps.nodeExporterDashUrl,
             GRAFANA_NODES_DASH_URL: props.goProps.nodesDashUrl,
-            GRAFANA_WORKLOADS_DASH_URL: props.goProps.workloadsDashUrl
+            GRAFANA_WORKLOADS_DASH_URL: props.goProps.workloadsDashUrl,
+            GRAFANA_KSH_DASH_URL: props.goProps.kshDashUrl,
+            GRAFANA_KCM_DASH_URL: props.goProps.kcmDashUrl
         };
 
         // By default argocd-server is not publicaly exposed. uncomment this section, if you need to expose using ALB

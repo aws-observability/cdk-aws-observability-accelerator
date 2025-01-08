@@ -45,7 +45,9 @@ Please follow the _Deploying_ instructions of the [New EKS Cluster Open Source O
         "GRAFANA_ISTIO_CP_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/v0.2.0/artifacts/grafana-dashboards/eks/istio/istio-control-plane-dashboard.json",
         "GRAFANA_ISTIO_MESH_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/v0.2.0/artifacts/grafana-dashboards/eks/istio/istio-mesh-dashboard.json",
         "GRAFANA_ISTIO_PERF_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/v0.2.0/artifacts/grafana-dashboards/eks/istio/istio-performance-dashboard.json",
-        "GRAFANA_ISTIO_SERVICE_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/v0.2.0/artifacts/grafana-dashboards/eks/istio/istio-service-dashboard.json"
+        "GRAFANA_ISTIO_SERVICE_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/v0.2.0/artifacts/grafana-dashboards/eks/istio/istio-service-dashboard.json",
+        "GRAFANA_KSH_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/ksh.json",
+        "GRAFANA_KCM_DASH_URL" : "https://raw.githubusercontent.com/aws-observability/aws-observability-accelerator/main/artifacts/grafana-dashboards/eks/infrastructure/kcm.json"
       },
       "kustomizations": [
         {

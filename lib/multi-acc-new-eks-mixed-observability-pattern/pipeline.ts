@@ -163,7 +163,9 @@ export class PipelineMultiEnvMonitoring {
             namespaceWorkloadsDashUrl: utils.valueFromContext(scope, "namespaceworkloads.dashboard.url", undefined),
             nodeExporterDashUrl: utils.valueFromContext(scope, "nodeexporter.dashboard.url", undefined),
             nodesDashUrl: utils.valueFromContext(scope, "nodes.dashboard.url", undefined),
-            workloadsDashUrl: utils.valueFromContext(scope, "workloads.dashboard.url", undefined)
+            workloadsDashUrl: utils.valueFromContext(scope, "workloads.dashboard.url", undefined),
+            kshDashUrl: utils.valueFromContext(scope, "ksh.dashboard.url", undefined),
+            kcmDashUrl: utils.valueFromContext(scope, "kcm.dashboard.url", undefined),
         };
         const monArgoCDAddOnConfigProps: ArgoCDAddOnConfigProps = {
             repoUrl: 'https://github.com/aws-observability/aws-observability-accelerator.git',
