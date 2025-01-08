@@ -1,6 +1,6 @@
 {
   "name": "cdk-aws-observability-accelerator",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "scripts": {
     "build": "rm -rf dist && tsc --skipLibCheck",
     "watch": "tsc -w",
