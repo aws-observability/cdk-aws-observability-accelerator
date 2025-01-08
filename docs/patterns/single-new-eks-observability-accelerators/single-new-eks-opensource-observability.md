@@ -245,6 +245,14 @@ Open the `Nodes` dashboard and you should be able to view its visualization as s
 
 ![Nodes_Dashboard](../images/grafana-nodes.png)
 
+Open the `EKS Scheduler` dashboard and you should be able to view its visualization as shown below :
+
+![EKS_Scheduler](../images/Ksh-Metrics.png)
+
+Open the `EKS Control Manager` dashboard and you should be able to view its visualization as shown below :
+
+![EKS_Control_Manager](../images/KCM-Metrics.png)
+
 From the cluster to view all dashboards as Kubernetes objects, run:
 
 ```bash
