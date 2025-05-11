@@ -34,13 +34,12 @@ jobs:
         token: ${{ secrets.CI_TOKEN }}
         status: pending
     - name: Configure AWS credentials from Test account
-        uses: aws-actions/configure-aws-credentials@v2
-        if: steps.changes.outputs.src== 'true'
-        with:
-          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
-          aws-region: us-west-2
-          role-duration-seconds: 3600
-          role-session-name: GithubActions-Session
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+        aws-region: us-west-2
+        role-duration-seconds: 3600
+        role-session-name: GithubActions-Session
     - name: Run CodeBuild
       uses: aws-actions/aws-codebuild-run-build@v1
       with:
