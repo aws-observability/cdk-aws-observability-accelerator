@@ -1,0 +1,1640 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="AWS">
+      
+      
+        <link rel="canonical" href="https://aws-observability.github.io/cdk-aws-observability-accelerator/patterns/single-new-eks-observability-accelerators/single-new-eks-fargate-opensource-observability/">
+      
+      
+        <link rel="prev" href="../single-new-eks-awsnative-fargate-observability/">
+      
+      
+        <link rel="next" href="../single-new-eks-mixed-observability/">
+      
+      
+      <link rel="icon" href="../../../images/aws-favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>OSS - AWS Observability Accelerator for CDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ember:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"ember";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+
+<script>
+    (function(n,i,v,r,s,c,x,z){x=window.AwsRumClient={q:[],n:n,i:i,v:v,r:r,c:c};window[n]=function(c,p){x.q.push({c:c,p:p});};z=document.createElement('script');z.async=true;z.src=s;document.head.insertBefore(z,document.head.getElementsByTagName('script')[0]);})(
+      'cwr',
+      '1244d427-de32-4423-b7fe-3d6903e95178',
+      '1.0.0',
+      'us-east-2',
+      'https://client.rum.us-east-1.amazonaws.com/1.12.0/cwr.js',
+      {
+        sessionSampleRate: 1,
+        guestRoleArn: "arn:aws:iam::147084596884:role/RUM-Monitor-us-east-2-147084596884-2189797490761-Unauth",
+        identityPoolId: "us-east-2:4aa2665a-6b7f-4202-856c-333e1f4bdec6",
+        endpoint: "https://dataplane.rum.us-east-2.amazonaws.com",
+        telemetries: ["performance","errors","http"],
+        allowCookies: true,
+        enableXRay: false
+      }
+    );
+  </script>
+
+  
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="grey">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#single-cluster-opensource-observability-fargate" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="AWS Observability Accelerator for CDK" class="md-header__button md-logo" aria-label="AWS Observability Accelerator for CDK" data-md-component="logo">
+      
+  <img src="../../../images/aws-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AWS Observability Accelerator for CDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OSS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws-observability/cdk-aws-observability-accelerator
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="AWS Observability Accelerator for CDK" class="md-nav__button md-logo" aria-label="AWS Observability Accelerator for CDK" data-md-component="logo">
+      
+  <img src="../../../images/aws-logo.png" alt="logo">
+
+    </a>
+    AWS Observability Accelerator for CDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws-observability/cdk-aws-observability-accelerator
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Amazon EKS
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Amazon EKS
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Existing Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Existing Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-awsnative-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mixed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-apiserver-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Apiserver Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-nginx-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Nginx Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-adotmetrics-collection-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Collector Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    New Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            New Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-awsnative-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-graviton-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Graviton OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    EKS Fargate
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            EKS Fargate
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-awsnative-fargate-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metrics-and-traces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metrics and Traces
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objective
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualize-dashboards-in-amazon-managed-grafana" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualize Dashboards in Amazon Managed Grafana
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Visualize Dashboards in Amazon Managed Grafana">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-sample-java-workload" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy Sample Java Workload
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#viewing-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Logs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teardown
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mixed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-Cluster Multi-Region Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-apiserver-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Apiserver Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-gpu-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS GPU
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-java-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Java Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-nginx-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Nginx Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-adotmetrics-collection-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Collector Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-istio-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Istio Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-container-logs-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Container Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-cost-monitoring-ingress-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cost Monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-inferentia-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Neuron with Inferentia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tracing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Supporting Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Supporting Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    EKS Cluster
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Support & Feedback
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metrics-and-traces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metrics and Traces
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objective
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualize-dashboards-in-amazon-managed-grafana" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualize Dashboards in Amazon Managed Grafana
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Visualize Dashboards in Amazon Managed Grafana">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-sample-java-workload" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy Sample Java Workload
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#viewing-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Logs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teardown
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="single-cluster-opensource-observability-fargate">Single Cluster Opensource Observability - Fargate<a class="headerlink" href="#single-cluster-opensource-observability-fargate" title="Permanent link">&para;</a></h1>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The following figure illustrates the architecture of the pattern we will be deploying for Single EKS Fargate Open Source Observability pattern using open source tooling such as AWS Distro for Open Telemetry (ADOT), FluentBit (Logs), Amazon Managed Service for Prometheus and Amazon Managed Grafana:</p>
+<p><img alt="Architecture" src="../../images/OSSFargate_Arch.png" /></p>
+<h3 id="metrics-and-traces">Metrics and Traces<a class="headerlink" href="#metrics-and-traces" title="Permanent link">&para;</a></h3>
+<p>AWS Distro for OpenTelemetry (ADOT) is a secure, AWS-supported distribution of the OpenTelemetry project. With ADOT, users can instrument their applications just once to send correlated metrics and traces to multiple monitoring solutions. </p>
+<p>The ADOT Collector has the concept of a pipeline which comprises three key types of components, namely, receiver, processor, and exporter. A receiver is how data gets into the collector. It accepts data in a specified format, translates it into the internal format and passes it to processors and exporters defined in the pipeline. It can be pull or push based. A processor is an optional component that is used to perform tasks such as batching, filtering, and transformations on data between being received and being exported. An exporter is used to determine which destination to send the metrics, logs or traces.</p>
+<p>In the above architecture, the kubelet on a worker node in a Kubernetes cluster exposes resource metrics such as CPU, memory, disk, and network usage at the /metrics/cadvisor endpoint. However, in EKS Fargate networking architecture, a pod is not allowed to directly reach the kubelet on that worker node. Hence, the ADOT Collector calls the Kubernetes API Server to proxy the connection to the kubelet on a worker node, and collect kubelet's cAdvisor metrics for workloads on that node. These metrics are made available in Prometheus format. Therefore, the collector uses an instance of Prometheus Receiver as a drop-in replacement for a Prometheus server and scrapes these metrics from the Kubernetes API server endpoint. Using Kubernetes service discovery, the receiver can discover all the worker nodes in an EKS cluster. Hence, more than one instances of ADOT Collector will suffice to collect resource metrics from all the nodes in a cluster. Having a single instance of ADOT collector can be overwhelming during higher loads so always recommend to deploy more than one collector.</p>
+<h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
+<p>With Amazon EKS on Fargate, you can deploy pods without allocating or managing your Kubernetes nodes. This removes the need to capture system-level logs for your Kubernetes nodes. To capture the logs from your Fargate pods, we use Fluent Bit to forward the logs directly to CloudWatch. This enables you to automatically route logs to CloudWatch without further configuration or a sidecar container for your Amazon EKS pods on Fargate. For more information about this, see <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate-logging.html">Fargate logging</a> in the Amazon EKS documentation and <a href="http://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/">Fluent Bit for Amazon EKS</a> on the AWS Blog. This solution captures the STDOUT and STDERR input/output (I/O) streams from your container and sends them to CloudWatch through Fluent Bit, based on the Fluent Bit configuration established for the Amazon EKS cluster on Fargate</p>
+<h2 id="objective">Objective<a class="headerlink" href="#objective" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Deploys one production grade Amazon EKS cluster.</li>
+<li>AWS Distro For OpenTelemetry Operator and Collector for Metrics and Traces</li>
+<li>Logs with <a href="https://github.com/aws/aws-for-fluent-bit">AWS for FluentBit</a></li>
+<li>Installs Grafana Operator to add AWS data sources and create Grafana Dashboards to Amazon Managed Grafana.</li>
+<li>Installs FluxCD to perform GitOps sync of a Git Repo to EKS Cluster. We will use this later for creating Grafana Dashboards and AWS datasources to Amazon Managed Grafana. You can also use your own GitRepo  to sync your own Grafana resources such as Dashboards, Datasources etc. Please check our One observability module - <a href="https://catalog.workshops.aws/observability/en-US/aws-managed-oss/gitops-with-amg">GitOps with Amazon Managed Grafana</a> to learn more about this.</li>
+<li>Installs External Secrets Operator to retrieve and Sync the Grafana API keys.</li>
+<li>Amazon Managed Grafana Dashboard and data source</li>
+<li>Alerts and recording rules with Amazon Managed Service for Prometheus</li>
+</ul>
+<h2 id="prerequisites">Prerequisites:<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>Ensure that you have installed the following tools on your machine.</p>
+<ol>
+<li><a href="https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html">aws cli</a></li>
+<li><a href="https://Kubernetes.io/docs/tasks/tools/">kubectl</a></li>
+<li><a href="https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install">cdk</a></li>
+<li><a href="https://docs.npmjs.com/cli/v8/commands/npm-install">npm</a></li>
+</ol>
+<h2 id="deploying">Deploying<a class="headerlink" href="#deploying" title="Permanent link">&para;</a></h2>
+<p>Please follow the <em>Deploying</em> instructions of the <a href="../single-new-eks-opensource-observability/">New EKS Cluster Open Source Observability Accelerator</a> pattern till step 7.
+At step 8, execute the following</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>build
+make<span class="w"> </span>pattern<span class="w"> </span>single-new-eks-fargate-opensource-observability<span class="w"> </span>deploy
+</code></pre></div>
+<h2 id="verify-the-resources">Verify the resources<a class="headerlink" href="#verify-the-resources" title="Permanent link">&para;</a></h2>
+<p>Run update-kubeconfig command. You should be able to get the command from CDK output message.</p>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>update-kubeconfig<span class="w"> </span>--name<span class="w"> </span>single-new-eks-fargate-opensource-observability-accelerator<span class="w"> </span>--region<span class="w"> </span>&lt;your<span class="w"> </span>region&gt;<span class="w"> </span>--role-arn<span class="w"> </span>arn:aws:iam::xxxxxxxxx:role/single-new-eks-fargate-op-singleneweksfargateopens-xxxxxxxx
+</code></pre></div>
+<p>Let’s verify the resources created by steps above.</p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>nodes<span class="w"> </span>-o<span class="w"> </span>wide
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Output:
+NAME                                   STATUS   ROLES    AGE   VERSION               INTERNAL-IP    EXTERNAL-IP   OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+fargate-ip-10-0-100-154.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.100.154   &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-102-67.ec2.internal    Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.102.67    &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-121-124.ec2.internal   Ready    &lt;none&gt;   7d11h   v1.27.1-eks-2f008fe   10.0.121.124   &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-135-174.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.135.174   &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-135-90.ec2.internal    Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.135.90    &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-136-121.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.136.121   &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-138-15.ec2.internal    Ready    &lt;none&gt;   2d8h    v1.27.6-eks-f8587cb   10.0.138.15    &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-139-227.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.139.227   &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-148-152.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.148.152   &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-151-22.ec2.internal    Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.151.22    &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-158-82.ec2.internal    Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.158.82    &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-161-151.ec2.internal   Ready    &lt;none&gt;   2d8h    v1.27.6-eks-f8587cb   10.0.161.151   &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-164-251.ec2.internal   Ready    &lt;none&gt;   87m     v1.27.6-eks-f8587cb   10.0.164.251   &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-165-99.ec2.internal    Ready    &lt;none&gt;   2d9h    v1.27.1-eks-2f008fe   10.0.165.99    &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-167-115.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.167.115   &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-178-170.ec2.internal   Ready    &lt;none&gt;   12d     v1.27.1-eks-2f008fe   10.0.178.170   &lt;none&gt;        Amazon Linux 2   5.10.192-182.736.amzn2.x86_64   containerd://1.6.6
+fargate-ip-10-0-186-44.ec2.internal    Ready    &lt;none&gt;   87m     v1.27.6-eks-f8587cb   10.0.186.44    &lt;none&gt;        Amazon Linux 2   5.10.192-183.736.amzn2.x86_64   containerd://1.6.6
+</code></pre></div></p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-o<span class="w"> </span>wide<span class="w"> </span>-A
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>NAMESPACE                       NAME                                                              READY   STATUS    RESTARTS        AGE     IP             NODE                                   NOMINATED NODE   READINESS GATES
+cert-manager                    cert-manager-8694c7d4fd-pwmhh                                     1/1     Running   0               12d     10.0.135.90    fargate-ip-10-0-135-90.ec2.internal    &lt;none&gt;           &lt;none&gt;
+cert-manager                    cert-manager-cainjector-744cb68868-m2j25                          1/1     Running   0               12d     10.0.136.121   fargate-ip-10-0-136-121.ec2.internal   &lt;none&gt;           &lt;none&gt;
+cert-manager                    cert-manager-webhook-5f6fff764b-4nq5q                             1/1     Running   0               12d     10.0.151.22    fargate-ip-10-0-151-22.ec2.internal    &lt;none&gt;           &lt;none&gt;
+default                         otel-collector-amp-collector-7cc9cfb77f-kjp5b                     1/1     Running   0               2d9h    10.0.165.99    fargate-ip-10-0-165-99.ec2.internal    &lt;none&gt;           &lt;none&gt;
+external-secrets                blueprints-addon-external-secrets-797c97cc56-qnqvb                1/1     Running   0               12d     10.0.189.201   fargate-ip-10-0-189-201.ec2.internal   &lt;none&gt;           &lt;none&gt;
+external-secrets                blueprints-addon-external-secrets-cert-controller-75ccc646775f6   1/1     Running   0               12d     10.0.100.154   fargate-ip-10-0-100-154.ec2.internal   &lt;none&gt;           &lt;none&gt;
+external-secrets                blueprints-addon-external-secrets-webhook-749d46f5df-slb88        1/1     Running   0               12d     10.0.189.119   fargate-ip-10-0-189-119.ec2.internal   &lt;none&gt;           &lt;none&gt;
+flux-system                     helm-controller-69ff5c96c7-xkbpc                                  1/1     Running   0               12d     10.0.190.34    fargate-ip-10-0-190-34.ec2.internal    &lt;none&gt;           &lt;none&gt;
+flux-system                     image-automation-controller-65887476b7-8tvl6                      1/1     Running   0               12d     10.0.167.115   fargate-ip-10-0-167-115.ec2.internal   &lt;none&gt;           &lt;none&gt;
+flux-system                     image-reflector-controller-57847dc9cf-6pbts                       1/1     Running   0               12d     10.0.178.170   fargate-ip-10-0-178-170.ec2.internal   &lt;none&gt;           &lt;none&gt;
+flux-system                     kustomize-controller-68c6c766-hrxh4                               1/1     Running   0               12d     10.0.102.67    fargate-ip-10-0-102-67.ec2.internal    &lt;none&gt;           &lt;none&gt;
+flux-system                     notification-controller-5dbc9fc9c4-b7gvt                          1/1     Running   0               12d     10.0.188.107   fargate-ip-10-0-188-107.ec2.internal   &lt;none&gt;           &lt;none&gt;
+flux-system                     source-controller-5b669588f-jtgc6                                 1/1     Running   0               12d     10.0.148.152   fargate-ip-10-0-148-152.ec2.internal   &lt;none&gt;           &lt;none&gt;
+grafana-operator                grafana-operator-7d7ccc88f4-fw99n                                 1/1     Running   0               12d     10.0.99.84     fargate-ip-10-0-99-84.ec2.internal     &lt;none&gt;           &lt;none&gt;
+kube-system                     aws-load-balancer-controller-7c7f88558d-rlzh6                     1/1     Running   0               12d     10.0.158.82    fargate-ip-10-0-158-82.ec2.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     aws-load-balancer-controller-7c7f88558d-v797p                     1/1     Running   1 (5h40m ago)   12d     10.0.190.41    fargate-ip-10-0-190-41.ec2.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     blueprints-addon-metrics-server-6765c9bc59-85jqq                  1/1     Running   0               90m     10.0.186.44    fargate-ip-10-0-186-44.ec2.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     coredns-6549dc85b9-586mh                                          1/1     Running   0               12d     10.0.139.227   fargate-ip-10-0-139-227.ec2.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     coredns-6549dc85b9-n6xdr                                          1/1     Running   0               12d     10.0.135.174   fargate-ip-10-0-135-174.ec2.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     kube-state-metrics-596b5dbf46-c9mdt                               1/1     Running   0               90m     10.0.164.251   fargate-ip-10-0-164-251.ec2.internal   &lt;none&gt;           &lt;none&gt;
+opentelemetry-operator-system   opentelemetry-operator-5ddbdcdc57-nh5dr                           2/2     Running   0               7d11h   10.0.121.124   fargate-ip-10-0-121-124.ec2.internal   &lt;none&gt;           &lt;none&gt;
+</code></pre></div></p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>ns<span class="w"> </span><span class="c1"># Output shows all namespace</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>NAME                       STATUS   AGE
+aws-for-fluent-bit              Active   12d
+cert-manager                    Active   12d
+default                         Active   12d
+external-secrets                Active   12d
+flux-system                     Active   12d
+grafana-operator                Active   12d
+kube-node-lease                 Active   12d
+kube-public                     Active   12d
+kube-system                     Active   12d
+opentelemetry-operator-system   Active   7d11h
+</code></pre></div></p>
+<h2 id="visualize-dashboards-in-amazon-managed-grafana">Visualize Dashboards in Amazon Managed Grafana<a class="headerlink" href="#visualize-dashboards-in-amazon-managed-grafana" title="Permanent link">&para;</a></h2>
+<p>Login to your Grafana workspace and navigate to the Dashboards panel. You should see a number of dashboards under <code>Observability Accelerator Dashboards</code>. Open <code>Kubernetes / Compute Resources / Cluster</code> and <code>Kubernetes / Kubelet</code> Dashboards, you should see data as below</p>
+<ul>
+<li><strong>Cluster Dashboards</strong></li>
+</ul>
+<p><img alt="cluster-dashboard" src="../../images/cluster-dashboard-fargate-oss.png" /></p>
+<p>You can also visualize cluster metrics for specific namespaces by clicking on a particular namespace. For instance, below is a snapshot of the <code>kube-system</code> namespace.</p>
+<p><img alt="cluster-kube-system-dashboard" src="../../images/cluster-dashboard-kube-system-fargate-oss.png" /></p>
+<ul>
+<li><strong>Kubelet Dashboard</strong></li>
+</ul>
+<p><img alt="kubelet-dashboard" src="../../images/kubelet-dashboard-fargate-oss.png" /></p>
+<h3 id="deploy-sample-java-workload">Deploy Sample Java Workload<a class="headerlink" href="#deploy-sample-java-workload" title="Permanent link">&para;</a></h3>
+<p>We'll deploy a sample java workload in our newly created EKS cluster running on AWS Fargate. To do that, follow the instructions in <a href="../single-new-eks-java-opensource-observability/">New EKS Cluster Java Open Source Observability Accelerator</a> pattern till step number 4.</p>
+<p>Since we're deploying the sample workload on AWS Fargate compute, we need to create a Fargate profile for running the java application.</p>
+<p>Execute the following command to create a Fargate profile</p>
+<div class="highlight"><pre><span></span><code>SAMPLE_TRAFFIC_NAMESPACE=javajmx-sample
+CLUSTER_NAME=single-new-eks-fargate-opensource-observability-accelerator
+eksctl create fargateprofile --namespace $SAMPLE_TRAFFIC_NAMESPACE --cluster $CLUSTER_NAME --name sample-java-workload-profile
+</code></pre></div>
+<p>Check if the profile got created successfully by running</p>
+<div class="highlight"><pre><span></span><code>$ eksctl get fargateprofile --cluster $CLUSTER_NAME
+NAME                                                            SELECTOR_NAMESPACE              SELECTOR_LABELS POD_EXECUTION_ROLE_ARN                                                                          SUBNETS          TAGS     STATUS
+sample-java-workload-profile                                    javajmx-sample                  &lt;none&gt;          arn:aws:iam::200202725330:role/eksctl-single-new-eks-farga-FargatePodExecutionRole-pBT3sLM15PYx subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-153ba837dcf44bbe84881aa5336f0bf1 default                         &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-1UCAAI02CIG27 subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-153ba837dcf44bbe84881aa5336f0bf1 kube-system                     &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-1UCAAI02CIG27 subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-8faabc1806d44e4bb0f656aa6785e276 cert-manager                    &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-FDF881YCTAAT  subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-8faabc1806d44e4bb0f656aa6785e276 external-secrets                &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-FDF881YCTAAT  subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-8faabc1806d44e4bb0f656aa6785e276 flux-system                     &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-FDF881YCTAAT  subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-8faabc1806d44e4bb0f656aa6785e276 grafana-operator                &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-FDF881YCTAAT  subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+singleneweksfargateopensourceo-8faabc1806d44e4bb0f656aa6785e276 opentelemetry-operator-system   &lt;none&gt;          arn:aws:iam::200202725330:role/single-new-eks-fargate-op-singleneweksfargateopens-FDF881YCTAAT  subnet-0d9ae01b957d93732,subnet-07e7079de2ee19ee1,subnet-0d1f688becf9864ff        &lt;none&gt;  ACTIVE
+</code></pre></div>
+<p>Now run step 5 of the instructions at <a href="../single-new-eks-java-opensource-observability/">New EKS Cluster Java Open Source Observability Accelerator</a> pattern.</p>
+<p>Check whether the Sample Java Workload got deployed successfully</p>
+<div class="highlight"><pre><span></span><code>kubectl get po -n $SAMPLE_TRAFFIC_NAMESPACE
+
+NAME                             READY   STATUS    RESTARTS   AGE
+tomcat-bad-traffic-generator     1/1     Running   0          2d9h
+tomcat-example-fcbb8856b-s4mq8   1/1     Running   0          2d9h
+tomcat-traffic-generator         1/1     Running   0          2d9h
+</code></pre></div>
+<p>You should now see a new dashboard named <code>Java/JMX</code>, under <code>Observability Accelerator Dashboards</code>:</p>
+<p><img alt="java-dashboard" src="../../images/java-jmx-dashboard-fargate-oss.png" /></p>
+<h2 id="viewing-logs">Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permanent link">&para;</a></h2>
+<p>Amazon EKS on Fargate offers a built-in log router based on Fluent Bit. This means that you don't explicitly run a Fluent Bit container as a sidecar, but Amazon runs it for you. All that you have to do is configure the log router. The configuration happens through a dedicated <a href="../../../lib/common/resources/fluent-bit/fluent-bit-fargate-config.ytpl"><code>ConfigMap</code></a>. Logs are collected and exported to Amazon CloudWatch Logs, which enables you to centralize the logs from all of your systems, applications,
+and AWS services that you use, in a single, highly scalable service. By default, the logs are exported to us-east-1 region but you can modify the <code>ConfigMap</code> for your region of choice. At least one supported <code>OUTPUT</code> plugin has to be provided in the <code>ConfigMap</code> to enable logging. You can also modify the destination from cloudwatch to Cloudwatch (default), Amazon OpenSearch Service or Kinesis Data Firehose. Read more about <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate-logging.html">EKS Fargate logging</a>.</p>
+<p><img alt="fargate-fluentbit" src="../../images/logs-fargate-fluentbit.png" /></p>
+<h2 id="teardown">Teardown<a class="headerlink" href="#teardown" title="Permanent link">&para;</a></h2>
+<p>You can teardown the whole CDK stack with the following command:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>pattern<span class="w"> </span>single-new-eks-fargate-opensource-observability<span class="w"> </span>destroy
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Amazon 2022
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs.sticky"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

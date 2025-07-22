@@ -1,0 +1,1641 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="AWS">
+      
+      
+        <link rel="canonical" href="https://aws-observability.github.io/cdk-aws-observability-accelerator/">
+      
+      
+      
+        <link rel="next" href="patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability/">
+      
+      
+      <link rel="icon" href="images/aws-favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>AWS Observability Accelerator for CDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ember:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"ember";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+
+<script>
+    (function(n,i,v,r,s,c,x,z){x=window.AwsRumClient={q:[],n:n,i:i,v:v,r:r,c:c};window[n]=function(c,p){x.q.push({c:c,p:p});};z=document.createElement('script');z.async=true;z.src=s;document.head.insertBefore(z,document.head.getElementsByTagName('script')[0]);})(
+      'cwr',
+      '1244d427-de32-4423-b7fe-3d6903e95178',
+      '1.0.0',
+      'us-east-2',
+      'https://client.rum.us-east-1.amazonaws.com/1.12.0/cwr.js',
+      {
+        sessionSampleRate: 1,
+        guestRoleArn: "arn:aws:iam::147084596884:role/RUM-Monitor-us-east-2-147084596884-2189797490761-Unauth",
+        identityPoolId: "us-east-2:4aa2665a-6b7f-4202-856c-333e1f4bdec6",
+        endpoint: "https://dataplane.rum.us-east-2.amazonaws.com",
+        telemetries: ["performance","errors","http"],
+        allowCookies: true,
+        enableXRay: false
+      }
+    );
+  </script>
+
+  
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="grey">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#aws-observability-accelerator-for-cdk" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="AWS Observability Accelerator for CDK" class="md-header__button md-logo" aria-label="AWS Observability Accelerator for CDK" data-md-component="logo">
+      
+  <img src="images/aws-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AWS Observability Accelerator for CDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws-observability/cdk-aws-observability-accelerator
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="AWS Observability Accelerator for CDK" class="md-nav__button md-logo" aria-label="AWS Observability Accelerator for CDK" data-md-component="logo">
+      
+  <img src="images/aws-logo.png" alt="logo">
+
+    </a>
+    AWS Observability Accelerator for CDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws-observability/cdk-aws-observability-accelerator
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#single-eks-cluster-aws-native-observability-accelerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single EKS Cluster AWS Native Observability Accelerator
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#single-eks-cluster-open-source-observability-accelerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single EKS Cluster Open Source Observability Accelerator
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Patterns
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workstation-setup-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workstation Setup Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workstation Setup Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#devcontainer-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      DevContainer Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ubuntu-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ubuntu Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mac-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mac Setup:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repo-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo setup
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Amazon EKS
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Amazon EKS
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Existing Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Existing Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/existing-eks-observability-accelerators/existing-eks-awsnative-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/existing-eks-observability-accelerators/existing-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mixed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/existing-eks-observability-accelerators/existing-eks-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/existing-eks-observability-accelerators/existing-eks-apiserver-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Apiserver Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/existing-eks-observability-accelerators/existing-eks-nginx-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Nginx Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/existing-eks-observability-accelerators/existing-eks-adotmetrics-collection-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Collector Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    New Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            New Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Graviton OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    EKS Fargate
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            EKS Fargate
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-fargate-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-fargate-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mixed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-Cluster Multi-Region Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Apiserver Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-gpu-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS GPU
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Java Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-nginx-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Nginx Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-adotmetrics-collection-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Collector Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-istio-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Istio Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-container-logs-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Container Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-cost-monitoring-ingress-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cost Monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-inferentia-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Neuron with Inferentia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tracing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Supporting Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Supporting Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="patterns/single-new-eks-observability-accelerators/single-new-eks-cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    EKS Cluster
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Support & Feedback
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#single-eks-cluster-aws-native-observability-accelerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single EKS Cluster AWS Native Observability Accelerator
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#single-eks-cluster-open-source-observability-accelerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single EKS Cluster Open Source Observability Accelerator
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Patterns
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workstation-setup-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workstation Setup Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workstation Setup Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#devcontainer-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      DevContainer Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ubuntu-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ubuntu Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mac-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mac Setup:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repo-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo setup
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="aws-observability-accelerator-for-cdk">AWS Observability Accelerator for CDK<a class="headerlink" href="#aws-observability-accelerator-for-cdk" title="Permanent link">&para;</a></h1>
+<p><img alt="GitHub" src="https://img.shields.io/github/license/aws-observability/cdk-aws-observability-accelerator" />
+<a href="https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml"><img alt="Tests" src="https://github.com/aws-observability/cdk-aws-observability-accelerator/actions/workflows/e2e.yaml/badge.svg" /></a>
+<a href="https://github.com/aws-observability/cdk-aws-observability-accelerator/releases"><img alt="go-github release (latest SemVer)" src="https://img.shields.io/github/v/release/aws-observability/cdk-aws-observability-accelerator?sort=semver" /></a></p>
+<p>Welcome to the <code>AWS Observability Accelerator for CDK</code>!</p>
+<p>The AWS Observability Accelerator for CDK is a set of opinionated modules
+to help you set up observability for your AWS environments with AWS Native services and AWS-managed observability services such as Amazon Managed Service for Prometheus,Amazon Managed Grafana, AWS Distro for OpenTelemetry (ADOT) and Amazon CloudWatch.</p>
+<p>One of the fallacies of distributed computing is that observability is optional. It's a prevalent but wrong assumption. To have a reliable and changeable system, you need to have proper observability in place. And this project aims to help you.</p>
+<p>AWS Observability Accelerator for CDK provides patterns with:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> ADOT Collector monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Amazon Cloudwatch dashboards</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Amazon Managed Grafana Dashboards</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Amazon Managed Service for Prometheus - Alerting rules</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Amazon Managed Service for Prometheus - Recording rules</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Cost monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Curated metrics with CloudWatch Container Insights</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Curated metrics with ADOT and Amazon Service for Prometheus Exporter</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> GPU Infrastructure and Workload monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Inferentia Infrastructure and Workload monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Istio Service Mesh monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> NGINX monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Java/JMX Workload monitoring</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Logs using FluentBit and ADOT Exporter</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Traces collection with ADOT XRAY Exporter</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Traces collection with XRAY Daemon</li>
+</ul>
+<h2 id="single-eks-cluster-aws-native-observability-accelerator">Single EKS Cluster AWS Native Observability Accelerator<a class="headerlink" href="#single-eks-cluster-aws-native-observability-accelerator" title="Permanent link">&para;</a></h2>
+<p><img alt="AWSNative-Architecture" src="https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/cloud-native-arch.png?raw=true" /></p>
+<h2 id="single-eks-cluster-open-source-observability-accelerator">Single EKS Cluster Open Source Observability Accelerator<a class="headerlink" href="#single-eks-cluster-open-source-observability-accelerator" title="Permanent link">&para;</a></h2>
+<p><img alt="OpenSource-Architecture" src="https://github.com/aws-observability/cdk-aws-observability-accelerator/blob/main/docs/images/oss-architecture.png?raw=true" /></p>
+<h2 id="patterns">Patterns<a class="headerlink" href="#patterns" title="Permanent link">&para;</a></h2>
+<p>The individual patterns can be found in the <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator/tree/main/lib"><code>lib</code></a> directory.  Most of the patterns are self-explanatory, for some more complex examples please use this guide and docs/patterns directory for more information.</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<p>Before proceeding, make sure <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">AWS CLI</a> is installed on your machine.</p>
+<p>To use this solution, you must have <a href="https://nodejs.org/en/">Node.js</a> and <a href="https://docs.npmjs.com/downloading-and-installing-node-js-and-npm">npm</a> installed. You will also use <code>make</code> and <code>brew</code> to simplify build and other common actions.</p>
+<h2 id="workstation-setup-options">Workstation Setup Options<a class="headerlink" href="#workstation-setup-options" title="Permanent link">&para;</a></h2>
+<h3 id="devcontainer-setup">DevContainer Setup<a class="headerlink" href="#devcontainer-setup" title="Permanent link">&para;</a></h3>
+<p>Users can choose this option, if you dont want to run this solution on a mac or ubuntu machine. Please use the dev container configuration in the <code>.devcontainer</code> folder with <a href="devpod.sh">devpod</a> or any other dev container environment to create a development environment with dependencies such as Node, NPM, aws-cli, aws-cdk, kubectl, helm dependencies for your local development with <code>cdk-aws-observability-accelerator</code> solution. </p>
+<h3 id="ubuntu-setup">Ubuntu Setup<a class="headerlink" href="#ubuntu-setup" title="Permanent link">&para;</a></h3>
+<p>Follow the below steps to setup and leverage cdk-aws-observability-accelerator in your Ubuntu Linux machine.</p>
+<ol>
+<li><strong>Update the package list</strong></li>
+</ol>
+<p>Update the package list to ensure you're installing the latest versions.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</code></pre></div>
+<ol>
+<li><strong>Install make</strong></li>
+</ol>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>make
+</code></pre></div>
+<ol>
+<li><strong>Install Node.js and npm</strong></li>
+</ol>
+<p>Install Node.js and npm using the NodeSource binary distributions.</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://deb.nodesource.com/setup_20.x<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>-E<span class="w"> </span>bash<span class="w"> </span>-<span class="w"> </span><span class="o">&amp;&amp;</span><span class="se">\</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>nodejs
+</code></pre></div>
+<p>Note: The Node.js package from NodeSource includes npm</p>
+<ol>
+<li><strong>Verify Node.js and npm Installation</strong></li>
+</ol>
+<p>Check the installed version of Node.js:</p>
+<div class="highlight"><pre><span></span><code>node<span class="w"> </span>-v
+</code></pre></div>
+<p>The output should be <code>v20.x.x</code>.</p>
+<p>Check the installed version of npm:</p>
+<div class="highlight"><pre><span></span><code>npm<span class="w"> </span>-v
+</code></pre></div>
+<p>The output should be a version greater than <code>10.1.x</code>.</p>
+<p>If your npm version is not <code>10.1.x</code> or above, update npm with the following command:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>npm@latest
+</code></pre></div>
+<p>Verify the installed version by running <code>npm -v</code>.</p>
+<ol>
+<li>Install brew on ubuntu by following instructions as detailed in <a href="https://docs.brew.sh/Homebrew-on-Linux">docs.brew.sh</a></li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="w"> </span>/bin/bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Add Homebrew to your PATH</p>
+<div class="highlight"><pre><span></span><code><span class="nb">test</span><span class="w"> </span>-d<span class="w"> </span>~/.linuxbrew<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>~/.linuxbrew/bin/brew<span class="w"> </span>shellenv<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">test</span><span class="w"> </span>-d<span class="w"> </span>/home/linuxbrew/.linuxbrew<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>/home/linuxbrew/.linux<span class="w">  </span>brew/bin/brew<span class="w"> </span>shellenv<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">test</span><span class="w"> </span>-r<span class="w"> </span>~/.bash_profile<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;eval \&quot;\$(</span><span class="k">$(</span>brew<span class="w"> </span>--prefix<span class="k">)</span><span class="s2">/bin/brew shellenv)\&quot;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bash_profile
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;eval \&quot;\$(</span><span class="k">$(</span>brew<span class="w"> </span>--prefix<span class="k">)</span><span class="s2">/bin/brew shellenv)\&quot;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.profile
+</code></pre></div>
+<p>Post completing the above, continue from Step: <a href="#repo-setup">Repo setup</a></p>
+<h3 id="mac-setup">Mac Setup:<a class="headerlink" href="#mac-setup" title="Permanent link">&para;</a></h3>
+<p>Follow the below steps to setup and leverage <code>cdk-aws-observability-accelerator</code> in your local Mac laptop.</p>
+<ol>
+<li>Install <code>make</code> and <code>node</code> using brew</li>
+</ol>
+<div class="highlight"><pre><span></span><code>brew<span class="w"> </span>install<span class="w"> </span>make
+brew<span class="w"> </span>install<span class="w"> </span>node
+</code></pre></div>
+<ol>
+<li>Install <code>npm</code></li>
+</ol>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>n
+sudo<span class="w"> </span>n<span class="w"> </span>stable
+</code></pre></div>
+<ol>
+<li>
+<p>Make sure the following pre-requisites are met:</p>
+</li>
+<li>
+<p>Node version is a current stable node version 20.x.x</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>node<span class="w"> </span>-v
+v20.8.0
+</code></pre></div>
+<p>Update (provided Node version manager is installed): <code>n stable</code>. May require <code>sudo</code>.</p>
+<ul>
+<li>NPM version must be 10.1 or above:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>npm<span class="w"> </span>-v
+<span class="m">10</span>.1.0
+</code></pre></div>
+<p>Updating npm: <code>sudo n stable</code> where stable can also be a specific version above 10.1. May require <code>sudo</code>.</p>
+<h2 id="repo-setup">Repo setup<a class="headerlink" href="#repo-setup" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Clone the <code>cdk-aws-observability-accelerator</code> repository</li>
+</ol>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/aws-observability/cdk-aws-observability-accelerator.git
+</code></pre></div>
+<p>PS: If you are contributing to this repo, please make sure to fork the repo, add your changes and create a PR against it.</p>
+<ol>
+<li>
+<p>Once you have cloned the repo, you can open it using your favourite IDE and run the below commands to install the dependencies and build the existing patterns.</p>
+</li>
+<li>
+<p>Install project dependencies.</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>make deps
+</code></pre></div>
+<ul>
+<li>To view patterns that are available to be deployed, execute the following:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>build
+</code></pre></div>
+<ul>
+<li>To list the existing CDK AWS Observability Accelerator Patterns</li>
+</ul>
+<div class="highlight"><pre><span></span><code>make list
+</code></pre></div>
+<p>Note: Some patterns have a hard dependency on AWS Secrets (for example GitHub access tokens). Initially you will see errors complaining about lack of the required secrets. It is normal. At the bottom, it will show the list of patterns which can be deployed, in case the pattern you are looking for is not available, it is due to the hard dependency which can be fixed by following the docs specific to those patterns.</p>
+<div class="highlight"><pre><span></span><code><span class="n">To</span> <span class="n">work</span> <span class="n">with</span> <span class="n">patterns</span> <span class="n">use</span><span class="p">:</span>
+    <span class="p">$</span> <span class="n">make</span> <span class="n">pattern</span> <span class="p">&lt;</span><span class="n">pattern-name</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="n">list</span> <span class="p">|</span> <span class="n">deploy</span> <span class="p">|</span> <span class="n">synth</span> <span class="p">|</span> <span class="n">destroy</span><span class="p">&gt;</span>
+<span class="n">Example</span><span class="p">:</span>
+    <span class="p">$</span> <span class="n">make</span> <span class="n">pattern</span> <span class="n">single-new-eks-opensource-observability</span> <span class="n">deploy</span>
+
+<span class="n">Patterns</span><span class="p">:</span> 
+
+        <span class="n">existing-eks-awsnative-observability</span>
+        <span class="n">existing-eks-mixed-observability</span>
+        <span class="n">existing-eks-opensource-observability</span>
+        <span class="n">multi-acc-new-eks-mixed-observability</span>
+        <span class="n">single-new-eks-awsnative-fargate-observability</span>
+        <span class="n">single-new-eks-awsnative-observability</span>
+        <span class="n">single-new-eks-cluster</span>
+        <span class="n">single-new-eks-cost-monitoring</span>
+        <span class="n">single-new-eks-fargate-opensource-observability</span>
+        <span class="n">single-new-eks-gpu-opensource-observability</span>
+        <span class="n">single-new-eks-graviton-opensource-observability</span>
+        <span class="n">single-new-eks-inferentia-opensource-observability</span>
+        <span class="n">single-new-eks-mixed-observability</span>
+        <span class="n">single-new-eks-opensource-observability</span>
+</code></pre></div>
+<ul>
+<li>Bootstrap your CDK environment.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>cdk<span class="w"> </span>bootstrap
+</code></pre></div>
+<ul>
+<li>You can then deploy a specific pattern with the following:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>pattern<span class="w"> </span>single-new-eks-opensource-observability<span class="w"> </span>deploy
+</code></pre></div>
+<ul>
+<li>To access instructions for individual patterns check documentation in <code>docs/patterns</code> directory.</li>
+</ul>
+<h1 id="developer-flow">Developer Flow<a class="headerlink" href="#developer-flow" title="Permanent link">&para;</a></h1>
+<h2 id="modifications">Modifications<a class="headerlink" href="#modifications" title="Permanent link">&para;</a></h2>
+<p>All files are compiled to the dist folder including <code>lib</code> and <code>bin</code> directories. For iterative development (e.g. if you make a change to any of the patterns) make sure to run compile:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>compile
+</code></pre></div>
+<p>The <code>compile</code> command is optimized to build only modified files and is fast.</p>
+<h2 id="new-patterns">New Patterns<a class="headerlink" href="#new-patterns" title="Permanent link">&para;</a></h2>
+<p>To create a new pattern, please follow these steps:</p>
+<ol>
+<li>Under lib create a folder for your pattern, such as <code>&lt;pattern-name&gt;-pattern</code>. If you plan to create a set of patterns that represent a particular subdomain, e.g. <code>security</code> or <code>hardening</code>, please create an issue to discuss it first. If approved, you will be able to create a folder with your subdomain name and group your pattern constructs under it.</li>
+<li>Blueprints generally don't require a specific class, however we use a convention of wrapping each pattern in a plain class like <code>&lt;Pattern-Name&gt;Pattern</code>. This class is generally placed in <code>index.ts</code> under your pattern folder.</li>
+<li>Once the pattern implementation is ready, you need to include it in the list of the patterns by creating a file <code>bin/&lt;pattern-name&gt;.ts</code>. The implementation of this file is very light, and it is done to allow patterns to run independently.</li>
+</ol>
+<p>Example simple synchronous pattern:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">SingleNewEksOpenSourceobservabilityPattern</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../lib/single-new-eks-opensource-observability-pattern&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">configureApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../lib/common/construct-utils&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">configureApp</span><span class="p">();</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">SingleNewEksOpenSourceobservabilityPattern</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;single-new-eks-opensource&#39;</span><span class="p">);</span>
+<span class="w"> </span><span class="c1">// configureApp() will create app and configure loggers and perform other prep steps</span>
+</code></pre></div>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<p>See <a href="./CONTRIBUTING.md#security-issue-notifications">CONTRIBUTING</a> for more information.</p>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>This library is licensed under the MIT-0 License. See the LICENSE file.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Amazon 2022
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.tabs.sticky"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

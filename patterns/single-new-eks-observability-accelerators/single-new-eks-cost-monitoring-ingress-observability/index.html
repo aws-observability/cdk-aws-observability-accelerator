@@ -1,0 +1,1526 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="AWS">
+      
+      
+        <link rel="canonical" href="https://aws-observability.github.io/cdk-aws-observability-accelerator/patterns/single-new-eks-observability-accelerators/single-new-eks-cost-monitoring-ingress-observability/">
+      
+      
+        <link rel="prev" href="../single-new-eks-container-logs-opensource-observability/">
+      
+      
+        <link rel="next" href="../single-new-eks-inferentia-opensource-observability/">
+      
+      
+      <link rel="icon" href="../../../images/aws-favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Cost Monitoring - AWS Observability Accelerator for CDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ember:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"ember";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+
+<script>
+    (function(n,i,v,r,s,c,x,z){x=window.AwsRumClient={q:[],n:n,i:i,v:v,r:r,c:c};window[n]=function(c,p){x.q.push({c:c,p:p});};z=document.createElement('script');z.async=true;z.src=s;document.head.insertBefore(z,document.head.getElementsByTagName('script')[0]);})(
+      'cwr',
+      '1244d427-de32-4423-b7fe-3d6903e95178',
+      '1.0.0',
+      'us-east-2',
+      'https://client.rum.us-east-1.amazonaws.com/1.12.0/cwr.js',
+      {
+        sessionSampleRate: 1,
+        guestRoleArn: "arn:aws:iam::147084596884:role/RUM-Monitor-us-east-2-147084596884-2189797490761-Unauth",
+        identityPoolId: "us-east-2:4aa2665a-6b7f-4202-856c-333e1f4bdec6",
+        endpoint: "https://dataplane.rum.us-east-2.amazonaws.com",
+        telemetries: ["performance","errors","http"],
+        allowCookies: true,
+        enableXRay: false
+      }
+    );
+  </script>
+
+  
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="grey">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#single-cluster-observability-kubecost-cost-monitoring-with-secure-ingress-using-cognito" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="AWS Observability Accelerator for CDK" class="md-header__button md-logo" aria-label="AWS Observability Accelerator for CDK" data-md-component="logo">
+      
+  <img src="../../../images/aws-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AWS Observability Accelerator for CDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cost Monitoring
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws-observability/cdk-aws-observability-accelerator
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="AWS Observability Accelerator for CDK" class="md-nav__button md-logo" aria-label="AWS Observability Accelerator for CDK" data-md-component="logo">
+      
+  <img src="../../../images/aws-logo.png" alt="logo">
+
+    </a>
+    AWS Observability Accelerator for CDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws-observability/cdk-aws-observability-accelerator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws-observability/cdk-aws-observability-accelerator
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Amazon EKS
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Amazon EKS
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Existing Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Existing Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-awsnative-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mixed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-apiserver-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Apiserver Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-nginx-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Nginx Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../existing-eks-observability-accelerators/existing-eks-adotmetrics-collection-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Collector Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    New Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            New Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-awsnative-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-graviton-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Graviton OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    EKS Fargate
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            EKS Fargate
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-awsnative-fargate-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS Native
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-fargate-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mixed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-Cluster Multi-Region Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-apiserver-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Apiserver Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-gpu-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS GPU
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-java-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Java Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-nginx-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Nginx Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-adotmetrics-collection-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Collector Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-istio-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Istio Mon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-container-logs-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS ADOT Container Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Cost Monitoring
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cost Monitoring
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objective
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring domain
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-a-record-for-route53" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verifying A record for Route53
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teardown
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-inferentia-opensource-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OSS Neuron with Inferentia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tracing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Supporting Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Supporting Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-new-eks-cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    EKS Cluster
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Support & Feedback
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objective
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring domain
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploying
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-a-record-for-route53" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verifying A record for Route53
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teardown
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="single-cluster-observability-kubecost-cost-monitoring-with-secure-ingress-using-cognito">Single Cluster Observability - Kubecost Cost Monitoring with Secure Ingress using Cognito<a class="headerlink" href="#single-cluster-observability-kubecost-cost-monitoring-with-secure-ingress-using-cognito" title="Permanent link">&para;</a></h1>
+<p>Implementing Kubecost for monitoring EKS clusters provides invaluable insights into resource utilization and cost management. Kubecost offers granular visibility into the cost breakdown of Kubernetes workloads, enabling efficient allocation of resources and optimization of infrastructure spending. By integrating with Amazon Managed Prometheus (AMP) and AWS services such as Application Load Balancer, Amazon Cognito, and Amazon Route 53, Kubecost ensures a comprehensive monitoring solution with secure access control mechanisms. With alerts and recording rules provided by Amazon Managed Service for Prometheus, teams can proactively identify and address potential issues, ensuring optimal performance and cost-effectiveness of EKS deployments. Kubecost's user-friendly dashboard and reporting capabilities empower organizations to make informed decisions, maximize resource efficiency, and maintain cost predictability in their EKS environments, ultimately enhancing operational excellence and driving business growth.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The following figure illustrates the architecture of the pattern we will be deploying for Single EKS cost monitoring (Kubecost) pattern with Application Load Balancer, Amazon Cognito, and a Transport Layer Security (TLS) Certificate on AWS Certificate Manager (ACM) with Amazon Route 53 hosted zone to authenticate users to Kubecost</p>
+<p><img alt="Architecture" src="../../images/costmonitoring-ingress.png" /></p>
+<h2 id="objective">Objective<a class="headerlink" href="#objective" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Deploys one production grade Amazon EKS cluster.</li>
+<li>AWS Kubecost with Amazon Managed Prometheus (AMP) integration</li>
+<li><a href="https://aws.amazon.com/blogs/containers/securing-kubecost-access-with-amazon-cognito/">Secure Ingress with AWS Cognito</a></li>
+<li>AWS Certificate Manager with Amazon Route 53 hosted zone </li>
+<li>Alerts and recording rules with Amazon Managed Service for Prometheus</li>
+</ul>
+<h2 id="prerequisites">Prerequisites:<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>An existing hosted zone in Route53 with the ability to add records.</p>
+<p>Ensure that you have installed the following tools on your machine.</p>
+<ol>
+<li><a href="https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html">aws cli</a></li>
+<li><a href="https://Kubernetes.io/docs/tasks/tools/">kubectl</a></li>
+<li><a href="https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install">cdk</a></li>
+<li><a href="https://docs.npmjs.com/cli/v8/commands/npm-install">npm</a></li>
+</ol>
+<h2 id="configuring-domain">Configuring domain<a class="headerlink" href="#configuring-domain" title="Permanent link">&para;</a></h2>
+<p>The CDK code expects the allowed domain and subdomain names in the CDK context file (cdk.json).</p>
+<p>Create two environment variables. The PARENT_HOSTED_ZONE variable contains the name of your Route 53 public hosted zone. The DEV_SUBZONE_NAME will be the address for your Kubecost dashboard.</p>
+<p>When users register to cognito they will have to provide an email address, using the <code>allowed.domains.list</code> you can specify you enterprise's email domain to only allow your employees to sign up for the service</p>
+<p>Generate the cdk.json file:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PARENT_HOSTED_ZONE</span><span class="o">=</span>mycompany.a2z.com
+<span class="nv">DEV_SUBZONE_NAME</span><span class="o">=</span>kubecost.mycompany.a2z.com
+<span class="nv">ALLOWED_DOMAIN_LIST</span><span class="o">=</span>amazon.com
+cat<span class="w"> </span><span class="s">&lt;&lt; EOF &gt; cdk.json</span>
+<span class="s">{</span>
+<span class="s">    &quot;app&quot;: &quot;npx ts-node dist/lib/common/default-main.js&quot;,</span>
+<span class="s">    &quot;context&quot;: {</span>
+<span class="s">        &quot;parent.hostedzone.name&quot;: &quot;${PARENT_HOSTED_ZONE}&quot;,</span>
+<span class="s">        &quot;dev.subzone.name&quot;: &quot;${DEV_SUBZONE_NAME}&quot;,</span>
+<span class="s">        &quot;allowed.domains.list&quot;: &quot;${ALLOWED_DOMAIN_LIST}&quot;</span>
+<span class="s">      }</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<h2 id="deploying">Deploying<a class="headerlink" href="#deploying" title="Permanent link">&para;</a></h2>
+<p>Please follow the <em>Deploying</em> instructions of the <a href="../single-new-eks-opensource-observability/">New EKS Cluster Open Source Observability Accelerator</a> pattern till step 7.
+At step 8, execute the following</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>build
+make<span class="w"> </span>pattern<span class="w"> </span>single-new-eks-cost-monitoring<span class="w"> </span>deploy
+</code></pre></div>
+<h2 id="verifying-a-record-for-route53">Verifying A record for Route53<a class="headerlink" href="#verifying-a-record-for-route53" title="Permanent link">&para;</a></h2>
+<p>Open the AWS console once the deployment is complete. 
+Navigate to Route53 in AWS console and select the hosted zone you used for the deployment. 
+Verify the entry of a record matching the DEV_SUBZONE_NAME we used.</p>
+<h2 id="verify-the-resources">Verify the resources<a class="headerlink" href="#verify-the-resources" title="Permanent link">&para;</a></h2>
+<p>Run update-kubeconfig command. You should be able to get the command from CDK output message.</p>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>update-kubeconfig<span class="w"> </span>--name<span class="w"> </span>single-new-eks-fargate-opensource-observability-accelerator<span class="w"> </span>--region<span class="w"> </span>&lt;your<span class="w"> </span>region&gt;<span class="w"> </span>--role-arn<span class="w"> </span>arn:aws:iam::xxxxxxxxx:role/single-new-eks-fargate-op-singleneweksfargateopens-xxxxxxxx
+</code></pre></div>
+<p>Let’s verify the resources created by steps above.</p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-o<span class="w"> </span>wide<span class="w"> </span>-A
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Output:
+NAMESPACE                       NAME                                                              READY   STATUS    RESTARTS   AGE     IP             NODE                                         NOMINATED NODE   READINESS GATES
+amazon-guardduty                aws-guardduty-agent-5lblf                                         1/1     Running   0          3h43m   10.0.184.135   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+amazon-guardduty                aws-guardduty-agent-qzm4j                                         1/1     Running   0          3h43m   10.0.153.58    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-application-controller-0                  1/1     Running   0          3h40m   10.0.128.187   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-applicationset-controller-7d77d5cdjjhm8   1/1     Running   0          3h40m   10.0.148.136   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-dex-server-84dc54844f-lwgss               1/1     Running   0          3h40m   10.0.178.159   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-notifications-controller-597477df8q4btr   1/1     Running   0          3h40m   10.0.166.196   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-redis-79cb6b87dc-tddlm                    1/1     Running   0          3h40m   10.0.160.149   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-repo-server-584549c456-5gfs8              1/1     Running   0          3h40m   10.0.146.88    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+argocd                          blueprints-addon-argocd-server-7b7b488dd4-686tx                   1/1     Running   0          3h40m   10.0.175.70    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+aws-for-fluent-bit              blueprints-addon-aws-fluent-bit-for-cw-aws-for-fluent-bit-lr99l   1/1     Running   0          3h40m   10.0.160.194   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+aws-for-fluent-bit              blueprints-addon-aws-fluent-bit-for-cw-aws-for-fluent-bit-z2pm7   1/1     Running   0          3h40m   10.0.146.233   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+cert-manager                    cert-manager-6d988558d6-wm746                                     1/1     Running   0          3h40m   10.0.188.100   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+cert-manager                    cert-manager-cainjector-6976895488-mk9sw                          1/1     Running   0          3h40m   10.0.173.79    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+cert-manager                    cert-manager-webhook-fcf48cc54-92wqm                              1/1     Running   0          3h40m   10.0.133.37    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+default                         otel-collector-amp-collector-6d768bcbf5-vbmqr                     1/1     Running   0          3h39m   10.0.171.253   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+external-dns                    blueprints-addon-external-dns-78bcd6c7c5-df74q                    1/1     Running   0          3h40m   10.0.180.87    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+external-secrets                blueprints-addon-external-secrets-675f847b97-kbn98                1/1     Running   0          3h40m   10.0.178.180   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+external-secrets                blueprints-addon-external-secrets-cert-controller-68cbb65dspf8c   1/1     Running   0          3h40m   10.0.154.4     ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+external-secrets                blueprints-addon-external-secrets-webhook-6cfdbdf896-j9ng7        1/1     Running   0          3h40m   10.0.142.78    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     aws-load-balancer-controller-7cd4b895d4-gvxtv                     1/1     Running   0          3h40m   10.0.131.188   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     aws-load-balancer-controller-7cd4b895d4-m2dh5                     1/1     Running   0          3h40m   10.0.173.13    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     aws-node-7l22p                                                    2/2     Running   0          3h43m   10.0.184.135   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     aws-node-rfc76                                                    2/2     Running   0          3h43m   10.0.153.58    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     blueprints-addon-metrics-server-7cb6564d98-jhwmj                  1/1     Running   0          3h40m   10.0.182.218   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     blueprints-addon-secret-store-csi-driver-secrets-store-csi5fbjj   3/3     Running   0          3h40m   10.0.190.108   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     blueprints-addon-secret-store-csi-driver-secrets-store-csigdgfd   3/3     Running   0          3h40m   10.0.148.234   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     coredns-5b8cc885bc-t9dpp                                          1/1     Running   0          3h47m   10.0.132.167   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     coredns-5b8cc885bc-tkq6g                                          1/1     Running   0          3h47m   10.0.152.126   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     csi-secrets-store-provider-aws-ktklg                              1/1     Running   0          3h40m   10.0.190.207   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     csi-secrets-store-provider-aws-qmg44                              1/1     Running   0          3h40m   10.0.142.192   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     ebs-csi-controller-5c4b7b9549-cvv8b                               6/6     Running   0          3h40m   10.0.163.2     ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     ebs-csi-controller-5c4b7b9549-d9wfc                               6/6     Running   0          3h40m   10.0.146.91    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     ebs-csi-node-9sxtr                                                3/3     Running   0          3h40m   10.0.155.48    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     ebs-csi-node-bcsjk                                                3/3     Running   0          3h40m   10.0.187.96    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     kube-proxy-djbgh                                                  1/1     Running   0          3h43m   10.0.153.58    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kube-system                     kube-proxy-mck62                                                  1/1     Running   0          3h43m   10.0.184.135   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     kube-state-metrics-6cf6f65cf7-nzqkb                               1/1     Running   0          3h40m   10.0.186.50    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     ssm-installer-fsfjn                                               1/1     Running   0          3h41m   10.0.189.79    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+kube-system                     ssm-installer-vbqqm                                               1/1     Running   0          3h41m   10.0.154.228   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kubecost                        kubecost-cost-analyzer-5769d5f47f-fjwkz                           3/3     Running   0          3h40m   10.0.137.248   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+kubecost                        kubecost-cost-analyzer-prometheus-server-6f48bdc56c-d6789         2/2     Running   0          3h40m   10.0.187.76    ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+opentelemetry-operator-system   opentelemetry-operator-98f5b9c89-7kp6x                            2/2     Running   0          3h39m   10.0.148.126   ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+prometheus-node-exporter        prometheus-node-exporter-czsx8                                    1/1     Running   0          3h40m   10.0.184.135   ip-10-0-184-135.us-west-2.compute.internal   &lt;none&gt;           &lt;none&gt;
+prometheus-node-exporter        prometheus-node-exporter-jg9tw                                    1/1     Running   0          3h40m   10.0.153.58    ip-10-0-153-58.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
+</code></pre></div></p>
+<p>Now, lets navigate to the URL described as our dev.subzone.name in the cdk.json file and signup with a new cognito user profile.</p>
+<ul>
+<li><strong>Kubecost Dashboards</strong></li>
+</ul>
+<p><img alt="kubecost-dashboard" src="../../images/kubecost-dashboard.png" /></p>
+<ul>
+<li><strong>Kubecost Namespace Dashboards</strong></li>
+</ul>
+<p><img alt="kubecost-dashboard" src="../../images/kubecost-namespace-dashboard.png" /></p>
+<h2 id="teardown">Teardown<a class="headerlink" href="#teardown" title="Permanent link">&para;</a></h2>
+<p>You can teardown the whole CDK stack with the following command:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>pattern<span class="w"> </span>single-new-eks-cost-monitoring<span class="w"> </span>destroy<span class="w"> </span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Amazon 2022
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs.sticky"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>
