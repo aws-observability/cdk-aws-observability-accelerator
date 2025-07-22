@@ -120,6 +120,7 @@ export default class ExistingEksOpenSourceobservabilityPattern {
         }
 
         if (utils.valueFromContext(scope, "apiserver.pattern.enabled", false)) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             ampAddOnProps.enableAPIServerJob = true,
             ampAddOnProps.ampRules?.ruleFilePaths.push(
                 __dirname + '/../common/resources/amp-config/apiserver/recording-rules.yml'
