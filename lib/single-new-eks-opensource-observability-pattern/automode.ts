@@ -4,7 +4,6 @@ import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { GrafanaOperatorSecretAddon } from './grafanaoperatorsecretaddon';
 import * as amp from 'aws-cdk-lib/aws-aps';
 import * as eks from 'aws-cdk-lib/aws-eks';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
 import * as fs from 'fs';
 
@@ -29,6 +28,7 @@ export default class SingleNewEksAutoModeOpenSourceObservabilityPattern {
 
     const ampAddOnProps: blueprints.AmpAddOnProps = {
       ampPrometheusEndpoint: ampEndpoint,
+
       ampRules: {
         ampWorkspaceArn: ampWorkspaceArn,
         ruleFilePaths: [
@@ -179,14 +179,13 @@ export default class SingleNewEksAutoModeOpenSourceObservabilityPattern {
 
 
     const automodeProps: blueprints.AutomodeClusterProviderProps = {
-      version: eks.KubernetesVersion.V1_31,
+      version: eks.KubernetesVersion.V1_33,
       nodePools: ['system', 'general-purpose']
     }
 
-    ObservabilityBuilder.builder()
+    ObservabilityBuilder.builder({ isAutoModeCluster: true })
       .account(account)
       .region(region)
-      .version('auto')
       .withAmpProps(ampAddOnProps)
       .enableOpenSourcePatternAddOns()
       .enableControlPlaneLogging()

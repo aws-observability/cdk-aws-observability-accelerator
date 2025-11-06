@@ -2,6 +2,7 @@
 import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
+import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 
 export default class SingleNewEksAutoModeAWSNativeObservabilityPattern {
   constructor(scope: Construct, id: string) {
@@ -15,15 +16,14 @@ export default class SingleNewEksAutoModeAWSNativeObservabilityPattern {
     ];
 
     const cluster = new blueprints.AutomodeClusterProvider({
+      version: KubernetesVersion.V1_33,
       nodePools: ['system', 'general-purpose']
     });
 
-    const props = {}
 
-    ObservabilityBuilder.builder()
+    ObservabilityBuilder.builder({ isAutoModeCluster: true })
       .account(account)
       .region(region)
-      .version('auto')
       .clusterProvider(cluster)
       .enableNativePatternAddOns()
       .enableControlPlaneLogging()
