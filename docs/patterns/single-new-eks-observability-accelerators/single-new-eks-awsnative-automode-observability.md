@@ -73,8 +73,8 @@ kubectl get nodes -o wide
 Output:
 
 ```console
-NAME                  STATUS   ROLES    AGE     VERSION               INTERNAL-IP   EXTERNAL-IP     OS-IMAGE                                                              KERNEL-VERSION   CONTAINER-RUNTIME
-i-04151a4f7765b29fb   Ready    <none>   2m10s   v1.31.9-eks-ca3410b   10.0.10.253   13.222.181.87   Bottlerocket (EKS Auto, Standard) 2025.7.11 (aws-k8s-1.31-standard)   6.1.141          containerd://1.7.27+bottlerocket
+NAME                  STATUS   ROLES    AGE   VERSION               INTERNAL-IP   EXTERNAL-IP    OS-IMAGE                                                              KERNEL-VERSION   CONTAINER-RUNTIME
+i-08431fdb27179b448   Ready    <none>   26m   v1.33.4-eks-e386d34   10.0.18.245   3.17.164.102   Bottlerocket (EKS Auto, Standard) 2025.11.8 (aws-k8s-1.33-standard)   6.12.53          containerd://1.7.28+bottlerocket
 ```
 
 Next, lets verify the namespaces in the cluster:
