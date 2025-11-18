@@ -15,6 +15,9 @@ jobs:
       run_test: ${{ steps.checkUserPermissions.outputs.require-result }}
   e2ePipeline:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/do-e2e-test') && needs.checkPermissions.outputs.run_test == 'true'
     needs:
     - checkPermissions
