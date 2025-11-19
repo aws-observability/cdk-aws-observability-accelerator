@@ -34,6 +34,7 @@ nav:
       - OSS ADOT Collector Mon : patterns/existing-eks-observability-accelerators/existing-eks-adotmetrics-collection-observability.md
     - New Cluster:
       - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-observability.md
+      - AWS Native EKS Auto Mode: patterns/single-new-eks-observability-accelerators/single-new-eks-automode-awsnative-observability.md
       - Graviton OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-graviton-opensource-observability.md
       - EKS Fargate :
         - AWS Native : patterns/single-new-eks-observability-accelerators/single-new-eks-awsnative-fargate-observability.md
@@ -41,6 +42,7 @@ nav:
       - Mixed : patterns/single-new-eks-observability-accelerators/single-new-eks-mixed-observability.md
       - Multi-Cluster Multi-Region Mon : patterns/multi-new-eks-observability-accelerators/multi-acc-new-eks-mixed-observability.md
       - OSS : patterns/single-new-eks-observability-accelerators/single-new-eks-opensource-observability.md
+      - OSS EKS Auto Mode: patterns/single-new-eks-observability-accelerators/single-new-eks-automode-opensource-observability.md
       - OSS Apiserver Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-apiserver-opensource-observability.md
       - OSS GPU: patterns/single-new-eks-observability-accelerators/single-new-eks-gpu-opensource-observability.md
       - OSS Java Mon: patterns/single-new-eks-observability-accelerators/single-new-eks-java-opensource-observability.md

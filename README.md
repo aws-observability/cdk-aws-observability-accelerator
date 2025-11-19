@@ -209,6 +209,8 @@ Patterns:
         existing-eks-mixed-observability
         existing-eks-opensource-observability
         multi-acc-new-eks-mixed-observability
+        single-new-eks-automode-awsnative-observability
+        single-new-eks-automode-opensource-observability
         single-new-eks-awsnative-fargate-observability
         single-new-eks-awsnative-observability
         single-new-eks-cluster

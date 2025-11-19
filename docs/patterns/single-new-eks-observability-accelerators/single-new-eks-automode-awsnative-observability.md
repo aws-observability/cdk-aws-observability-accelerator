@@ -53,7 +53,7 @@ npm install -g aws-cdk
 
 ```bash
 make build
-make pattern single-new-eks-awsnative-automode-observability deploy
+make pattern single-new-eks-automode-awsnative-observability deploy
 ```
 
 ## Verify the resources
@@ -61,7 +61,7 @@ make pattern single-new-eks-awsnative-automode-observability deploy
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
 
 ```bash
-aws eks update-kubeconfig --name single-new-eks-awsnative-automode-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-awsnative--singleneweksawsnativeauto-JN3QM2KMBNCO
+aws eks update-kubeconfig --name single-new-eks-automode-awsnative-observability-accelerator --region <your region> --role-arn arn:aws:iam::xxxxxxxxx:role/single-new-eks-awsnative--singleneweksawsnativeauto-JN3QM2KMBNCO
 ```
 
 Let’s verify the resources created by steps above.
@@ -186,5 +186,5 @@ will see the metrics shown on the sample dashboard below:
 You can teardown the whole CDK stack with the following command:
 
 ```bash
-make pattern single-new-eks-awsnative-automode-observability destroy
+make pattern single-new-eks-automode-awsnative-observability destroy
 ```
