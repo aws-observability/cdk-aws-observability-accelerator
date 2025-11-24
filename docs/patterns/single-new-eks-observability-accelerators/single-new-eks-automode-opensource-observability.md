@@ -154,6 +154,8 @@ make build
 make pattern single-new-eks-automode-opensource-observability deploy
 ```
 
+Note: This will take 20+ minutes to deploy
+
 ## Verify the resources
 
 Run update-kubeconfig command. You should be able to get the command from CDK output message.
