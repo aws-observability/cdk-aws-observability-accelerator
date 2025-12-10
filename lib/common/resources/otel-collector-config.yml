@@ -9,7 +9,7 @@ metadata:
   namespace: "{{namespace}}"
 spec:
   mode: "{{deploymentMode}}"
-  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.37.0
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.45.1
   resources:
     limits:
       cpu: "1"
@@ -1890,7 +1890,7 @@ spec:
         endpoint: "{{remoteWriteEndpoint}}"
         auth:
           authenticator: sigv4auth
-      logging:
+      debug:
         loglevel: info
       {{ start enableAdotContainerLogsExporter }}
       awscloudwatchlogs:
@@ -1914,7 +1914,7 @@ spec:
       pipelines:
         metrics:
           receivers: [prometheus]
-          exporters: [logging, prometheusremotewrite]
+          exporters: [debug, prometheusremotewrite]
         {{ start enableAdotContainerLogsPipeline }}
         logs:
           receivers: [filelog]

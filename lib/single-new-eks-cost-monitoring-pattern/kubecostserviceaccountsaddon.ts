@@ -42,7 +42,7 @@ export class KubecostServiceAccountsAddon implements blueprints.ClusterAddOn {
             cluster: cluster,
             manifest: [
                 {
-                    apiVersion: "external-secrets.io/v1beta1",
+                    apiVersion: "external-secrets.io/v1",
                     kind: "ClusterSecretStore",
                     metadata: {
                         name: "ssm-parameter-store",
